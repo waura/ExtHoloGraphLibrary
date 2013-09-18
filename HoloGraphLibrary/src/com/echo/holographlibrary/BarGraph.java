@@ -183,9 +183,9 @@ public class BarGraph extends View {
                 indexSelected = count;
             } else if (event.getAction() == MotionEvent.ACTION_UP){
                 if (r.contains((int)point.x,(int) point.y) && listener != null){
-                    listener.onClick(indexSelected);
+                    if (indexSelected > -1) listener.onClick(indexSelected);
+                    indexSelected = -1;
                 }
-                indexSelected = -1;
             }
             count++;
         }
