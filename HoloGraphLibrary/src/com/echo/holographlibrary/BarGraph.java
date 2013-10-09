@@ -108,7 +108,9 @@ public class BarGraph extends View {
 
             // Maximum y value = sum of all values.
             for (Bar p : points) {
-                maxValue += p.getValue();
+                if (p.getValue() > maxValue) {
+                    maxValue = p.getValue();
+                }
             }
             
             r = new Rect();
