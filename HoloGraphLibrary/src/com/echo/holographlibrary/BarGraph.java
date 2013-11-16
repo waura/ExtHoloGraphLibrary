@@ -43,14 +43,14 @@ import android.view.View;
 
 public class BarGraph extends View {
 
-    private ArrayList<Bar> points = new ArrayList<Bar>();
-    private Paint p = new Paint();
-    private Rect r;
-    private boolean showBarText = true;
-    private int indexSelected = -1;
-    private OnBarClickedListener listener;
-    private Bitmap fullImage;
-    private boolean shouldUpdate = false;
+    private ArrayList<Bar> mBars = new ArrayList<Bar>();
+    private Paint mPaint = new Paint();
+    private Rect mRectangle = null;
+    private boolean mShowBarText = true;
+    private int mIndexSelected = -1;
+    private OnBarClickedListener mListener;
+    private Bitmap mFullImage;
+    private boolean mShouldUpdate = false;
     
     public BarGraph(Context context) {
         super(context);
@@ -61,24 +61,24 @@ public class BarGraph extends View {
     }
     
     public void setShowBarText(boolean show){
-        showBarText = show;
+        mShowBarText = show;
     }
     
     public void setBars(ArrayList<Bar> points){
-        this.points = points;
-        shouldUpdate = true;
+        this.mBars = points;
+        mShouldUpdate = true;
         postInvalidate();
     }
     
     public ArrayList<Bar> getBars(){
-        return this.points;
+        return this.mBars;
     }
 
     public void onDraw(Canvas ca) {
         
-        if (fullImage == null || shouldUpdate) {
-            fullImage = Bitmap.createBitmap(getWidth(), getHeight(), Config.ARGB_8888);
-            Canvas canvas = new Canvas(fullImage);
+        if (mFullImage == null || mShouldUpdate) {
+            mFullImage = Bitmap.createBitmap(getWidth(), getHeight(), Config.ARGB_8888);
+            Canvas canvas = new Canvas(mFullImage);
             canvas.drawColor(Color.TRANSPARENT);
             NinePatchDrawable popup = (NinePatchDrawable)this.getResources().getDrawable(R.drawable.popup_black);
             
@@ -88,81 +88,81 @@ public class BarGraph extends View {
             float bottomPadding = 40;
             
             float usableHeight;
-            if (showBarText) {
-                this.p.setTextSize(40);
+            if (mShowBarText) {
+                this.mPaint.setTextSize(40);
                 Rect r3 = new Rect();
-                this.p.getTextBounds("$", 0, 1, r3);
+                this.mPaint.getTextBounds("$", 0, 1, r3);
                 usableHeight = getHeight()-bottomPadding-Math.abs(r3.top-r3.bottom)-26;
             } else {
                 usableHeight = getHeight()-bottomPadding;
             }
              
             // Draw x-axis line
-            p.setColor(Color.BLACK);
-            p.setStrokeWidth(2);
-            p.setAlpha(50);
-            p.setAntiAlias(true);
-            canvas.drawLine(0, getHeight()-bottomPadding+10, getWidth(), getHeight()-bottomPadding+10, p);
+            mPaint.setColor(Color.BLACK);
+            mPaint.setStrokeWidth(2);
+            mPaint.setAlpha(50);
+            mPaint.setAntiAlias(true);
+            canvas.drawLine(0, getHeight()-bottomPadding+10, getWidth(), getHeight()-bottomPadding+10, mPaint);
             
-            float barWidth = (getWidth() - (padding*2)*points.size())/points.size();
+            float barWidth = (getWidth() - (padding*2)*mBars.size())/mBars.size();
 
             // Maximum y value = sum of all values.
-            for (Bar p : points) {
-                if (p.getValue() > maxValue) {
-                    maxValue = p.getValue();
+            for (final Bar bar : mBars) {
+                if (bar.getValue() > maxValue) {
+                    maxValue = bar.getValue();
                 }
             }
             
-            r = new Rect();
+            mRectangle = new Rect();
             
             int count = 0;
-            for (Bar p : points) {
+            for (final Bar bar : mBars) {
                 // Set bar bounds
                 int left = (int)((padding*2)*count + padding + barWidth*count);
-                int top = (int)(getHeight()-bottomPadding-(usableHeight*(p.getValue()/maxValue)));
+                int top = (int)(getHeight()-bottomPadding-(usableHeight*(bar.getValue()/maxValue)));
                 int right = (int)((padding*2)*count + padding + barWidth*(count+1));
                 int bottom = (int)(getHeight()-bottomPadding);
-                r.set(left, top, right, bottom);
+                mRectangle.set(left, top, right, bottom);
 
                 // Draw bar
-                this.p.setColor(p.getColor());
-                this.p.setAlpha(255);
-                canvas.drawRect(r, this.p);
+                this.mPaint.setColor(bar.getColor());
+                this.mPaint.setAlpha(255);
+                canvas.drawRect(mRectangle, this.mPaint);
 
                 // Create selection region
                 Path path = new Path();
-                path.addRect(new RectF(r.left-selectPadding, r.top-selectPadding, r.right+selectPadding, r.bottom+selectPadding), Path.Direction.CW);
-                p.setPath(path);
-                p.setRegion(new Region(r.left-selectPadding, r.top-selectPadding, r.right+selectPadding, r.bottom+selectPadding));
+                path.addRect(new RectF(mRectangle.left-selectPadding, mRectangle.top-selectPadding, mRectangle.right+selectPadding, mRectangle.bottom+selectPadding), Path.Direction.CW);
+                bar.setPath(path);
+                bar.setRegion(new Region(mRectangle.left-selectPadding, mRectangle.top-selectPadding, mRectangle.right+selectPadding, mRectangle.bottom+selectPadding));
 
                 // Draw x-axis label text
-                this.p.setTextSize(20);
-                int x = (int)(((r.left+r.right)/2)-(this.p.measureText(p.getName())/2));
+                this.mPaint.setTextSize(20);
+                int x = (int)(((mRectangle.left+mRectangle.right)/2)-(this.mPaint.measureText(bar.getName())/2));
                 int y = getHeight()-5;
-                canvas.drawText(p.getName(), x, y, this.p);
+                canvas.drawText(bar.getName(), x, y, this.mPaint);
 
                 // Draw value text
-                if (showBarText){
-                    this.p.setTextSize(40);
-                    this.p.setColor(Color.WHITE);
+                if (mShowBarText){
+                    this.mPaint.setTextSize(40);
+                    this.mPaint.setColor(Color.WHITE);
                     Rect r2 = new Rect();
-                    this.p.getTextBounds(String.valueOf(p.getValue()), 0, 1, r2);
-                    popup.setBounds((int)(((r.left+r.right)/2)-(this.p.measureText(String.valueOf(p.getValue()))/2))-14, r.top+(r2.top-r2.bottom)-26, (int)(((r.left+r.right)/2)+(this.p.measureText(String.valueOf(p.getValue()))/2))+14, r.top);
+                    this.mPaint.getTextBounds(bar.getValueString(), 0, 1, r2);
+                    popup.setBounds((int)(((mRectangle.left+mRectangle.right)/2)-(this.mPaint.measureText(bar.getValueString())/2))-14, mRectangle.top+(r2.top-r2.bottom)-32, (int)(((mRectangle.left+mRectangle.right)/2)+(this.mPaint.measureText(bar.getValueString())/2))+14, mRectangle.top);
                     popup.draw(canvas);
-                    canvas.drawText(String.valueOf(p.getValue()), (int)(((r.left+r.right)/2)-(this.p.measureText(String.valueOf(p.getValue()))/2)), r.top-20, this.p);
+                    canvas.drawText(bar.getValueString(), (int)(((mRectangle.left+mRectangle.right)/2)-(this.mPaint.measureText(bar.getValueString()))/2), mRectangle.top-20, this.mPaint);
                 }
-                if (indexSelected == count && listener != null) {
-                    this.p.setColor(Color.parseColor("#33B5E5"));
-                    this.p.setAlpha(100);
-                    canvas.drawPath(p.getPath(), this.p);
-                    this.p.setAlpha(255);
+                if (mIndexSelected == count && mListener != null) {
+                    this.mPaint.setColor(Color.parseColor("#33B5E5"));
+                    this.mPaint.setAlpha(100);
+                    canvas.drawPath(bar.getPath(), this.mPaint);
+                    this.mPaint.setAlpha(255);
                 }
                 count++;
             }
-            shouldUpdate = false;
+            mShouldUpdate = false;
         }
         
-        ca.drawBitmap(fullImage, 0, 0, null);
+        ca.drawBitmap(mFullImage, 0, 0, null);
         
     }
 
@@ -174,22 +174,22 @@ public class BarGraph extends View {
         point.y = (int) event.getY();
         
         int count = 0;
-        for (Bar bar : points){
+        for (Bar bar : mBars){
             Region r = new Region();
             r.setPath(bar.getPath(), bar.getRegion());
             if (r.contains((int)point.x,(int) point.y) && event.getAction() == MotionEvent.ACTION_DOWN){
-                indexSelected = count;
+                mIndexSelected = count;
             } else if (event.getAction() == MotionEvent.ACTION_UP){
-                if (r.contains((int)point.x,(int) point.y) && listener != null){
-                    if (indexSelected > -1) listener.onClick(indexSelected);
-                    indexSelected = -1;
+                if (r.contains((int)point.x,(int) point.y) && mListener != null){
+                    if (mIndexSelected > -1) mListener.onClick(mIndexSelected);
+                    mIndexSelected = -1;
                 }
             }
             count++;
         }
         
         if (event.getAction() == MotionEvent.ACTION_DOWN || event.getAction() == MotionEvent.ACTION_UP){
-            shouldUpdate = true;
+            mShouldUpdate = true;
             postInvalidate();
         }
         
@@ -199,7 +199,7 @@ public class BarGraph extends View {
     }
     
     public void setOnBarClickedListener(OnBarClickedListener listener) {
-        this.listener = listener;
+        this.mListener = listener;
     }
     
     public interface OnBarClickedListener {
