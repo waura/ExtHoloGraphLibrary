@@ -55,7 +55,11 @@ public class Bar {
 	
 	public String getValueString()
 	{
-		return mValueString;
+		if (mValueString != null) {
+			return mValueString;
+		} else {
+			return String.valueOf(mValue);
+		}
 	}
 	
 	public void setValueString(final String valueString)
