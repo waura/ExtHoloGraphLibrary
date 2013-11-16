@@ -45,11 +45,13 @@ public class BarFragment extends SherlockFragment {
 		Bar d = new Bar();
 		d.setColor(Color.parseColor("#99CC00"));
 		d.setName("Test1");
-		d.setValue(10);
+		d.setValue(1000);
+		d.setValueString("$1,000");
 		Bar d2 = new Bar();
 		d2.setColor(Color.parseColor("#FFBB33"));
 		d2.setName("Test2");
-		d2.setValue(20);
+		d2.setValue(2000);
+		d2.setValueString("$2,000");
 		points.add(d);
 		points.add(d2);
 		

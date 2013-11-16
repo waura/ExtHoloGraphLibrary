@@ -23,46 +23,57 @@
 
 package com.echo.holographlibrary;
 
-import android.graphics.Color;
 import android.graphics.Path;
 import android.graphics.Region;
 
 public class Bar {
-	private int color;
-	private String name;
-	private float value;
-	private Path path;
-	private Region region;
+	private int mColor;
+	private String mName = null;
+	private float mValue;
+	private String mValueString = null;
+	private Path mPath = null;
+	private Region mRegion = null;
 	
 	public int getColor() {
-		return color;
+		return mColor;
 	}
 	public void setColor(int color) {
-		this.color = color;
+		this.mColor = color;
 	}
 	public String getName() {
-		return name;
+		return mName;
 	}
 	public void setName(String name) {
-		this.name = name;
+		this.mName = name;
 	}
 	public float getValue() {
-		return value;
+		return mValue;
 	}
 	public void setValue(float value) {
-		this.value = value;
+		this.mValue = value;
 	}
+	
+	public String getValueString()
+	{
+		return mValueString;
+	}
+	
+	public void setValueString(final String valueString)
+	{
+		mValueString = valueString;
+	}
+	
 	public Path getPath() {
-		return path;
+		return mPath;
 	}
 	public void setPath(Path path) {
-		this.path = path;
+		this.mPath = path;
 	}
 	public Region getRegion() {
-		return region;
+		return mRegion;
 	}
 	public void setRegion(Region region) {
-		this.region = region;
+		this.mRegion = region;
 	}
 	
 }
