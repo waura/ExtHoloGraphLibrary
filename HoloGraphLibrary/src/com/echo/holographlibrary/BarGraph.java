@@ -43,6 +43,8 @@ import android.view.View;
 
 public class BarGraph extends View {
 
+	private final static int VALUE_FONT_SIZE = 30, AXIS_LABEL_FONT_SIZE = 15;
+	
     private ArrayList<Bar> mBars = new ArrayList<Bar>();
     private Paint mPaint = new Paint();
     private Rect mRectangle = null;
@@ -52,12 +54,16 @@ public class BarGraph extends View {
     private Bitmap mFullImage;
     private boolean mShouldUpdate = false;
     
+    private Context mContext = null;
+    
     public BarGraph(Context context) {
         super(context);
+        mContext = context;
     }
     
     public BarGraph(Context context, AttributeSet attrs) {
         super(context, attrs);
+        mContext = context;
     }
     
     public void setShowBarText(boolean show){
@@ -75,7 +81,7 @@ public class BarGraph extends View {
     }
 
     public void onDraw(Canvas ca) {
-        
+    	
         if (mFullImage == null || mShouldUpdate) {
             mFullImage = Bitmap.createBitmap(getWidth(), getHeight(), Config.ARGB_8888);
             Canvas canvas = new Canvas(mFullImage);
@@ -83,26 +89,26 @@ public class BarGraph extends View {
             NinePatchDrawable popup = (NinePatchDrawable)this.getResources().getDrawable(R.drawable.popup_black);
             
             float maxValue = 0;
-            float padding = 7;
-            int selectPadding = 4;
-            float bottomPadding = 40;
+            float padding = 7 * mContext.getResources().getDisplayMetrics().density;
+            int selectPadding = (int) (4 * mContext.getResources().getDisplayMetrics().density);
+            float bottomPadding = 30 * mContext.getResources().getDisplayMetrics().density;
             
             float usableHeight;
             if (mShowBarText) {
-                this.mPaint.setTextSize(40);
+                this.mPaint.setTextSize(VALUE_FONT_SIZE * mContext.getResources().getDisplayMetrics().scaledDensity);
                 Rect r3 = new Rect();
                 this.mPaint.getTextBounds("$", 0, 1, r3);
-                usableHeight = getHeight()-bottomPadding-Math.abs(r3.top-r3.bottom)-26;
+                usableHeight = getHeight()-bottomPadding-Math.abs(r3.top-r3.bottom)*2;
             } else {
                 usableHeight = getHeight()-bottomPadding;
             }
              
             // Draw x-axis line
             mPaint.setColor(Color.BLACK);
-            mPaint.setStrokeWidth(2);
+            mPaint.setStrokeWidth(2 * mContext.getResources().getDisplayMetrics().density);
             mPaint.setAlpha(50);
             mPaint.setAntiAlias(true);
-            canvas.drawLine(0, getHeight()-bottomPadding+10, getWidth(), getHeight()-bottomPadding+10, mPaint);
+            canvas.drawLine(0, getHeight()-bottomPadding+10* mContext.getResources().getDisplayMetrics().density, getWidth(), getHeight()-bottomPadding+10* mContext.getResources().getDisplayMetrics().density, mPaint);
             
             float barWidth = (getWidth() - (padding*2)*mBars.size())/mBars.size();
 
@@ -136,20 +142,24 @@ public class BarGraph extends View {
                 bar.setRegion(new Region(mRectangle.left-selectPadding, mRectangle.top-selectPadding, mRectangle.right+selectPadding, mRectangle.bottom+selectPadding));
 
                 // Draw x-axis label text
-                this.mPaint.setTextSize(20);
+                this.mPaint.setTextSize(AXIS_LABEL_FONT_SIZE * mContext.getResources().getDisplayMetrics().scaledDensity);
                 int x = (int)(((mRectangle.left+mRectangle.right)/2)-(this.mPaint.measureText(bar.getName())/2));
-                int y = getHeight()-5;
+                int y = (int) (getHeight()-3 * mContext.getResources().getDisplayMetrics().scaledDensity);
                 canvas.drawText(bar.getName(), x, y, this.mPaint);
 
                 // Draw value text
                 if (mShowBarText){
-                    this.mPaint.setTextSize(40);
+                    this.mPaint.setTextSize(VALUE_FONT_SIZE * mContext.getResources().getDisplayMetrics().scaledDensity);
                     this.mPaint.setColor(Color.WHITE);
                     Rect r2 = new Rect();
                     this.mPaint.getTextBounds(bar.getValueString(), 0, 1, r2);
-                    popup.setBounds((int)(((mRectangle.left+mRectangle.right)/2)-(this.mPaint.measureText(bar.getValueString())/2))-14, mRectangle.top+(r2.top-r2.bottom)-32, (int)(((mRectangle.left+mRectangle.right)/2)+(this.mPaint.measureText(bar.getValueString())/2))+14, mRectangle.top);
+                    
+                    int boundLeft = (int) (((mRectangle.left+mRectangle.right)/2)-(this.mPaint.measureText(bar.getValueString())/2)-10 * mContext.getResources().getDisplayMetrics().density);
+                    int boundTop = (int) (mRectangle.top+(r2.top-r2.bottom)-18 * mContext.getResources().getDisplayMetrics().density);
+                    int boundRight = (int)(((mRectangle.left+mRectangle.right)/2)+(this.mPaint.measureText(bar.getValueString())/2)+10 * mContext.getResources().getDisplayMetrics().density);
+                    popup.setBounds(boundLeft, boundTop, boundRight, mRectangle.top);
                     popup.draw(canvas);
-                    canvas.drawText(bar.getValueString(), (int)(((mRectangle.left+mRectangle.right)/2)-(this.mPaint.measureText(bar.getValueString()))/2), mRectangle.top-20, this.mPaint);
+                    canvas.drawText(bar.getValueString(), (int)(((mRectangle.left+mRectangle.right)/2)-(this.mPaint.measureText(bar.getValueString()))/2), mRectangle.top-VALUE_FONT_SIZE * mContext.getResources().getDisplayMetrics().scaledDensity/2, this.mPaint);
                 }
                 if (mIndexSelected == count && mListener != null) {
                     this.mPaint.setColor(Color.parseColor("#33B5E5"));
@@ -185,10 +195,13 @@ public class BarGraph extends View {
                     mIndexSelected = -1;
                 }
             }
+            else if(event.getAction() == MotionEvent.ACTION_CANCEL)
+            	mIndexSelected = -1;
+            
             count++;
         }
         
-        if (event.getAction() == MotionEvent.ACTION_DOWN || event.getAction() == MotionEvent.ACTION_UP){
+        if (event.getAction() == MotionEvent.ACTION_DOWN || event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL){
             mShouldUpdate = true;
             postInvalidate();
         }
