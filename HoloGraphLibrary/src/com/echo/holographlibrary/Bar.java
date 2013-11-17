@@ -55,10 +55,10 @@ public class Bar {
 	
 	public String getValueString()
 	{
-		if (mValueString == null) {
-			return String.valueOf(mValue);
-		} else {
+		if (mValueString != null) {
 			return mValueString;
+		} else {
+			return String.valueOf(mValue);
 		}
 	}
 	
