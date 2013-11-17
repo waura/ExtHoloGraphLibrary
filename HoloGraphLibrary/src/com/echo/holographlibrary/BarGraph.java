@@ -211,6 +211,15 @@ public class BarGraph extends View {
         return true;
     }
     
+    @Override
+    protected void onDetachedFromWindow()
+    {
+    	if(mFullImage != null)
+    		mFullImage.recycle();
+    	
+    	super.onDetachedFromWindow();
+    }
+    
     public void setOnBarClickedListener(OnBarClickedListener listener) {
         this.mListener = listener;
     }
