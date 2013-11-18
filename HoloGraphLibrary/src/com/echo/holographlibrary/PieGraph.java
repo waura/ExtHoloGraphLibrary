@@ -147,10 +147,12 @@ public class PieGraph extends View {
 	    		}
 	    		
 	    	}
+	    	else if(event.getAction() == MotionEvent.ACTION_CANCEL)
+	    		indexSelected = -1;
 		    count++;
 	    }
 	    
-	    if (event.getAction() == MotionEvent.ACTION_DOWN || event.getAction() == MotionEvent.ACTION_UP){
+	    if (event.getAction() == MotionEvent.ACTION_DOWN || event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL){
 	    	postInvalidate();
 	    }
 	    
