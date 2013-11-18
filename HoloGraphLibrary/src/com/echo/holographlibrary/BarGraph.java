@@ -98,7 +98,7 @@ public class BarGraph extends View {
                 this.mPaint.setTextSize(VALUE_FONT_SIZE * mContext.getResources().getDisplayMetrics().scaledDensity);
                 Rect r3 = new Rect();
                 this.mPaint.getTextBounds("$", 0, 1, r3);
-                usableHeight = getHeight()-bottomPadding-Math.abs(r3.top-r3.bottom)*2;
+                usableHeight = getHeight()-bottomPadding-Math.abs(r3.top-r3.bottom)-24 * mContext.getResources().getDisplayMetrics().density;
             } else {
                 usableHeight = getHeight()-bottomPadding;
             }
@@ -159,7 +159,8 @@ public class BarGraph extends View {
                     int boundRight = (int)(((mRectangle.left+mRectangle.right)/2)+(this.mPaint.measureText(bar.getValueString())/2)+10 * mContext.getResources().getDisplayMetrics().density);
                     popup.setBounds(boundLeft, boundTop, boundRight, mRectangle.top);
                     popup.draw(canvas);
-                    canvas.drawText(bar.getValueString(), (int)(((mRectangle.left+mRectangle.right)/2)-(this.mPaint.measureText(bar.getValueString()))/2), mRectangle.top-VALUE_FONT_SIZE * mContext.getResources().getDisplayMetrics().scaledDensity/2, this.mPaint);
+                    
+                    canvas.drawText(bar.getValueString(), (int)(((mRectangle.left+mRectangle.right)/2)-(this.mPaint.measureText(bar.getValueString()))/2), mRectangle.top-(mRectangle.top - boundTop)/2f+(float)Math.abs(r2.top-r2.bottom)/2f*0.7f, this.mPaint);
                 }
                 if (mIndexSelected == count && mListener != null) {
                     this.mPaint.setColor(Color.parseColor("#33B5E5"));
