@@ -25,26 +25,20 @@ package com.echo.holographlibrary;
 
 import java.util.ArrayList;
 
-import com.echo.holographlibrary.BarGraph.OnBarClickedListener;
-
-import android.annotation.SuppressLint;
 import android.content.Context;
-import android.graphics.AvoidXfermode;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.DashPathEffect;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.graphics.Point;
 import android.graphics.Path.Direction;
-import android.graphics.PixelFormat;
+import android.graphics.Point;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Region;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
 import android.view.View;
 
 public class LineGraph extends View {
@@ -53,12 +47,15 @@ public class LineGraph extends View {
 	Paint paint = new Paint();
 	private float minY = 0, minX = 0;
 	private float maxY = 0, maxX = 0;
+	private double rangeYRatio = 0;
+	private double rangeXRatio = 0;
 	private boolean isMaxYUserSet = false;
 	private int lineToFill = -1;
 	private int indexSelected = -1;
 	private OnPointClickedListener listener;
 	private Bitmap fullImage;
 	private boolean shouldUpdate = false;
+
 	
 	public LineGraph(Context context){
 		super(context);
@@ -83,6 +80,58 @@ public class LineGraph extends View {
 		lines.add(line);
 		shouldUpdate = true;
 		postInvalidate();
+	}
+	public void addPointToLine(int lineIndex, double x, double y){
+		addPointToLine(lineIndex, (float) x, (float) y);
+	}
+	public void addPointToLine(int lineIndex, float x, float y){
+		LinePoint p = new LinePoint();
+		p.setX(x);
+		p.setY(y);
+		addPointToLine(lineIndex, p);
+	}
+	
+	public double getRangeYRatio(){
+		return rangeYRatio;
+	}
+	
+	public void setRangeYRatio(double rr){
+		this.rangeYRatio = rr;
+	}
+	public double getRangeXRatio(){
+		return rangeXRatio;
+	}
+	
+	public void setRangeXRatio(double rr){
+		this.rangeXRatio = rr;
+	}
+	public void addPointToLine(int lineIndex, LinePoint point){
+		Line line = getLine(lineIndex);
+		line.addPoint(point);
+		lines.set(lineIndex, line);
+		resetYLimits();
+		shouldUpdate = true;
+		postInvalidate();
+	}
+	
+	public void removePointFromLine(int lineIndex, float x, float y){
+		LinePoint p = null;
+		Line line = getLine(lineIndex);
+		p = line.getPoint(x, y);
+		removePointFromLine(lineIndex, p);
+	}
+	public void removePointFromLine(int lineIndex, LinePoint point){
+		Line line = getLine(lineIndex);
+		line.removePoint(point);
+		lines.set(lineIndex, line);
+		resetYLimits();
+		shouldUpdate = true;
+		postInvalidate();
+	}
+	
+	public void resetYLimits(){
+		float range = getMaxY() - getMinY();
+		setRangeY(getMinY()-range*getRangeYRatio(), getMaxY()+range*getRangeYRatio());
 	}
 	public ArrayList<Line> getLines() {
 		return lines;
@@ -110,41 +159,42 @@ public class LineGraph extends View {
 		maxY = max;
 		isMaxYUserSet = true;
 	}
-	public float getMaxY(){
-		if (isMaxYUserSet){
-			return maxY;
-		} else {
-			maxY = lines.get(0).getPoint(0).getY();
-			for (Line line : lines){
-				for (LinePoint point : line.getPoints()){
-					if (point.getY() > maxY){
-						maxY = point.getY();
-					}
-				}
-			}
-			return maxY;
-		}
-		
+	private void setRangeY(double min, double max){
+		minY = (float)min;
+		maxY = (float)max;
 	}
-	public float getMinY(){
-		if (isMaxYUserSet){
-			return minY;
-		} else {
-			float min = lines.get(0).getPoint(0).getY();
-			for (Line line : lines){
-				for (LinePoint point : line.getPoints()){
-					if (point.getY() < min) min = point.getY();
-				}
+	public float getMaxY(){
+		float max = lines.get(0).getPoint(0).getY();
+		for (Line line : lines){
+			for (LinePoint point : line.getPoints()){
+				max = point.getY() > max ? point.getY() : max;
 			}
-			minY = min;
-			return minY;
 		}
+		maxY = max;
+		return maxY;	
+	}
+
+	public float getMinY(){
+		float min = lines.get(0).getPoint(0).getY();
+		for (Line line : lines){
+			for (LinePoint point : line.getPoints()){
+				min = point.getY() < min ? point.getY() : min;
+			}
+		}
+		minY = min;
+		return minY;
+	}
+	public float getMinLimY(){
+		return minY;
+	}
+	public float getMaxLimY(){
+		return maxY;
 	}
 	public float getMaxX(){
 		float max = lines.get(0).getPoint(0).getX();
 		for (Line line : lines){
 			for (LinePoint point : line.getPoints()){
-				if (point.getX() > max) max = point.getX();
+				max = point.getX() > max ? point.getX() : max;
 			}
 		}
 		maxX = max;
@@ -152,16 +202,16 @@ public class LineGraph extends View {
 		
 	}
 	public float getMinX(){
-		float max = lines.get(0).getPoint(0).getX();
+		float min = lines.get(0).getPoint(0).getX();
 		for (Line line : lines){
 			for (LinePoint point : line.getPoints()){
-				if (point.getX() < max) max = point.getX();
+				min = point.getX() < min ? point.getX() : min;
 			}
 		}
-		maxX = max;
-		return maxX;
+		minX = min;
+		return minX;
 	}
-	
+
 	public void onDraw(Canvas ca) {
 		if (fullImage == null || shouldUpdate) {
 			fullImage = Bitmap.createBitmap(getWidth(), getHeight(), Config.ARGB_8888);
@@ -169,21 +219,22 @@ public class LineGraph extends View {
 			
 			paint.reset();
 			Path path = new Path();
-			
+
 			float bottomPadding = 10, topPadding = 10;
 			float sidePadding = 10;
 			float usableHeight = getHeight() - bottomPadding - topPadding;
 			float usableWidth = getWidth() - 2*sidePadding;
+
+			float maxY = getMaxLimY();
+			float minY = getMinLimY();
+			float maxX = (float)(getMaxX()*(1+getRangeXRatio()));
+			float minX = (float)(getMinX()*(1-getRangeXRatio()));
 			
 			int lineCount = 0;
 			for (Line line : lines){
 				int count = 0;
 				float firstXPixels = 0, lastXPixels = 0, newYPixels = 0;
 				float lastYPixels = 0, newXPixels = 0;
-				float maxY = getMaxY();
-				float minY = getMinY();
-				float maxX = getMaxX();
-				float minX = getMinX();
 				
 				if (lineCount == lineToFill){
 					paint.setColor(Color.BLACK);
@@ -252,16 +303,12 @@ public class LineGraph extends View {
 			paint.setAntiAlias(true);
 			canvas.drawLine(sidePadding, getHeight() - bottomPadding, getWidth()-sidePadding, getHeight()-bottomPadding, paint);
 			paint.setAlpha(255);
-			
+			paint.setTextSize(50);
 			
 			for (Line line : lines){
 				int count = 0;
 				float lastXPixels = 0, newYPixels = 0;
 				float lastYPixels = 0, newXPixels = 0;
-				float maxY = getMaxY();
-				float minY = getMinY();
-				float maxX = getMaxX();
-				float minX = getMinX();
 				
 				paint.setColor(line.getColor());
 				paint.setStrokeWidth(6);
@@ -287,11 +334,7 @@ public class LineGraph extends View {
 			int pointCount = 0;
 			
 			for (Line line : lines){
-				float maxY = getMaxY();
-				float minY = getMinY();
-				float maxX = getMaxX();
-				float minX = getMinX();
-				
+
 				paint.setColor(line.getColor());
 				paint.setStrokeWidth(6);
 				paint.setStrokeCap(Paint.Cap.ROUND);
@@ -304,14 +347,14 @@ public class LineGraph extends View {
 						float yPixels = getHeight() - bottomPadding - (usableHeight*yPercent);
 						
 						paint.setColor(Color.GRAY);
-						canvas.drawCircle(xPixels, yPixels, 10, paint);
+						canvas.drawCircle(xPixels, yPixels, 15, paint);
 						paint.setColor(Color.WHITE);
-						canvas.drawCircle(xPixels, yPixels, 5, paint);
+						canvas.drawCircle(xPixels, yPixels, 7, paint);
 						
 						Path path2 = new Path();
-						path2.addCircle(xPixels, yPixels, 30, Direction.CW);
+						path2.addCircle(xPixels, yPixels, 40, Direction.CW);
 						p.setPath(path2);
-						p.setRegion(new Region((int)(xPixels-30), (int)(yPixels-30), (int)(xPixels+30), (int)(yPixels+30)));
+						p.setRegion(new Region((int)(xPixels-40), (int)(yPixels-40), (int)(xPixels+40), (int)(yPixels+40)));
 						
 						if (indexSelected == pointCount && listener != null){
 							paint.setColor(Color.parseColor("#33B5E5"));

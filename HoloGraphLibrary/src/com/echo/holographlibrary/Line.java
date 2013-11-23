@@ -44,10 +44,32 @@ public class Line {
 		this.points = points;
 	}
 	public void addPoint(LinePoint point){
+		LinePoint p;
+		for(int i = 0; i < points.size(); i++){
+			p = points.get(i);
+			if(point.getX() < p.getX()){
+				points.add(i, point);
+				return;
+			}
+		}
 		points.add(point);
+	}
+	
+	public void removePoint(LinePoint point){
+		points.remove(point);
 	}
 	public LinePoint getPoint(int index){
 		return points.get(index);
+	}
+	
+	public LinePoint getPoint(float x, float y){
+		LinePoint p;
+		for(int i = 0; i < points.size(); i++){
+			p = points.get(i);
+			if(p.getX() == x && p.getY() == y)
+				return p;
+		}
+		return null;
 	}
 	public int getSize(){
 		return points.size();
