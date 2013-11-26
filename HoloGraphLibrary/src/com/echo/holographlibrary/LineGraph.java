@@ -303,7 +303,6 @@ public class LineGraph extends View {
 			paint.setAntiAlias(true);
 			canvas.drawLine(sidePadding, getHeight() - bottomPadding, getWidth()-sidePadding, getHeight()-bottomPadding, paint);
 			paint.setAlpha(255);
-			paint.setTextSize(50);
 			
 			for (Line line : lines){
 				int count = 0;
