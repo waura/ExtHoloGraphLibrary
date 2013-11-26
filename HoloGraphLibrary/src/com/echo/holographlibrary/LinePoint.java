@@ -45,6 +45,14 @@ public class LinePoint {
 	public void setY(float y) {
 		this.y = y;
 	}
+	
+	public void setX(double x){
+		this.x = (float) x;
+	}
+	
+	public void setY(double y){
+		this.y = (float) y;
+	}
 	public Region getRegion() {
 		return region;
 	}
@@ -58,6 +66,9 @@ public class LinePoint {
 		this.path = path;
 	}
 	
-	
+	@Override
+	public String toString(){
+		return "x= " + x + ", y= " + y;
+	}
 	
 }
