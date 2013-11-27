@@ -30,7 +30,6 @@ import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.DashPathEffect;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Path.Direction;
@@ -55,7 +54,6 @@ public class LineGraph extends View {
 	private OnPointClickedListener listener;
 	private Bitmap fullImage;
 	private boolean shouldUpdate = false;
-
 	
 	public LineGraph(Context context){
 		super(context);
@@ -85,9 +83,8 @@ public class LineGraph extends View {
 		addPointToLine(lineIndex, (float) x, (float) y);
 	}
 	public void addPointToLine(int lineIndex, float x, float y){
-		LinePoint p = new LinePoint();
-		p.setX(x);
-		p.setY(y);
+		LinePoint p = new LinePoint(x, y);
+
 		addPointToLine(lineIndex, p);
 	}
 	
@@ -114,6 +111,47 @@ public class LineGraph extends View {
 		postInvalidate();
 	}
 	
+	public void addPointsToLine(int lineIndex, LinePoint[] points){
+		Line line = getLine(lineIndex);
+		for(LinePoint point : points){
+			line.addPoint(point);
+		}
+		lines.set(lineIndex, line);
+		resetYLimits();
+		shouldUpdate = true;
+		postInvalidate();
+	}
+	
+	public void removeAllPointsAfter(int lineIndex, double x){
+		removeAllPointsBetween(lineIndex, x, getMaxX());
+	}
+	public void removeAllPointsBefore(int lineIndex, double x){
+		removeAllPointsBetween(lineIndex, getMinX(), x);
+	}
+	
+	public void removeAllPointsBetween(int lineIndex, double startX, double finishX){
+		Line line = getLine(lineIndex);
+		LinePoint[] pts = new LinePoint[line.getPoints().size()];
+		pts = line.getPoints().toArray(pts);
+		for(LinePoint point : pts){
+			if(point.getX() >= startX && point.getX() <= finishX)
+				line.removePoint(point);
+		}
+		lines.set(lineIndex, line);
+		resetYLimits();
+		shouldUpdate = true;
+		postInvalidate();
+	}
+	public void removePointsFromLine(int lineIndex, LinePoint[] points){
+		Line line = getLine(lineIndex);
+		for(LinePoint point : points){
+			line.removePoint(point);
+		}
+		lines.set(lineIndex, line);
+		resetYLimits();
+		shouldUpdate = true;
+		postInvalidate();
+	}
 	public void removePointFromLine(int lineIndex, float x, float y){
 		LinePoint p = null;
 		Line line = getLine(lineIndex);
@@ -211,7 +249,10 @@ public class LineGraph extends View {
 		minX = min;
 		return minX;
 	}
+	
 
+
+	 
 	public void onDraw(Canvas ca) {
 		if (fullImage == null || shouldUpdate) {
 			fullImage = Bitmap.createBitmap(getWidth(), getHeight(), Config.ARGB_8888);
@@ -227,9 +268,11 @@ public class LineGraph extends View {
 
 			float maxY = getMaxLimY();
 			float minY = getMinLimY();
-			float maxX = (float)(getMaxX()*(1+getRangeXRatio()));
-			float minX = (float)(getMinX()*(1-getRangeXRatio()));
+			float range = getMaxX() - getMinX();
+			float maxX = (float)(getMaxX()+range*getRangeXRatio());
+			float minX = (float)(getMinX()-range*getRangeXRatio());
 			
+	        
 			int lineCount = 0;
 			for (Line line : lines){
 				int count = 0;
