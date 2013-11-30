@@ -229,7 +229,7 @@ public class LineGraph extends View {
 		return maxY;
 	}
 	public float getMaxX(){
-		float max = lines.get(0).getPoint(0).getX();
+		float max = lines.size() > 0 ? lines.get(0).getPoint(0).getX() : 0;
 		for (Line line : lines){
 			for (LinePoint point : line.getPoints()){
 				max = point.getX() > max ? point.getX() : max;
@@ -240,7 +240,7 @@ public class LineGraph extends View {
 		
 	}
 	public float getMinX(){
-		float min = lines.get(0).getPoint(0).getX();
+		float min = lines.size() > 0 ? lines.get(0).getPoint(0).getX() : 0;
 		for (Line line : lines){
 			for (LinePoint point : line.getPoints()){
 				min = point.getX() < min ? point.getX() : min;
