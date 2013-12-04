@@ -49,6 +49,7 @@ public class BarGraph extends View {
     private Paint mPaint = new Paint();
     private Rect mRectangle = null;
     private boolean mShowBarText = true;
+    private boolean mShowAxis = true;
     private int mIndexSelected = -1;
     private OnBarClickedListener mListener;
     private Bitmap mFullImage;
@@ -68,6 +69,10 @@ public class BarGraph extends View {
     
     public void setShowBarText(boolean show){
         mShowBarText = show;
+    }
+    
+    public void setShowAxis(boolean show){
+        mShowAxis = show;
     }
     
     public void setBars(ArrayList<Bar> points){
@@ -104,12 +109,13 @@ public class BarGraph extends View {
             }
              
             // Draw x-axis line
-            mPaint.setColor(Color.BLACK);
-            mPaint.setStrokeWidth(2 * mContext.getResources().getDisplayMetrics().density);
-            mPaint.setAlpha(50);
-            mPaint.setAntiAlias(true);
-            canvas.drawLine(0, getHeight()-bottomPadding+10* mContext.getResources().getDisplayMetrics().density, getWidth(), getHeight()-bottomPadding+10* mContext.getResources().getDisplayMetrics().density, mPaint);
-            
+            if (mShowAxis){
+                mPaint.setColor(Color.BLACK);
+                mPaint.setStrokeWidth(2 * mContext.getResources().getDisplayMetrics().density);
+                mPaint.setAlpha(50);
+                mPaint.setAntiAlias(true);
+                canvas.drawLine(0, getHeight()-bottomPadding+10* mContext.getResources().getDisplayMetrics().density, getWidth(), getHeight()-bottomPadding+10* mContext.getResources().getDisplayMetrics().density, mPaint);
+            }
             float barWidth = (getWidth() - (padding*2)*mBars.size())/mBars.size();
 
             // Maximum y value = sum of all values.
@@ -142,10 +148,12 @@ public class BarGraph extends View {
                 bar.setRegion(new Region(mRectangle.left-selectPadding, mRectangle.top-selectPadding, mRectangle.right+selectPadding, mRectangle.bottom+selectPadding));
 
                 // Draw x-axis label text
-                this.mPaint.setTextSize(AXIS_LABEL_FONT_SIZE * mContext.getResources().getDisplayMetrics().scaledDensity);
-                int x = (int)(((mRectangle.left+mRectangle.right)/2)-(this.mPaint.measureText(bar.getName())/2));
-                int y = (int) (getHeight()-3 * mContext.getResources().getDisplayMetrics().scaledDensity);
-                canvas.drawText(bar.getName(), x, y, this.mPaint);
+                if (mShowAxis){
+                    this.mPaint.setTextSize(AXIS_LABEL_FONT_SIZE * mContext.getResources().getDisplayMetrics().scaledDensity);
+                    int x = (int)(((mRectangle.left+mRectangle.right)/2)-(this.mPaint.measureText(bar.getName())/2));
+                    int y = (int) (getHeight()-3 * mContext.getResources().getDisplayMetrics().scaledDensity);
+                    canvas.drawText(bar.getName(), x, y, this.mPaint);
+                }
 
                 // Draw value text
                 if (mShowBarText){
