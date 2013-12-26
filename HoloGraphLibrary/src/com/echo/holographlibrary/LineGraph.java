@@ -389,14 +389,14 @@ public class LineGraph extends View {
 						float yPixels = getHeight() - bottomPadding - (usableHeight*yPercent);
 						
 						paint.setColor(Color.GRAY);
-						canvas.drawCircle(xPixels, yPixels, 15, paint);
+						canvas.drawCircle(xPixels, yPixels, 10, paint);
 						paint.setColor(Color.WHITE);
-						canvas.drawCircle(xPixels, yPixels, 7, paint);
+						canvas.drawCircle(xPixels, yPixels, 5, paint);
 						
 						Path path2 = new Path();
-						path2.addCircle(xPixels, yPixels, 40, Direction.CW);
+						path2.addCircle(xPixels, yPixels, 30, Direction.CW);
 						p.setPath(path2);
-						p.setRegion(new Region((int)(xPixels-40), (int)(yPixels-40), (int)(xPixels+40), (int)(yPixels+40)));
+						p.setRegion(new Region((int)(xPixels-30), (int)(yPixels-30), (int)(xPixels+30), (int)(yPixels+30)));
 						
 						if (indexSelected == pointCount && listener != null){
 							paint.setColor(Color.parseColor("#33B5E5"));
