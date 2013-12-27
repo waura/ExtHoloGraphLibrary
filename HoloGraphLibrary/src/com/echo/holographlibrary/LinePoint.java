@@ -31,7 +31,10 @@ public class LinePoint {
 	private float y = 0;
 	private Path path;
 	private Region region;
-	
+
+    public LinePoint(){
+    }
+
 	public LinePoint(double x, double y){
 		this.x = (float)x;
 		this.y = (float)y;

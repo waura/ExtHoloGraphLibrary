@@ -30,3 +30,5 @@ proguard/
 
 # Gradle stuff
 out/
+.gradle
+build/

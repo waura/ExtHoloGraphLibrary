@@ -1,0 +1,20 @@
+apply plugin: 'android'
+
+dependencies {
+  compile project(':HoloGraphLibrary')
+  compile 'com.actionbarsherlock:actionbarsherlock:4.4.0@aar'
+
+}
+
+android {
+    compileSdkVersion 17
+    buildToolsVersion = 17
+
+    sourceSets {
+        main {
+            java.srcDirs = ['src']
+            res.srcDirs = ['res']
+            manifest.srcFile 'AndroidManifest.xml'
+        }
+    }
+}

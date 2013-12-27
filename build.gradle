@@ -1,0 +1,20 @@
+buildscript {
+  repositories {
+    mavenCentral()
+  }
+
+  dependencies {
+    classpath 'com.android.tools.build:gradle:0.6.+'
+  }
+}
+
+allprojects {
+  group = 'com.echo.holographlibrary'
+  version = '1.0'
+
+  repositories {
+    mavenCentral()
+  }
+}
+
+apply plugin: 'android-reporting'
