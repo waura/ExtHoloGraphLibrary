@@ -1,14 +1,8 @@
 apply plugin: 'android'
 
-dependencies {
-  compile project(':HoloGraphLibrary')
-  compile 'com.actionbarsherlock:actionbarsherlock:4.4.0@aar'
-
-}
-
 android {
-    compileSdkVersion 17
-    buildToolsVersion = 17
+    compileSdkVersion 19
+    buildToolsVersion '19.0.1'
 
     sourceSets {
         main {
@@ -18,3 +12,9 @@ android {
         }
     }
 }
+
+dependencies {
+    compile project(':HoloGraphLibrary')
+    compile 'com.actionbarsherlock:actionbarsherlock:4.4.0@aar'
+}
+
