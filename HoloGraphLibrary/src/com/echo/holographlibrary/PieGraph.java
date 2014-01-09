@@ -52,6 +52,8 @@ public class PieGraph extends View {
 	private int thickness = 50;
 	private OnSliceClickedListener listener;
 	
+	private boolean drawCompleted = false;
+	
 	
 	public PieGraph(Context context) {
 		super(context);
@@ -122,40 +124,44 @@ public class PieGraph extends View {
 			count++;
 		}
 		
+		drawCompleted = true;
+		
 		
 	}
 	
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 
-	    Point point = new Point();
-	    point.x = (int) event.getX();
-	    point.y = (int) event.getY();
-	    
-	    int count = 0;
-	    for (PieSlice slice : slices){
-	    	Region r = new Region();
-	    	r.setPath(slice.getPath(), slice.getRegion());
-	    	if (r.contains((int)point.x,(int) point.y) && event.getAction() == MotionEvent.ACTION_DOWN){
-	    		indexSelected = count;
-	    	} else if (event.getAction() == MotionEvent.ACTION_UP){
-	    		if (r.contains((int)point.x,(int) point.y) && listener != null){
-	    			if (indexSelected > -1){
-		    			listener.onClick(indexSelected);
-	    			}
-	    			indexSelected = -1;
-	    		}
-	    		
-	    	}
-	    	else if(event.getAction() == MotionEvent.ACTION_CANCEL)
-	    		indexSelected = -1;
-		    count++;
+		if (drawCompleted) {
+		
+			Point point = new Point();
+			point.x = (int) event.getX();
+			point.y = (int) event.getY();
+			
+			int count = 0;
+			for (PieSlice slice : slices){
+				Region r = new Region();
+				r.setPath(slice.getPath(), slice.getRegion());
+				if (r.contains((int)point.x,(int) point.y) && event.getAction() == MotionEvent.ACTION_DOWN){
+					indexSelected = count;
+				} else if (event.getAction() == MotionEvent.ACTION_UP){
+					if (r.contains((int)point.x,(int) point.y) && listener != null){
+						if (indexSelected > -1){
+							listener.onClick(indexSelected);
+						}
+						indexSelected = -1;
+					}
+					
+				}
+				else if(event.getAction() == MotionEvent.ACTION_CANCEL)
+					indexSelected = -1;
+				count++;
+			}
+			
+			if (event.getAction() == MotionEvent.ACTION_DOWN || event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL){
+				postInvalidate();
+			}
 	    }
-	    
-	    if (event.getAction() == MotionEvent.ACTION_DOWN || event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL){
-	    	postInvalidate();
-	    }
-	    
 	    
 
 	    return true;
