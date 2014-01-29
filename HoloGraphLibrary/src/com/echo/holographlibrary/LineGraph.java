@@ -106,7 +106,7 @@ public class LineGraph extends View {
 		Line line = getLine(lineIndex);
 		line.addPoint(point);
 		lines.set(lineIndex, line);
-		resetYLimits();
+		resetLimits();
 		shouldUpdate = true;
 		postInvalidate();
 	}
@@ -117,7 +117,7 @@ public class LineGraph extends View {
 			line.addPoint(point);
 		}
 		lines.set(lineIndex, line);
-		resetYLimits();
+		resetLimits();
 		shouldUpdate = true;
 		postInvalidate();
 	}
@@ -138,7 +138,7 @@ public class LineGraph extends View {
 				line.removePoint(point);
 		}
 		lines.set(lineIndex, line);
-		resetYLimits();
+		resetLimits();
 		shouldUpdate = true;
 		postInvalidate();
 	}
@@ -148,7 +148,7 @@ public class LineGraph extends View {
 			line.removePoint(point);
 		}
 		lines.set(lineIndex, line);
-		resetYLimits();
+		resetLimits();
 		shouldUpdate = true;
 		postInvalidate();
 	}
@@ -162,7 +162,7 @@ public class LineGraph extends View {
 		Line line = getLine(lineIndex);
 		line.removePoint(point);
 		lines.set(lineIndex, line);
-		resetYLimits();
+		resetLimits();
 		shouldUpdate = true;
 		postInvalidate();
 	}
@@ -170,6 +170,14 @@ public class LineGraph extends View {
 	public void resetYLimits(){
 		float range = getMaxY() - getMinY();
 		setRangeY(getMinY()-range*getRangeYRatio(), getMaxY()+range*getRangeYRatio());
+	}
+	public void resetXLimits(){
+		float range = getMaxX() - getMinX();
+		setRangeY(getMinX()-range*getRangeXRatio(), getMaxX()+range*getRangeXRatio());
+	}
+	public void resetLimits() {
+		resetYLimits();
+		resetXLimits();
 	}
 	public ArrayList<Line> getLines() {
 		return lines;
@@ -201,6 +209,14 @@ public class LineGraph extends View {
 		minY = (float)min;
 		maxY = (float)max;
 	}
+	public void setRangeX(float min, float max) {
+		minX = min;
+		maxX = max;
+	}
+	private void setRangeX(double min, double max){
+		minX = (float)min;
+		maxX = (float)max;
+	}
 	public float getMaxY(){
 		float max = lines.get(0).getPoint(0).getY();
 		for (Line line : lines){
@@ -227,6 +243,12 @@ public class LineGraph extends View {
 	}
 	public float getMaxLimY(){
 		return maxY;
+	}
+	public float getMinLimX(){
+		return minX;
+	}
+	public float getMaxLimX(){
+		return maxX;
 	}
 	public float getMaxX(){
 		float max = lines.size() > 0 ? lines.get(0).getPoint(0).getX() : 0;
@@ -268,10 +290,9 @@ public class LineGraph extends View {
 
 			float maxY = getMaxLimY();
 			float minY = getMinLimY();
-			float range = getMaxX() - getMinX();
-			float maxX = (float)(getMaxX()+range*getRangeXRatio());
-			float minX = (float)(getMinX()-range*getRangeXRatio());
-			
+			float maxX = getMaxLimX();
+			float minX = getMinLimX();
+
 	        
 			int lineCount = 0;
 			for (Line line : lines){
