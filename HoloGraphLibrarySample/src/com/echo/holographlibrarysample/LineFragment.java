@@ -46,15 +46,18 @@ public class LineFragment extends SherlockFragment {
 		LinePoint p = new LinePoint();
 		p.setX(0);
 		p.setY(5);
+        p.setColor("#FF0000");
 		l.addPoint(p);
 		p = new LinePoint();
 		p.setX(8);
 		p.setY(8);
+        p.setColor("#0000FF");
 		l.addPoint(p);
 		p = new LinePoint();
 		p.setX(10);
 		p.setY(4);
 		l.addPoint(p);
+        p.setColor("#00FF00");
 		l.setColor(Color.parseColor("#FFBB33"));
 		
 		LineGraph li = (LineGraph)v.findViewById(R.id.linegraph);
