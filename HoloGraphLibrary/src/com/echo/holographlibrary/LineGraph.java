@@ -49,6 +49,7 @@ public class LineGraph extends View {
 	private double rangeYRatio = 0;
 	private double rangeXRatio = 0;
 	private boolean isMaxYUserSet = false;
+	private boolean isMaxXUserSet = false;
 	private int lineToFill = -1;
 	private int indexSelected = -1;
 	private OnPointClickedListener listener;
@@ -173,7 +174,7 @@ public class LineGraph extends View {
 	}
 	public void resetXLimits(){
 		float range = getMaxX() - getMinX();
-		setRangeY(getMinX()-range*getRangeXRatio(), getMaxX()+range*getRangeXRatio());
+		setRangeX(getMinX()-range*getRangeXRatio(), getMaxX()+range*getRangeXRatio());
 	}
 	public void resetLimits() {
 		resetYLimits();
@@ -208,6 +209,7 @@ public class LineGraph extends View {
 	private void setRangeY(double min, double max){
 		minY = (float)min;
 		maxY = (float)max;
+		isMaxXUserSet = true;
 	}
 	public void setRangeX(float min, float max) {
 		minX = min;
@@ -248,7 +250,12 @@ public class LineGraph extends View {
 		return minX;
 	}
 	public float getMaxLimX(){
-		return maxX;
+		if (isMaxXUserSet) {
+			return maxX;
+		}
+		else {
+			return getMaxX();
+		}
 	}
 	public float getMaxX(){
 		float max = lines.size() > 0 ? lines.get(0).getPoint(0).getX() : 0;
