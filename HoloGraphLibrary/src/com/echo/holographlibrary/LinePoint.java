@@ -31,6 +31,7 @@ public class LinePoint {
 	private float y = 0;
 	private Path path;
 	private Region region;
+    private String color;
 
     public LinePoint(){
     }
@@ -80,5 +81,12 @@ public class LinePoint {
 	public String toString(){
 		return "x= " + x + ", y= " + y;
 	}
-	
+
+    public String getColor() {
+        return color != null ? color : "#33B5E5";
+    }
+
+    public void setColor(String color) {
+        this.color = color;
+    }
 }
