@@ -416,7 +416,7 @@ public class LineGraph extends View {
 						float xPixels = sidePadding + (xPercent*usableWidth);
 						float yPixels = getHeight() - bottomPadding - (usableHeight*yPercent);
 						
-						paint.setColor(Color.GRAY);
+						paint.setColor(Color.parseColor(p.getColor()));
 						canvas.drawCircle(xPixels, yPixels, 10, paint);
 						paint.setColor(Color.WHITE);
 						canvas.drawCircle(xPixels, yPixels, 5, paint);
