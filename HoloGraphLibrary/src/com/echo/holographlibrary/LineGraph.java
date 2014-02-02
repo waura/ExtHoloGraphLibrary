@@ -37,6 +37,7 @@ import android.graphics.Point;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Region;
 import android.util.AttributeSet;
+import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -381,7 +382,7 @@ public class LineGraph extends View {
 				float lastYPixels = 0, newXPixels = 0;
 				
 				paint.setColor(line.getColor());
-				paint.setStrokeWidth(6);
+				paint.setStrokeWidth(getStrokeWidth(line));
 				
 				for (LinePoint p : line.getPoints()){
 					float yPercent = (p.getY()-minY)/(maxY - minY);
@@ -406,7 +407,7 @@ public class LineGraph extends View {
 			for (Line line : lines){
 
 				paint.setColor(line.getColor());
-				paint.setStrokeWidth(6);
+				paint.setStrokeWidth(getStrokeWidth(line));
 				paint.setStrokeCap(Paint.Cap.ROUND);
 				
 				if (line.isShowingPoints()){
@@ -415,11 +416,20 @@ public class LineGraph extends View {
 						float xPercent = (p.getX()-minX)/(maxX - minX);
 						float xPixels = sidePadding + (xPercent*usableWidth);
 						float yPixels = getHeight() - bottomPadding - (usableHeight*yPercent);
-						
-						paint.setColor(Color.parseColor(p.getColor()));
-						canvas.drawCircle(xPixels, yPixels, 10, paint);
+
+						int outerRadius;
+						if (line.isUsingDips()) {
+							outerRadius = getPixelForDip(line.getStrokeWidth() + 4);
+						}
+						else {
+							outerRadius = line.getStrokeWidth() + 4;
+						}
+						int innerRadius = outerRadius / 2;
+
+                        paint.setColor(Color.parseColor(p.getColor()));
+						canvas.drawCircle(xPixels, yPixels, outerRadius, paint);
 						paint.setColor(Color.WHITE);
-						canvas.drawCircle(xPixels, yPixels, 5, paint);
+						canvas.drawCircle(xPixels, yPixels, innerRadius, paint);
 						
 						Path path2 = new Path();
 						path2.addCircle(xPixels, yPixels, 30, Direction.CW);
