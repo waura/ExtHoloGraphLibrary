@@ -29,8 +29,27 @@ public class Line {
 	private ArrayList<LinePoint> points = new ArrayList<LinePoint>();
 	private int color;
 	private boolean showPoints = true;
-	
-	
+	// 6 has been the default prior to the addition of custom stroke widths
+	private int strokeWidth = 6;
+	// since this is a new addition, it has to default to false to be backwards compatible
+	private boolean isUsingDips = false;
+
+
+	public boolean isUsingDips() {
+		return isUsingDips;
+	}
+	public void setUsingDips(boolean treatSizesAsDips) {
+		this.isUsingDips = treatSizesAsDips;
+	}
+	public int getStrokeWidth() {
+		return strokeWidth;
+	}
+	public void setStrokeWidth(int strokeWidth) {
+		if (strokeWidth < 0) {
+			throw new IllegalArgumentException("strokeWidth must not be less than zero");
+		}
+		this.strokeWidth = strokeWidth;
+	}
 	public int getColor() {
 		return color;
 	}
