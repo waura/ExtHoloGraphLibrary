@@ -49,7 +49,7 @@ public class PieGraph extends View {
 	private Path path = new Path();
 	
 	private int indexSelected = -1;
-	private int thickness = 50;
+	private int thickness;
 	private OnSliceClickedListener listener;
 	
 	private boolean drawCompleted = false;
@@ -57,9 +57,12 @@ public class PieGraph extends View {
 	
 	public PieGraph(Context context) {
 		super(context);
+		thickness = (int) (25f * context.getResources().getDisplayMetrics().density);
 	}
+	
 	public PieGraph(Context context, AttributeSet attrs) {
 		super(context, attrs);
+		thickness = (int) (25f * context.getResources().getDisplayMetrics().density);
 	}
 	
 	public void onDraw(Canvas canvas) {
