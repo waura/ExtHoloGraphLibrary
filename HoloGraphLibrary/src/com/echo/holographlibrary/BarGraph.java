@@ -24,6 +24,8 @@
 package com.echo.holographlibrary;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -44,6 +46,7 @@ import android.view.View;
 public class BarGraph extends View {
 
 	private final static int VALUE_FONT_SIZE = 30, AXIS_LABEL_FONT_SIZE = 15;
+    private final static float LABEL_PADDING_MULTIPLIER = 1.6f; //how much space to leave between labels when shrunken. Increase for less space.
 	
     private ArrayList<Bar> mBars = new ArrayList<Bar>();
     private Paint mPaint = new Paint();
@@ -128,6 +131,7 @@ public class BarGraph extends View {
             mRectangle = new Rect();
             
             int count = 0;
+            Map<Integer, Float> valueTextSizes = new HashMap<Integer, Float>();
             for (final Bar bar : mBars) {
                 // Set bar bounds
                 int left = (int)((padding*2)*count + padding + barWidth*count);
@@ -150,7 +154,13 @@ public class BarGraph extends View {
                 // Draw x-axis label text
                 if (mShowAxis){
                     this.mPaint.setTextSize(AXIS_LABEL_FONT_SIZE * mContext.getResources().getDisplayMetrics().scaledDensity);
-                    int x = (int)(((mRectangle.left+mRectangle.right)/2)-(this.mPaint.measureText(bar.getName())/2));
+                    float textWidth = this.mPaint.measureText(bar.getName());
+                    while (right - left + (padding *LABEL_PADDING_MULTIPLIER)< textWidth)//decrease text size to fit and not overlap with other labels.
+                    {
+                        this.mPaint.setTextSize(this.mPaint.getTextSize() -  1);
+                        textWidth = this.mPaint.measureText(bar.getName());
+                    }
+                    int x = (int)(((mRectangle.left+mRectangle.right)/2)-(textWidth/2));
                     int y = (int) (getHeight()-3 * mContext.getResources().getDisplayMetrics().scaledDensity);
                     canvas.drawText(bar.getName(), x, y, this.mPaint);
                 }
@@ -165,9 +175,20 @@ public class BarGraph extends View {
                     int boundLeft = (int) (((mRectangle.left+mRectangle.right)/2)-(this.mPaint.measureText(bar.getValueString())/2)-10 * mContext.getResources().getDisplayMetrics().density);
                     int boundTop = (int) (mRectangle.top+(r2.top-r2.bottom)-18 * mContext.getResources().getDisplayMetrics().density);
                     int boundRight = (int)(((mRectangle.left+mRectangle.right)/2)+(this.mPaint.measureText(bar.getValueString())/2)+10 * mContext.getResources().getDisplayMetrics().density);
+
+                    if (boundLeft < mRectangle.left) boundLeft = mRectangle.left - ((int)padding /2);//limit popup width to bar width
+                    if (boundRight > mRectangle.right)boundRight = mRectangle.right + ((int) padding /2);
+
                     popup.setBounds(boundLeft, boundTop, boundRight, mRectangle.top);
                     popup.draw(canvas);
-                    
+
+                    if (!valueTextSizes.containsKey(bar.getValueString().length()))//check cache to see if we've done this calculation before
+                    {
+                        while (this.mPaint.measureText(bar.getValueString()) > boundRight - boundLeft)
+                            this.mPaint.setTextSize(this.mPaint.getTextSize() - (float)1);
+                        valueTextSizes.put(bar.getValueString().length(), mPaint.getTextSize());
+                    }
+                    else this.mPaint.setTextSize(valueTextSizes.get(bar.getValueString().length()));
                     canvas.drawText(bar.getValueString(), (int)(((mRectangle.left+mRectangle.right)/2)-(this.mPaint.measureText(bar.getValueString()))/2), mRectangle.top-(mRectangle.top - boundTop)/2f+(float)Math.abs(r2.top-r2.bottom)/2f*0.7f, this.mPaint);
                 }
                 if (mIndexSelected == count && mListener != null) {
