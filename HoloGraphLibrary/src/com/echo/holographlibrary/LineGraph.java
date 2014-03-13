@@ -42,7 +42,8 @@ import android.view.MotionEvent;
 import android.view.View;
 
 public class LineGraph extends View {
-	
+
+	private static final int DEFAULT_PADDING = 10;
 	private ArrayList<Line> lines = new ArrayList<Line>();
 	Paint paint = new Paint();
 	private float minY = 0, minX = 0;
@@ -56,18 +57,32 @@ public class LineGraph extends View {
 	private OnPointClickedListener listener;
 	private Bitmap fullImage;
 	private boolean shouldUpdate = false;
+	// since this is a new addition, it has to default to false to be backwards compatible
+	private boolean isUsingDips = false;
+	private int pixelPadding = DEFAULT_PADDING;
+	private int dipPadding = DEFAULT_PADDING;
 	
 	public LineGraph(Context context){
 		super(context);
+		dipPadding = getPixelForDip(DEFAULT_PADDING);
 	}
 	
 	public LineGraph(Context context, AttributeSet attrs) {
 		super(context, attrs);
+		dipPadding = getPixelForDip(DEFAULT_PADDING);
 	}
 	public void setMinY(float minY){
 		
 	}
-	
+
+	public boolean isUsingDips() {
+		return isUsingDips;
+	}
+
+	public void setUsingDips(boolean treatSizesAsDips) {
+		this.isUsingDips = treatSizesAsDips;
+	}
+
 	public void removeAllLines(){
 		while (lines.size() > 0){
 			lines.remove(0);
@@ -293,6 +308,11 @@ public class LineGraph extends View {
 
 			float bottomPadding = 10, topPadding = 10;
 			float sidePadding = 10;
+			if (isUsingDips) {
+				bottomPadding = dipPadding;
+				topPadding = dipPadding;
+				sidePadding = dipPadding;
+			}
 			float usableHeight = getHeight() - bottomPadding - topPadding;
 			float usableWidth = getWidth() - 2*sidePadding;
 

@@ -43,6 +43,7 @@ public class LineFragment extends SherlockFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		final View v = inflater.inflate(R.layout.fragment_linegraph, container, false);
 		Line l = new Line();
+		l.setUsingDips(true);
 		LinePoint p = new LinePoint();
 		p.setX(0);
 		p.setY(5);
@@ -61,6 +62,7 @@ public class LineFragment extends SherlockFragment {
 		l.setColor(Color.parseColor("#FFBB33"));
 		
 		LineGraph li = (LineGraph)v.findViewById(R.id.linegraph);
+		li.setUsingDips(true);
 		li.addLine(l);
 		li.setRangeY(0, 10);
 		li.setLineToFill(0);
