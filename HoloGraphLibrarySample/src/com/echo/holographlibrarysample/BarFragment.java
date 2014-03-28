@@ -23,9 +23,7 @@
 
 package com.echo.holographlibrarysample;
 
-import java.util.ArrayList;
-
-import android.graphics.Color;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -36,37 +34,40 @@ import com.echo.holographlibrary.Bar;
 import com.echo.holographlibrary.BarGraph;
 import com.echo.holographlibrary.BarGraph.OnBarClickedListener;
 
-public class BarFragment extends SherlockFragment {
-	
-	@Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		final View v = inflater.inflate(R.layout.fragment_bargraph, container, false);
-		ArrayList<Bar> points = new ArrayList<Bar>();
-		Bar d = new Bar();
-		d.setColor(Color.parseColor("#99CC00"));
-		d.setName("Test1");
-		d.setValue(1000);
-		d.setValueString("$1,000");
-		Bar d2 = new Bar();
-		d2.setColor(Color.parseColor("#FFBB33"));
-		d2.setName("Test2");
-		d2.setValue(2000);
-		d2.setValueString("$2,000");
-		points.add(d);
-		points.add(d2);
-		
-		BarGraph g = (BarGraph)v.findViewById(R.id.bargraph);
-		g.setBars(points);
-		
-		g.setOnBarClickedListener(new OnBarClickedListener(){
+import java.util.ArrayList;
 
-			@Override
-			public void onClick(int index) {
-				
-			}
-			
-		});
-		
-		return v;
-	}
+public class BarFragment extends SherlockFragment {
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        final View v = inflater.inflate(R.layout.fragment_bargraph, container, false);
+        final Resources resources = getResources();
+        ArrayList<Bar> points = new ArrayList<Bar>();
+        Bar d = new Bar();
+        d.setColor(resources.getColor(R.color.green_light));
+        d.setName("Test1");
+        d.setValue(1000);
+        d.setValueString("$1,000");
+        Bar d2 = new Bar();
+        d2.setColor(resources.getColor(R.color.orange));
+        d2.setName("Test2");
+        d2.setValue(2000);
+        d2.setValueString("$2,000");
+        points.add(d);
+        points.add(d2);
+
+        BarGraph g = (BarGraph) v.findViewById(R.id.bargraph);
+        g.setBars(points);
+
+        g.setOnBarClickedListener(new OnBarClickedListener() {
+
+            @Override
+            public void onClick(int index) {
+
+            }
+
+        });
+
+        return v;
+    }
 }
