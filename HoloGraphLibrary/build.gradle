@@ -14,5 +14,4 @@ android {
 }
 
 dependencies {
-    compile 'com.android.support:support-v4:19.0.0'
 }
