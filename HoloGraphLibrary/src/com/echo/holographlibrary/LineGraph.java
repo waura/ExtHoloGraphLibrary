@@ -446,7 +446,7 @@ public class LineGraph extends View {
 						}
 						int innerRadius = outerRadius / 2;
 
-						paint.setColor(Color.parseColor(p.getColor()));
+						paint.setColor(p.getColor());
 						canvas.drawCircle(xPixels, yPixels, outerRadius, paint);
 						paint.setColor(Color.WHITE);
 						canvas.drawCircle(xPixels, yPixels, innerRadius, paint);
@@ -457,7 +457,7 @@ public class LineGraph extends View {
 						p.setRegion(new Region((int)(xPixels-30), (int)(yPixels-30), (int)(xPixels+30), (int)(yPixels+30)));
 						
 						if (indexSelected == pointCount && listener != null){
-                            paint.setColor(Color.parseColor(p.getColor()));
+                            paint.setColor(p.getColor());
 							paint.setAlpha(100);
 							canvas.drawPath(p.getPath(), paint);
 							paint.setAlpha(255);
