@@ -71,9 +71,6 @@ public class LineGraph extends View {
 		super(context, attrs);
 		dipPadding = getPixelForDip(DEFAULT_PADDING);
 	}
-	public void setMinY(float minY){
-		
-	}
 
 	public boolean isUsingDips() {
 		return isUsingDips;
