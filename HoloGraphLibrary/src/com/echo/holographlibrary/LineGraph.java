@@ -220,11 +220,11 @@ public class LineGraph extends View {
 	private void setRangeY(double min, double max){
 		minY = (float)min;
 		maxY = (float)max;
-		isMaxXUserSet = true;
 	}
 	public void setRangeX(float min, float max) {
 		minX = min;
 		maxX = max;
+		isMaxXUserSet = true;
 	}
 	private void setRangeX(double min, double max){
 		minX = (float)min;
