@@ -50,7 +50,6 @@ public class LineGraph extends View {
 	private float maxY = 0, maxX = 0;
 	private double rangeYRatio = 0;
 	private double rangeXRatio = 0;
-	private boolean isMaxYUserSet = false;
 	private boolean isMaxXUserSet = false;
 	private int lineToFill = -1;
 	private int indexSelected = -1;
@@ -217,7 +216,6 @@ public class LineGraph extends View {
 	public void setRangeY(float min, float max) {
 		minY = min;
 		maxY = max;
-		isMaxYUserSet = true;
 	}
 	private void setRangeY(double min, double max){
 		minY = (float)min;
