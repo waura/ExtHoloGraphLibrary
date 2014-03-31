@@ -127,6 +127,9 @@ public class BarGraph extends View {
                     maxValue = bar.getValue();
                 }
             }
+            if (maxValue == 0) {
+                maxValue = 1;
+            }
             
             mRectangle = new Rect();
             
