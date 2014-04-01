@@ -153,6 +153,7 @@ public class BarGraph extends View {
 
                 // Draw x-axis label text
                 if (mShowAxis){
+                    this.mPaint.setColor(bar.getLabelColor());
                     this.mPaint.setTextSize(AXIS_LABEL_FONT_SIZE * mContext.getResources().getDisplayMetrics().scaledDensity);
                     float textWidth = this.mPaint.measureText(bar.getName());
                     while (right - left + (padding *LABEL_PADDING_MULTIPLIER)< textWidth)//decrease text size to fit and not overlap with other labels.

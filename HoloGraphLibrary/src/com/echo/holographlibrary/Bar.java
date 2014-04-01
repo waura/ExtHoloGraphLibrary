@@ -28,6 +28,7 @@ import android.graphics.Region;
 
 public class Bar {
 	private int mColor;
+	private int mLabelColor = -1;
 	private String mName = null;
 	private float mValue;
 	private String mValueString = null;
@@ -39,6 +40,12 @@ public class Bar {
 	}
 	public void setColor(int color) {
 		this.mColor = color;
+	}
+	public int getLabelColor() {
+		return mLabelColor == -1 ? mColor : mLabelColor;
+	}
+	public void setLabelColor(int labelColor) {
+		this.mLabelColor = labelColor;
 	}
 	public String getName() {
 		return mName;
