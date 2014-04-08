@@ -23,46 +23,55 @@
 
 package com.echo.holographlibrary;
 
-import android.graphics.Color;
 import android.graphics.Path;
 import android.graphics.Region;
 
 public class PieSlice {
-	private int color = Color.BLACK;
-	private float value;
-	private String title;
-	private Path path;
-	private Region region;
+	private int mColor = 0xFF33B5E5;
+    private int mSelectedColor = 0x8033B5E5;
+	private float mValue;
+	private String mTitle;
+	private Path mPath;
+	private Region mRegion;
 
 	public String getTitle() {
-		return title;
+		return mTitle;
 	}
 	public void setTitle(String title) {
-		this.title = title;
+		this.mTitle = title;
 	}
 	public int getColor() {
-		return color;
+		return mColor;
 	}
 	public void setColor(int color) {
-		this.color = color;
+		this.mColor = color;
 	}
-	public float getValue() {
-		return value;
+
+    public int getSelectedColor() {
+        return mSelectedColor;
+    }
+
+    public void setSelectedColor(int selectedColor) {
+        mSelectedColor = selectedColor;
+    }
+
+    public float getValue() {
+		return mValue;
 	}
 	public void setValue(float value) {
-		this.value = value;
+		this.mValue = value;
 	}
 	public Path getPath() {
-		return path;
+		return mPath;
 	}
 	public void setPath(Path path) {
-		this.path = path;
+		this.mPath = path;
 	}
 	public Region getRegion() {
-		return region;
+		return mRegion;
 	}
 	public void setRegion(Region region) {
-		this.region = region;
+		this.mRegion = region;
 	}
 	
 }

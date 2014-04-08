@@ -23,140 +23,101 @@
 
 package com.echo.holographlibrarysample;
 
-import java.util.ArrayList;
-
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.ActionBar.Tab;
-import com.actionbarsherlock.app.SherlockActivity;
-import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.echo.holographlibrary.BarGraph;
-import com.echo.holographlibrary.Bar;
-import com.echo.holographlibrary.Line;
-import com.echo.holographlibrary.LinePoint;
-import com.echo.holographlibrary.LineGraph;
-import com.echo.holographlibrary.PieGraph;
-import com.echo.holographlibrary.PieSlice;
-
 import android.os.Bundle;
-import android.app.Activity;
-import android.graphics.Color;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
-import android.view.Menu;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 
-public class MainActivity extends SherlockFragmentActivity {
+import java.util.Locale;
 
-	ViewPager mViewPager;
-    TabsAdapter mTabsAdapter;
-	
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_main);
-		
-		mViewPager = (ViewPager)this.findViewById(R.id.view_pager);
-		final ActionBar bar = this.getSupportActionBar();
-		bar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-		
-		LineFragment lineFrag = new LineFragment();
-        BarFragment barFrag = new BarFragment();
-        PieFragment pieFrag = new PieFragment();
-		
-        mTabsAdapter = new TabsAdapter(this, mViewPager);
-        mTabsAdapter.addTab(bar.newTab().setText("Line"),
-                LineFragment.class, null, lineFrag);
-        mTabsAdapter.addTab(bar.newTab().setText("Bar"),
-                BarFragment.class, null, barFrag);
-        mTabsAdapter.addTab(bar.newTab().setText("Pie"),
-                PieFragment.class, null, pieFrag);
-        mViewPager.setOffscreenPageLimit(mTabsAdapter.getCount()-1);
-	}
-	
-	public static class TabsAdapter extends FragmentStatePagerAdapter implements ActionBar.TabListener, ViewPager.OnPageChangeListener {
+public class MainActivity extends ActionBarActivity implements ActionBar.TabListener {
 
-		private final MainActivity mContext;
-        private final ActionBar mActionBar;
-        private final ViewPager mViewPager;
-        private final ArrayList<TabInfo> mTabs = new ArrayList<TabInfo>();
-        private final ArrayList<Fragment> mFrag = new ArrayList<Fragment>();
+    SectionsPagerAdapter mSectionsPagerAdapter;
+    ViewPager mViewPager;
 
-        static final class TabInfo {
-            private final Class<?> clss;
-            private final Bundle args;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
 
-            TabInfo(Class<?> _class, Bundle _args) {
-                clss = _class;
-                args = _args;
+        final ActionBar actionBar = this.getSupportActionBar();
+        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+
+        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
+
+        mViewPager = (ViewPager) this.findViewById(R.id.view_pager);
+        mViewPager.setAdapter(mSectionsPagerAdapter);
+        mViewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+            @Override
+            public void onPageSelected(int position) {
+                actionBar.setSelectedNavigationItem(position);
             }
-        }
+        });
 
-        public TabsAdapter(MainActivity activity, ViewPager pager) {
-            super(activity.getSupportFragmentManager());
-            mContext = activity;
-            mActionBar = activity.getSupportActionBar();
-            mViewPager = pager;
-            mViewPager.setAdapter(this);
-            mViewPager.setOnPageChangeListener(this);
-        }
 
-        public void addTab(ActionBar.Tab tab, Class<?> clss, Bundle args, Fragment frag) {
-            TabInfo info = new TabInfo(clss, args);
-            tab.setTag(info);
-            tab.setTabListener(this);
-            mTabs.add(info);
-            mFrag.add(frag);
-            mActionBar.addTab(tab);
-            notifyDataSetChanged();
+        for (int i = 0; i < mSectionsPagerAdapter.getCount(); i++) {
+            actionBar.addTab(
+                    actionBar.newTab()
+                            .setText(mSectionsPagerAdapter.getPageTitle(i))
+                            .setTabListener(this)
+            );
         }
+    }
 
-        @Override
-        public int getCount() {
-            return mTabs.size();
+    @Override
+    public void onTabSelected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
+        mViewPager.setCurrentItem(tab.getPosition());
+    }
+
+    @Override
+    public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
+    }
+
+    @Override
+    public void onTabReselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
+    }
+
+    public class SectionsPagerAdapter extends FragmentPagerAdapter {
+
+        public SectionsPagerAdapter(FragmentManager fm) {
+            super(fm);
         }
 
         @Override
         public Fragment getItem(int position) {
-            TabInfo info = mTabs.get(position);
-            return mFrag.get(position);
-        }
-
-        @Override
-        public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-        }
-
-        @Override
-        public void onPageSelected(int position) {
-            mActionBar.setSelectedNavigationItem(position);
-            /*
-            MenuInflater inflater = mContext.getSupportMenuInflater();
-            mContext.menu.clear();
-            inflater.inflate(R.menu.MainActivity, mContext.menu);
-            */
-        }
-
-        @Override
-        public void onPageScrollStateChanged(int state) {
-        }
-
-        @Override
-        public void onTabSelected(Tab tab, FragmentTransaction ft) {
-            Object tag = tab.getTag();
-            for (int i=0; i<mTabs.size(); i++) {
-                if (mTabs.get(i) == tag) {
-                    mViewPager.setCurrentItem(i);
-                }
+            switch (position) {
+                default:
+                    return null;
+                case 0:
+                    return new LineFragment();
+                case 1:
+                    return new BarFragment();
+                case 2:
+                    return new PieFragment();
             }
         }
 
         @Override
-        public void onTabUnselected(Tab tab, FragmentTransaction ft) {
+        public int getCount() {
+            return 3;
         }
 
         @Override
-        public void onTabReselected(Tab tab, FragmentTransaction ft) {
+        public CharSequence getPageTitle(int position) {
+            Locale l = Locale.getDefault();
+            switch (position) {
+                case 0:
+                    return getString(R.string.line).toUpperCase(l);
+                case 1:
+                    return getString(R.string.bar).toUpperCase(l);
+                case 2:
+                    return getString(R.string.pie).toUpperCase(l);
+            }
+            return null;
         }
     }
-
 }

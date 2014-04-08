@@ -17,4 +17,9 @@ allprojects {
   }
 }
 
+ext {
+    compileSdkVersion = 19
+    buildToolsVersion = "19.0.3"
+}
+
 apply plugin: 'android-reporting'

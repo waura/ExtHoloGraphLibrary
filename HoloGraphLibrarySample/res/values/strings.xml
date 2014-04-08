@@ -2,7 +2,8 @@
 <resources>
 
     <string name="app_name">HoloGraphLibrarySample</string>
-    <string name="hello_world">Hello world!</string>
-    <string name="menu_settings">Settings</string>
+    <string name="line">Line</string>
+    <string name="bar">Bar</string>
+    <string name="pie">Pie</string>
 
 </resources>

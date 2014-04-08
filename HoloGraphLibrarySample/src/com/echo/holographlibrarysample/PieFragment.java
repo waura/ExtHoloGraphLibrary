@@ -25,16 +25,16 @@ package com.echo.holographlibrarysample;
 
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.actionbarsherlock.app.SherlockFragment;
 import com.echo.holographlibrary.PieGraph;
 import com.echo.holographlibrary.PieGraph.OnSliceClickedListener;
 import com.echo.holographlibrary.PieSlice;
 
-public class PieFragment extends SherlockFragment {
+public class PieFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -43,6 +43,7 @@ public class PieFragment extends SherlockFragment {
         PieGraph pg = (PieGraph) v.findViewById(R.id.piegraph);
         PieSlice slice = new PieSlice();
         slice.setColor(resources.getColor(R.color.green_light));
+        slice.setSelectedColor(resources.getColor(R.color.transparent_orange));
         slice.setValue(2);
         pg.addSlice(slice);
         slice = new PieSlice();
@@ -53,7 +54,6 @@ public class PieFragment extends SherlockFragment {
         slice.setColor(resources.getColor(R.color.purple));
         slice.setValue(8);
         pg.addSlice(slice);
-
         pg.setOnSliceClickedListener(new OnSliceClickedListener() {
 
             @Override

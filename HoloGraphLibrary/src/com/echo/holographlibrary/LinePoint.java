@@ -27,66 +27,75 @@ import android.graphics.Path;
 import android.graphics.Region;
 
 public class LinePoint {
-	private float x = 0;
-	private float y = 0;
-	private Path path;
-	private Region region;
-    private int color = 0xFF000000;
+	private float mX = 0;
+	private float mY = 0;
+	private Path mPath;
+	private Region mRegion;
+    private int mColor = 0xFF000000;
+    private int mSelectedColor = 0x8033B5E5;
 
     public LinePoint(){
     }
 
 	public LinePoint(double x, double y){
-		this.x = (float)x;
-		this.y = (float)y;
+		this.mX = (float)x;
+		this.mY = (float)y;
 	}
 	public LinePoint(float x, float y){
-		this.x = x;
-		this.y = y;
+		this.mX = x;
+		this.mY = y;
 	}
 	public float getX() {
-		return x;
+		return mX;
 	}
 	public void setX(float x) {
-		this.x = x;
+		this.mX = x;
 	}
 	public float getY() {
-		return y;
+		return mY;
 	}
 	public void setY(float y) {
-		this.y = y;
+		this.mY = y;
 	}
 	
 	public void setX(double x){
-		this.x = (float) x;
+		this.mX = (float) x;
 	}
 	
 	public void setY(double y){
-		this.y = (float) y;
+		this.mY = (float) y;
 	}
 	public Region getRegion() {
-		return region;
+		return mRegion;
 	}
 	public void setRegion(Region region) {
-		this.region = region;
+		this.mRegion = region;
 	}
 	public Path getPath() {
-		return path;
+		return mPath;
 	}
 	public void setPath(Path path) {
-		this.path = path;
+		this.mPath = path;
 	}
 	
 	@Override
 	public String toString(){
-		return "x= " + x + ", y= " + y;
+		return "x= " + mX + ", y= " + mY;
 	}
 
     public int getColor() {
-        return color;
+        return mColor;
     }
 
     public void setColor(int color) {
-        this.color = color;
+        this.mColor = color;
+    }
+
+    public int getSelectedColor() {
+        return mSelectedColor;
+    }
+
+    public void setSelectedColor(int selectedColor) {
+        mSelectedColor = selectedColor;
     }
 }

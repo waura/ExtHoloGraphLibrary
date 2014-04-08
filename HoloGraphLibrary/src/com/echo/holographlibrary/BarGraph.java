@@ -23,10 +23,6 @@
 
 package com.echo.holographlibrary;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
@@ -42,6 +38,10 @@ import android.graphics.drawable.NinePatchDrawable;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class BarGraph extends View {
 
@@ -196,8 +196,7 @@ public class BarGraph extends View {
                     canvas.drawText(bar.getValueString(), (int)(((mRectangle.left+mRectangle.right)/2)-(this.mPaint.measureText(bar.getValueString()))/2), mRectangle.top-(mRectangle.top - boundTop)/2f+(float)Math.abs(r2.top-r2.bottom)/2f*0.7f, this.mPaint);
                 }
                 if (mIndexSelected == count && mListener != null) {
-                    this.mPaint.setColor(Color.parseColor("#33B5E5"));
-                    this.mPaint.setAlpha(100);
+                    this.mPaint.setColor(bar.getSelectedColor());
                     canvas.drawPath(bar.getPath(), this.mPaint);
                     this.mPaint.setAlpha(255);
                 }
