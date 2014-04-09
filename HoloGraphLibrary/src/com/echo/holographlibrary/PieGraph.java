@@ -23,24 +23,20 @@
 
 package com.echo.holographlibrary;
 
-import java.util.ArrayList;
-
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Path.Direction;
-import android.graphics.PixelFormat;
 import android.graphics.Point;
 import android.graphics.RectF;
 import android.graphics.Region;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
 import android.view.View;
+
+import java.util.ArrayList;
 
 public class PieGraph extends View {
 
@@ -107,8 +103,7 @@ public class PieGraph extends View {
 			if (indexSelected == count && listener != null){
 				path.reset();
 				paint.setColor(slice.getColor());
-				paint.setColor(Color.parseColor("#33B5E5"));
-				paint.setAlpha(100);
+				paint.setColor(slice.getSelectedColor());
 				
 				if (slices.size() > 1) {
 					path.arcTo(new RectF(midX-radius-(padding*2), midY-radius-(padding*2), midX+radius+(padding*2), midY+radius+(padding*2)), currentAngle, currentSweep+padding);

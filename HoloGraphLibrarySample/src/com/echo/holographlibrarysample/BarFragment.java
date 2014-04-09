@@ -25,18 +25,18 @@ package com.echo.holographlibrarysample;
 
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.actionbarsherlock.app.SherlockFragment;
 import com.echo.holographlibrary.Bar;
 import com.echo.holographlibrary.BarGraph;
 import com.echo.holographlibrary.BarGraph.OnBarClickedListener;
 
 import java.util.ArrayList;
 
-public class BarFragment extends SherlockFragment {
+public class BarFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -45,6 +45,7 @@ public class BarFragment extends SherlockFragment {
         ArrayList<Bar> points = new ArrayList<Bar>();
         Bar d = new Bar();
         d.setColor(resources.getColor(R.color.green_light));
+        d.setSelectedColor(resources.getColor(R.color.transparent_orange));
         d.setName("Test1");
         d.setValue(1000);
         d.setValueString("$1,000");

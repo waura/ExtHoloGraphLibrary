@@ -25,17 +25,17 @@ package com.echo.holographlibrarysample;
 
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.actionbarsherlock.app.SherlockFragment;
 import com.echo.holographlibrary.Line;
 import com.echo.holographlibrary.LineGraph;
 import com.echo.holographlibrary.LineGraph.OnPointClickedListener;
 import com.echo.holographlibrary.LinePoint;
 
-public class LineFragment extends SherlockFragment {
+public class LineFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -47,6 +47,7 @@ public class LineFragment extends SherlockFragment {
         p.setX(0);
         p.setY(5);
         p.setColor(resources.getColor(R.color.red));
+        p.setSelectedColor(resources.getColor(R.color.transparent_blue));
         l.addPoint(p);
         p = new LinePoint();
         p.setX(8);

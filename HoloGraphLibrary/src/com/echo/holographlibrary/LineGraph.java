@@ -23,8 +23,6 @@
 
 package com.echo.holographlibrary;
 
-import java.util.ArrayList;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
@@ -40,6 +38,8 @@ import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
+
+import java.util.ArrayList;
 
 public class LineGraph extends View {
 
@@ -452,8 +452,7 @@ public class LineGraph extends View {
 						p.setRegion(new Region((int)(xPixels-30), (int)(yPixels-30), (int)(xPixels+30), (int)(yPixels+30)));
 						
 						if (indexSelected == pointCount && listener != null){
-                            paint.setColor(p.getColor());
-							paint.setAlpha(100);
+                            paint.setColor(p.getSelectedColor());
 							canvas.drawPath(p.getPath(), paint);
 							paint.setAlpha(255);
 						}

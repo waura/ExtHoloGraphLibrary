@@ -1,8 +1,8 @@
 apply plugin: 'android'
 
 android {
-    compileSdkVersion 19
-    buildToolsVersion '19.0.1'
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
 
     sourceSets {
         main {
@@ -16,6 +16,6 @@ android {
 dependencies {
     compile project(':HoloGraphLibrary')
     compile 'com.android.support:support-v4:+'
-    compile 'com.actionbarsherlock:actionbarsherlock:4.4.0@aar'
+    compile 'com.android.support:appcompat-v7:+'
 }
 
