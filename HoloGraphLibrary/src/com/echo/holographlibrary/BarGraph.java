@@ -24,6 +24,8 @@
 package com.echo.holographlibrary;
 
 import android.content.Context;
+import android.content.res.Resources;
+import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
@@ -45,9 +47,13 @@ import java.util.Map;
 
 public class BarGraph extends View {
 
-	private final static int VALUE_FONT_SIZE = 30, AXIS_LABEL_FONT_SIZE = 15;
+    private final static int VALUE_FONT_SIZE = 30;
+    private final static int AXIS_LABEL_FONT_SIZE = 15;
     private final static float LABEL_PADDING_MULTIPLIER = 1.6f; //how much space to leave between labels when shrunken. Increase for less space.
-	
+    private final static int ORIENTATION_HORIZONTAL = 0;
+    private final static int ORIENTATION_VERTICAL = 1;
+
+    private final int mOrientation;
     private ArrayList<Bar> mBars = new ArrayList<Bar>();
     private Paint mPaint = new Paint();
     private Rect mRectangle = null;
@@ -57,19 +63,22 @@ public class BarGraph extends View {
     private OnBarClickedListener mListener;
     private Bitmap mFullImage;
     private boolean mShouldUpdate = false;
-    
-    private Context mContext = null;
-    
+
     public BarGraph(Context context) {
-        super(context);
-        mContext = context;
+        this(context, null);
     }
     
     public BarGraph(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        mContext = context;
+        this(context, attrs, 0);
     }
-    
+
+    public BarGraph(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+
+        TypedArray a = getContext().obtainStyledAttributes(attrs, R.styleable.BarGraph);
+        mOrientation = a.getInt(R.styleable.BarGraph_orientation, ORIENTATION_VERTICAL);
+    }
+
     public void setShowBarText(boolean show){
         mShowBarText = show;
     }
@@ -91,22 +100,24 @@ public class BarGraph extends View {
     public void onDraw(Canvas ca) {
     	
         if (mFullImage == null || mShouldUpdate) {
+            final Resources resources = getContext().getResources();
+
             mFullImage = Bitmap.createBitmap(getWidth(), getHeight(), Config.ARGB_8888);
             Canvas canvas = new Canvas(mFullImage);
             canvas.drawColor(Color.TRANSPARENT);
             NinePatchDrawable popup = (NinePatchDrawable)this.getResources().getDrawable(R.drawable.popup_black);
             
             float maxValue = 0;
-            float padding = 7 * mContext.getResources().getDisplayMetrics().density;
-            int selectPadding = (int) (4 * mContext.getResources().getDisplayMetrics().density);
-            float bottomPadding = 30 * mContext.getResources().getDisplayMetrics().density;
+            float padding = 7 * getContext().getResources().getDisplayMetrics().density;
+            int selectPadding = (int) (4 * resources.getDisplayMetrics().density);
+            float bottomPadding = 30 * resources.getDisplayMetrics().density;
             
             float usableHeight;
             if (mShowBarText) {
-                this.mPaint.setTextSize(VALUE_FONT_SIZE * mContext.getResources().getDisplayMetrics().scaledDensity);
+                this.mPaint.setTextSize(VALUE_FONT_SIZE * resources.getDisplayMetrics().scaledDensity);
                 Rect r3 = new Rect();
                 this.mPaint.getTextBounds("$", 0, 1, r3);
-                usableHeight = getHeight()-bottomPadding-Math.abs(r3.top-r3.bottom)-24 * mContext.getResources().getDisplayMetrics().density;
+                usableHeight = getHeight()-bottomPadding-Math.abs(r3.top-r3.bottom)-24 * resources.getDisplayMetrics().density;
             } else {
                 usableHeight = getHeight()-bottomPadding;
             }
@@ -114,10 +125,10 @@ public class BarGraph extends View {
             // Draw x-axis line
             if (mShowAxis){
                 mPaint.setColor(Color.BLACK);
-                mPaint.setStrokeWidth(2 * mContext.getResources().getDisplayMetrics().density);
+                mPaint.setStrokeWidth(2 * resources.getDisplayMetrics().density);
                 mPaint.setAlpha(50);
                 mPaint.setAntiAlias(true);
-                canvas.drawLine(0, getHeight()-bottomPadding+10* mContext.getResources().getDisplayMetrics().density, getWidth(), getHeight()-bottomPadding+10* mContext.getResources().getDisplayMetrics().density, mPaint);
+                canvas.drawLine(0, getHeight()-bottomPadding+10* resources.getDisplayMetrics().density, getWidth(), getHeight()-bottomPadding+10* resources.getDisplayMetrics().density, mPaint);
             }
             float barWidth = (getWidth() - (padding*2)*mBars.size())/mBars.size();
 
@@ -157,7 +168,7 @@ public class BarGraph extends View {
                 // Draw x-axis label text
                 if (mShowAxis){
                     this.mPaint.setColor(bar.getLabelColor());
-                    this.mPaint.setTextSize(AXIS_LABEL_FONT_SIZE * mContext.getResources().getDisplayMetrics().scaledDensity);
+                    this.mPaint.setTextSize(AXIS_LABEL_FONT_SIZE * resources.getDisplayMetrics().scaledDensity);
                     float textWidth = this.mPaint.measureText(bar.getName());
                     while (right - left + (padding *LABEL_PADDING_MULTIPLIER)< textWidth)//decrease text size to fit and not overlap with other labels.
                     {
@@ -165,20 +176,20 @@ public class BarGraph extends View {
                         textWidth = this.mPaint.measureText(bar.getName());
                     }
                     int x = (int)(((mRectangle.left+mRectangle.right)/2)-(textWidth/2));
-                    int y = (int) (getHeight()-3 * mContext.getResources().getDisplayMetrics().scaledDensity);
+                    int y = (int) (getHeight()-3 * resources.getDisplayMetrics().scaledDensity);
                     canvas.drawText(bar.getName(), x, y, this.mPaint);
                 }
 
                 // Draw value text
                 if (mShowBarText){
-                    this.mPaint.setTextSize(VALUE_FONT_SIZE * mContext.getResources().getDisplayMetrics().scaledDensity);
+                    this.mPaint.setTextSize(VALUE_FONT_SIZE * resources.getDisplayMetrics().scaledDensity);
                     this.mPaint.setColor(Color.WHITE);
                     Rect r2 = new Rect();
                     this.mPaint.getTextBounds(bar.getValueString(), 0, 1, r2);
                     
-                    int boundLeft = (int) (((mRectangle.left+mRectangle.right)/2)-(this.mPaint.measureText(bar.getValueString())/2)-10 * mContext.getResources().getDisplayMetrics().density);
-                    int boundTop = (int) (mRectangle.top+(r2.top-r2.bottom)-18 * mContext.getResources().getDisplayMetrics().density);
-                    int boundRight = (int)(((mRectangle.left+mRectangle.right)/2)+(this.mPaint.measureText(bar.getValueString())/2)+10 * mContext.getResources().getDisplayMetrics().density);
+                    int boundLeft = (int) (((mRectangle.left+mRectangle.right)/2)-(this.mPaint.measureText(bar.getValueString())/2)-10 * resources.getDisplayMetrics().density);
+                    int boundTop = (int) (mRectangle.top+(r2.top-r2.bottom)-18 * resources.getDisplayMetrics().density);
+                    int boundRight = (int)(((mRectangle.left+mRectangle.right)/2)+(this.mPaint.measureText(bar.getValueString())/2)+10 * resources.getDisplayMetrics().density);
 
                     if (boundLeft < mRectangle.left) boundLeft = mRectangle.left - ((int)padding /2);//limit popup width to bar width
                     if (boundRight > mRectangle.right)boundRight = mRectangle.right + ((int) padding /2);
@@ -206,7 +217,6 @@ public class BarGraph extends View {
         }
         
         ca.drawBitmap(mFullImage, 0, 0, null);
-        
     }
 
     @Override
@@ -238,8 +248,6 @@ public class BarGraph extends View {
             mShouldUpdate = true;
             postInvalidate();
         }
-        
-        
 
         return true;
     }

@@ -45,6 +45,7 @@ import java.util.ArrayList;
 public class LineGraph extends View {
 
 	private static final int DEFAULT_PADDING = 10;
+    private final int dipPadding;
     private final int mFillColor;
     private final float mStrokeWidth;
     private final int mStrokeSpacing;
@@ -61,9 +62,8 @@ public class LineGraph extends View {
 	private Bitmap fullImage;
 	private boolean shouldUpdate = false;
 	// since this is a new addition, it has to default to false to be backwards compatible
-	private boolean isUsingDips = false;
-	private int dipPadding = DEFAULT_PADDING;
-	
+	private boolean isUsingDips;
+
 	public LineGraph(Context context){
 		this(context, null);
 	}
@@ -77,9 +77,10 @@ public class LineGraph extends View {
         dipPadding = getPixelForDip(DEFAULT_PADDING);
 
         TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.LineGraph, 0, 0);
-        mFillColor = a.getColor(R.styleable.LineGraph_fillColor, Color.BLACK);
+        mFillColor = a.getColor(R.styleable.LineGraph_strokeColor, Color.BLACK);
         mStrokeWidth = a.getDimension(R.styleable.LineGraph_strokeWidth, 2);
         mStrokeSpacing = a.getDimensionPixelSize(R.styleable.LineGraph_strokeSpacing, 10);
+        isUsingDips = a.getBoolean(R.styleable.LineGraph_useDip, false);
     }
 
     public boolean isUsingDips() {

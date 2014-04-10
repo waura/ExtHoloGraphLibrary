@@ -29,7 +29,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.graphics.Path.Direction;
 import android.graphics.Point;
 import android.graphics.RectF;
 import android.graphics.Region;
@@ -42,7 +41,7 @@ import java.util.ArrayList;
 public class PieGraph extends View {
 
     private final int mPadding;
-    private final int mThickness;
+    private final int mInnerCircleRatio;
     private ArrayList<PieSlice> mSlices = new ArrayList<PieSlice>();
     private Paint mPaint = new Paint();
     private Path mPath = new Path();
@@ -62,9 +61,8 @@ public class PieGraph extends View {
 		super(context, attrs);
 
         TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.PieGraph, 0, 0);
-        mThickness = a.getDimensionPixelSize(R.styleable.PieGraph_thickness,
-                (int) (25f * context.getResources().getDisplayMetrics().density));
-        mPadding = a.getDimensionPixelSize(R.styleable.PieGraph_padding, 0);
+        mInnerCircleRatio = a.getInt(R.styleable.PieGraph_innerCircleRatio, 0);
+        mPadding = a.getDimensionPixelSize(R.styleable.PieGraph_slicePadding, 0);
 	}
 
 	public void onDraw(Canvas canvas) {
@@ -86,7 +84,7 @@ public class PieGraph extends View {
 			radius = midY;
 		}
 		radius -= mPadding;
-		innerRadius = radius - mThickness;
+		innerRadius = radius * mInnerCircleRatio / 255;
 
 		for (PieSlice slice : mSlices){
 			totalValue += slice.getValue();
@@ -95,7 +93,12 @@ public class PieGraph extends View {
 		int count = 0;
 		for (PieSlice slice : mSlices){
 			Path p = new Path();
-			mPaint.setColor(slice.getColor());
+            if (mSelectedIndex == count && mListener != null){
+                mPaint.setColor(slice.getSelectedColor());
+            }
+            else {
+                mPaint.setColor(slice.getColor());
+            }
 			currentSweep = (slice.getValue()/totalValue)*(360);
 			p.arcTo(new RectF(midX-radius, midY-radius, midX+radius, midY+radius),
                     currentAngle+mPadding, currentSweep - mPadding);
@@ -107,30 +110,6 @@ public class PieGraph extends View {
 			slice.setRegion(new Region((int)(midX-radius), (int)(midY-radius),
                     (int)(midX+radius), (int)(midY+radius)));
 			canvas.drawPath(p, mPaint);
-
-			if (mSelectedIndex == count && mListener != null){
-				mPath.reset();
-				mPaint.setColor(slice.getColor());
-				mPaint.setColor(slice.getSelectedColor());
-
-				if (mSlices.size() > 1) {
-					mPath.arcTo(new RectF(midX - radius - (mPadding * 2), midY - radius - (mPadding * 2),
-                                    midX + radius + (mPadding * 2), midY + radius + (mPadding * 2)),
-                            currentAngle, currentSweep + mPadding
-                    );
-					mPath.arcTo(new RectF(midX - innerRadius + (mPadding * 2), midY - innerRadius + (mPadding * 2),
-                                    midX + innerRadius - (mPadding * 2), midY + innerRadius - (mPadding * 2)),
-                            currentAngle + currentSweep + mPadding, -(currentSweep + mPadding)
-                    );
-					mPath.close();
-				} else {
-					mPath.addCircle(midX, midY, radius + mPadding, Direction.CW);
-				}
-
-				canvas.drawPath(mPath, mPaint);
-				mPaint.setAlpha(255);
-			}
-
 			currentAngle = currentAngle+currentSweep;
 
 			count++;
@@ -205,7 +184,7 @@ public class PieGraph extends View {
 		postInvalidate();
 	}
 
-	public static interface OnSliceClickedListener {
+	public interface OnSliceClickedListener {
 		public abstract void onClick(int index);
 	}
 }

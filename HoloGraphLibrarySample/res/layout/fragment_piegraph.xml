@@ -12,7 +12,7 @@
         android:layout_height="match_parent"
         android:id="@+id/piegraph"
         android:layout_margin="@dimen/default_margin"
-        app:thickness="60dip"
-        app:padding="0dip"/>
+        app:innerCircleRatio="128"
+        app:slicePadding="0dip"/>
 
 </LinearLayout>
