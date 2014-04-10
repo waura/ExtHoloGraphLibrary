@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <declare-styleable name="PieGraph">
+        <attr name="thickness" format="dimension"/>
+        <attr name="padding" format="dimension"/>
+    </declare-styleable>
+
+    <declare-styleable name="LineGraph">
+        <attr name="fillColor" format="color"/>
+        <attr name="strokeWidth" format="dimension"/>
+        <attr name="strokeSpacing" format="dimension"/>
+    </declare-styleable>
+
+</resources>

@@ -24,6 +24,7 @@
 package com.echo.holographlibrary;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
@@ -44,6 +45,9 @@ import java.util.ArrayList;
 public class LineGraph extends View {
 
 	private static final int DEFAULT_PADDING = 10;
+    private final int mFillColor;
+    private final float mStrokeWidth;
+    private final int mStrokeSpacing;
 	private ArrayList<Line> lines = new ArrayList<Line>();
 	Paint paint = new Paint();
 	private float minY = 0, minX = 0;
@@ -58,20 +62,27 @@ public class LineGraph extends View {
 	private boolean shouldUpdate = false;
 	// since this is a new addition, it has to default to false to be backwards compatible
 	private boolean isUsingDips = false;
-	private int pixelPadding = DEFAULT_PADDING;
 	private int dipPadding = DEFAULT_PADDING;
 	
 	public LineGraph(Context context){
-		super(context);
-		dipPadding = getPixelForDip(DEFAULT_PADDING);
+		this(context, null);
 	}
 	
 	public LineGraph(Context context, AttributeSet attrs) {
-		super(context, attrs);
-		dipPadding = getPixelForDip(DEFAULT_PADDING);
+		this(context, attrs, 0);
 	}
 
-	public boolean isUsingDips() {
+    public LineGraph(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+        dipPadding = getPixelForDip(DEFAULT_PADDING);
+
+        TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.LineGraph, 0, 0);
+        mFillColor = a.getColor(R.styleable.LineGraph_fillColor, Color.BLACK);
+        mStrokeWidth = a.getDimension(R.styleable.LineGraph_strokeWidth, 2);
+        mStrokeSpacing = a.getDimensionPixelSize(R.styleable.LineGraph_strokeSpacing, 10);
+    }
+
+    public boolean isUsingDips() {
 		return isUsingDips;
 	}
 
@@ -289,10 +300,7 @@ public class LineGraph extends View {
 		minX = min;
 		return minX;
 	}
-	
 
-
-	 
 	public void onDraw(Canvas ca) {
 		if (fullImage == null || shouldUpdate) {
 			fullImage = Bitmap.createBitmap(getWidth(), getHeight(), Config.ARGB_8888);
@@ -320,19 +328,18 @@ public class LineGraph extends View {
 			int lineCount = 0;
 			for (Line line : lines){
 				int count = 0;
-				float firstXPixels = 0, lastXPixels = 0, newYPixels = 0;
+				float lastXPixels = 0, newYPixels = 0;
 				float lastYPixels = 0, newXPixels = 0;
 				
 				if (lineCount == lineToFill){
-					paint.setColor(Color.BLACK);
-					paint.setAlpha(30);
-					paint.setStrokeWidth(2);
-					for (int i = 10; i-getWidth() < getHeight(); i = i+20){
+					paint.setColor(mFillColor);
+					paint.setStrokeWidth(mStrokeWidth);
+					for (int i = 10; i-getWidth() < getHeight(); i = i+mStrokeSpacing){
 						canvas.drawLine(i, getHeight()-bottomPadding, 0, getHeight()-bottomPadding-i, paint);
 					}
 					
 					paint.reset();
-					
+
 					paint.setXfermode(new PorterDuffXfermode(android.graphics.PorterDuff.Mode.CLEAR));
 					for (LinePoint p : line.getPoints()){
 						float yPercent = (p.getY()-minY)/(maxY - minY);
@@ -340,7 +347,6 @@ public class LineGraph extends View {
 						if (count == 0){
 							lastXPixels = sidePadding + (xPercent*usableWidth);
 							lastYPixels = getHeight() - bottomPadding - (usableHeight*yPercent);
-							firstXPixels = lastXPixels;
 							path.moveTo(lastXPixels, lastYPixels);
 						} else {
 							newXPixels = sidePadding + (xPercent*usableWidth);
@@ -466,8 +472,6 @@ public class LineGraph extends View {
 		}
 		
 		ca.drawBitmap(fullImage, 0, 0, null);
-		
-		
 	}
 
 	private int getStrokeWidth(Line line) {
