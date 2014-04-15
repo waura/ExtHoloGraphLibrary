@@ -239,7 +239,7 @@ public class BarGraph extends View {
                 }
             }
             else if(event.getAction() == MotionEvent.ACTION_CANCEL)
-            	mIndexSelected = -1;
+                mIndexSelected = -1;
 
             count++;
         }
@@ -255,10 +255,10 @@ public class BarGraph extends View {
     @Override
     protected void onDetachedFromWindow()
     {
-    	if(mFullImage != null)
-    		mFullImage.recycle();
+        if(mFullImage != null)
+            mFullImage.recycle();
 
-    	super.onDetachedFromWindow();
+        super.onDetachedFromWindow();
     }
 
     public void setOnBarClickedListener(OnBarClickedListener listener) {
