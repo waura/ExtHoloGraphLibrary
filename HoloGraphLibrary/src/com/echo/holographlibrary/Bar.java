@@ -27,15 +27,16 @@ import android.graphics.Path;
 import android.graphics.Region;
 
 public class Bar {
+
+    private final Path mPath = new Path();
+    private final Region mRegion = new Region();
     private int mColor = 0xFF33B5E5;
-	private int mLabelColor = -1;
-    private int mSelectedColor = 0x8033B5E5;
-	private String mName = null;
-	private float mValue;
-	private String mValueString = null;
-	private Path mPath = null;
-	private Region mRegion = null;
-	
+    private int mLabelColor = -1;
+    private int mSelectedColor = -1;
+    private String mName = null;
+    private float mValue;
+    private String mValueString = null;
+
 	public int getColor() {
 		return mColor;
 	}
@@ -50,6 +51,7 @@ public class Bar {
 	}
 
     public int getSelectedColor() {
+        if(-1 == mSelectedColor) mSelectedColor = Utils.darkenColor(mColor);
         return mSelectedColor;
     }
 
@@ -70,8 +72,7 @@ public class Bar {
 		this.mValue = value;
 	}
 	
-	public String getValueString()
-	{
+	public String getValueString() {
 		if (mValueString != null) {
 			return mValueString;
 		} else {
@@ -87,14 +88,8 @@ public class Bar {
 	public Path getPath() {
 		return mPath;
 	}
-	public void setPath(Path path) {
-		this.mPath = path;
-	}
+
 	public Region getRegion() {
 		return mRegion;
 	}
-	public void setRegion(Region region) {
-		this.mRegion = region;
-	}
-	
 }

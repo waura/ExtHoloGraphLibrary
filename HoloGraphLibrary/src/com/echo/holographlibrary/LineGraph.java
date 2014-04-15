@@ -50,7 +50,7 @@ public class LineGraph extends View {
     private final float mStrokeWidth;
     private final int mStrokeSpacing;
 	private ArrayList<Line> lines = new ArrayList<Line>();
-	Paint paint = new Paint();
+	private Paint paint = new Paint();
 	private float minY = 0, minX = 0;
 	private float maxY = 0, maxX = 0;
 	private double rangeYRatio = 0;
@@ -63,6 +63,7 @@ public class LineGraph extends View {
 	private boolean shouldUpdate = false;
 	// since this is a new addition, it has to default to false to be backwards compatible
 	private boolean isUsingDips;
+    private Path mPath = new Path();
 
 	public LineGraph(Context context){
 		this(context, null);
@@ -308,7 +309,6 @@ public class LineGraph extends View {
 			Canvas canvas = new Canvas(fullImage);
 			
 			paint.reset();
-			Path path = new Path();
 
 			float bottomPadding = 10, topPadding = 10;
 			float sidePadding = 10;
@@ -340,6 +340,7 @@ public class LineGraph extends View {
 					}
 					
 					paint.reset();
+                    mPath.reset();
 
 					paint.setXfermode(new PorterDuffXfermode(android.graphics.PorterDuff.Mode.CLEAR));
 					for (LinePoint p : line.getPoints()){
@@ -348,43 +349,39 @@ public class LineGraph extends View {
 						if (count == 0){
 							lastXPixels = sidePadding + (xPercent*usableWidth);
 							lastYPixels = getHeight() - bottomPadding - (usableHeight*yPercent);
-							path.moveTo(lastXPixels, lastYPixels);
+                            mPath.moveTo(lastXPixels, lastYPixels);
 						} else {
 							newXPixels = sidePadding + (xPercent*usableWidth);
 							newYPixels = getHeight() - bottomPadding - (usableHeight*yPercent);
-							path.lineTo(newXPixels, newYPixels);
-							Path pa = new Path();
-							pa.moveTo(lastXPixels, lastYPixels);
-							pa.lineTo(newXPixels, newYPixels);
-							pa.lineTo(newXPixels, 0);
-							pa.lineTo(lastXPixels, 0);
-							pa.close();
-							canvas.drawPath(pa, paint);
+                            mPath.lineTo(newXPixels, newYPixels);
+                            mPath.moveTo(lastXPixels, lastYPixels);
+                            mPath.lineTo(newXPixels, newYPixels);
+                            mPath.lineTo(newXPixels, 0);
+                            mPath.lineTo(lastXPixels, 0);
+                            mPath.close();
+							canvas.drawPath(mPath, paint);
 							lastXPixels = newXPixels;
 							lastYPixels = newYPixels;
 						}
 						count++;
 					}
+
+                    mPath.reset();
+                    mPath.moveTo(0, getHeight()-bottomPadding);
+                    mPath.lineTo(sidePadding, getHeight()-bottomPadding);
+					mPath.lineTo(sidePadding, 0);
+					mPath.lineTo(0, 0);
+					mPath.close();
+					canvas.drawPath(mPath, paint);
 					
-					path.reset();
+					mPath.reset();
+					mPath.moveTo(getWidth(), getHeight()-bottomPadding);
+					mPath.lineTo(getWidth()-sidePadding, getHeight()-bottomPadding);
+					mPath.lineTo(getWidth()-sidePadding, 0);
+					mPath.lineTo(getWidth(), 0);
+					mPath.close();
 					
-					path.moveTo(0, getHeight()-bottomPadding);
-					path.lineTo(sidePadding, getHeight()-bottomPadding);
-					path.lineTo(sidePadding, 0);
-					path.lineTo(0, 0);
-					path.close();
-					canvas.drawPath(path, paint);
-					
-					path.reset();
-					
-					path.moveTo(getWidth(), getHeight()-bottomPadding);
-					path.lineTo(getWidth()-sidePadding, getHeight()-bottomPadding);
-					path.lineTo(getWidth()-sidePadding, 0);
-					path.lineTo(getWidth(), 0);
-					path.close();
-					
-					canvas.drawPath(path, paint);
-					
+					canvas.drawPath(mPath, paint);
 				}
 				
 				lineCount++;
@@ -453,10 +450,9 @@ public class LineGraph extends View {
 						paint.setColor(Color.WHITE);
 						canvas.drawCircle(xPixels, yPixels, innerRadius, paint);
 						
-						Path path2 = new Path();
-						path2.addCircle(xPixels, yPixels, 30, Direction.CW);
-						p.setPath(path2);
-						p.setRegion(new Region((int)(xPixels-30), (int)(yPixels-30), (int)(xPixels+30), (int)(yPixels+30)));
+                        p.getPath().reset();
+                        p.getPath().addCircle(xPixels, yPixels, 30, Direction.CW);
+						p.getRegion().set((int) (xPixels - 30), (int) (yPixels - 30), (int) (xPixels + 30), (int) (yPixels + 30));
 						
 						if (indexSelected == pointCount && listener != null){
                             paint.setColor(p.getSelectedColor());
@@ -468,7 +464,7 @@ public class LineGraph extends View {
 					}
 				}
 			}
-			
+
 			shouldUpdate = false;
 		}
 		
@@ -502,7 +498,7 @@ public class LineGraph extends View {
 	    
 	    int count = 0;
 	    int lineCount = 0;
-	    int pointCount = 0;
+	    int pointCount;
 	    
 	    Region r = new Region();
 	    for (Line line : lines){
@@ -511,10 +507,10 @@ public class LineGraph extends View {
 	    		
 	    		if (p.getPath() != null && p.getRegion() != null){
 	    			r.setPath(p.getPath(), p.getRegion());
-			    	if (r.contains((int)point.x,(int) point.y) && event.getAction() == MotionEvent.ACTION_DOWN){
+			    	if (r.contains(point.x, point.y) && event.getAction() == MotionEvent.ACTION_DOWN){
 			    		indexSelected = count;
 			    	} else if (event.getAction() == MotionEvent.ACTION_UP){
-			    		if (r.contains((int)point.x,(int) point.y) && listener != null){
+			    		if (r.contains(point.x, point.y) && listener != null){
 			    			listener.onClick(lineCount, pointCount);
 			    		}
 			    		indexSelected = -1;
@@ -525,15 +521,12 @@ public class LineGraph extends View {
 			    count++;
 	    	}
 	    	lineCount++;
-	    	
 	    }
 	    
 	    if (event.getAction() == MotionEvent.ACTION_DOWN || event.getAction() == MotionEvent.ACTION_UP){
 	    	shouldUpdate = true;
 	    	postInvalidate();
 	    }
-	    
-	    
 
 	    return true;
 	}

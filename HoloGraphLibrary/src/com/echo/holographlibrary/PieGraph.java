@@ -40,14 +40,14 @@ import java.util.ArrayList;
 
 public class PieGraph extends View {
 
-    private final int mPadding;
-    private final int mInnerCircleRatio;
+    private int mPadding;
+    private int mInnerCircleRatio;
     private ArrayList<PieSlice> mSlices = new ArrayList<PieSlice>();
     private Paint mPaint = new Paint();
-    private Path mPath = new Path();
     private int mSelectedIndex = -1;
 	private OnSliceClickedListener mListener;
 	private boolean mDrawCompleted = false;
+    private RectF mRectF = new RectF();
 
 	public PieGraph(Context context) {
 		this(context, null);
@@ -66,11 +66,11 @@ public class PieGraph extends View {
 	}
 
 	public void onDraw(Canvas canvas) {
-		canvas.drawColor(Color.TRANSPARENT);
-		mPaint.reset();
-		mPaint.setAntiAlias(true);
-		float midX, midY, radius, innerRadius;
-		mPath.reset();
+        float midX, midY, radius, innerRadius;
+
+        canvas.drawColor(Color.TRANSPARENT);
+        mPaint.reset();
+        mPaint.setAntiAlias(true);
 
 		float currentAngle = 270;
 		float currentSweep = 0;
@@ -92,7 +92,9 @@ public class PieGraph extends View {
 
 		int count = 0;
 		for (PieSlice slice : mSlices){
-			Path p = new Path();
+            Path p = slice.getPath();
+            p.reset();
+
             if (mSelectedIndex == count && mListener != null){
                 mPaint.setColor(slice.getSelectedColor());
             }
@@ -100,15 +102,19 @@ public class PieGraph extends View {
                 mPaint.setColor(slice.getColor());
             }
 			currentSweep = (slice.getValue()/totalValue)*(360);
-			p.arcTo(new RectF(midX-radius, midY-radius, midX+radius, midY+radius),
-                    currentAngle+mPadding, currentSweep - mPadding);
-			p.arcTo(new RectF(midX-innerRadius, midY-innerRadius, midX+innerRadius, midY+innerRadius),
+            mRectF.set(midX - radius, midY - radius, midX + radius, midY + radius);
+			p.arcTo(mRectF,
+                    currentAngle + mPadding, currentSweep - mPadding);
+            mRectF.set(midX-innerRadius, midY-innerRadius, midX+innerRadius, midY+innerRadius);
+			p.arcTo(mRectF,
                     (currentAngle+mPadding) + (currentSweep - mPadding), -(currentSweep-mPadding));
 			p.close();
 
-			slice.setPath(p);
-			slice.setRegion(new Region((int)(midX-radius), (int)(midY-radius),
-                    (int)(midX+radius), (int)(midY+radius)));
+            Region r = slice.getRegion();
+            r.set((int)(midX-radius),
+                    (int)(midY-radius),
+                    (int)(midX+radius),
+                    (int)(midY+radius));
 			canvas.drawPath(p, mPaint);
 			currentAngle = currentAngle+currentSweep;
 
@@ -130,32 +136,46 @@ public class PieGraph extends View {
 			for (PieSlice slice : mSlices){
 				Region r = new Region();
 				r.setPath(slice.getPath(), slice.getRegion());
-				if (r.contains((int)point.x,(int) point.y) && event.getAction() == MotionEvent.ACTION_DOWN){
-					mSelectedIndex = count;
-				} else if (event.getAction() == MotionEvent.ACTION_UP){
-					if (r.contains((int)point.x,(int) point.y) && mListener != null){
-						if (mSelectedIndex > -1){
-							mListener.onClick(mSelectedIndex);
-						}
-						mSelectedIndex = -1;
-					}
-
-				}
-				else if(event.getAction() == MotionEvent.ACTION_CANCEL)
-					mSelectedIndex = -1;
+                switch (event.getAction()) {
+                    default:
+                        break;
+                    case MotionEvent.ACTION_DOWN:
+                        if (r.contains(point.x, point.y)) {
+                            mSelectedIndex = count;
+                            postInvalidate();
+                        }
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        if (r.contains(point.x, point.y) && mListener != null){
+                            if (mSelectedIndex > -1){
+                                mListener.onClick(mSelectedIndex);
+                            }
+                            mSelectedIndex = -1;
+                            postInvalidate();
+                        }
+                        break;
+                    case MotionEvent.ACTION_CANCEL:
+                        mSelectedIndex = -1;
+                        postInvalidate();
+                        break;
+                }
 				count++;
-			}
-
-			if (event.getAction() == MotionEvent.ACTION_DOWN ||
-                    event.getAction() == MotionEvent.ACTION_UP ||
-                    event.getAction() == MotionEvent.ACTION_CANCEL){
-				postInvalidate();
 			}
 	    }
 	    return true;
 	}
 
-	public ArrayList<PieSlice> getSlices() {
+    public void setPadding(int padding) {
+        mPadding = padding;
+        postInvalidate();
+    }
+
+    public void setInnerCircleRatio(int innerCircleRatio) {
+        mInnerCircleRatio = innerCircleRatio;
+        postInvalidate();
+    }
+
+    public ArrayList<PieSlice> getSlices() {
 		return mSlices;
 	}
 
@@ -178,9 +198,7 @@ public class PieGraph extends View {
 	}
 
 	public void removeSlices(){
-		for (int i = mSlices.size()-1; i >= 0; i--){
-			mSlices.remove(i);
-		}
+        this.mSlices.clear();
 		postInvalidate();
 	}
 

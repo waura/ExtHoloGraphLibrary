@@ -27,12 +27,13 @@ import android.graphics.Path;
 import android.graphics.Region;
 
 public class LinePoint {
-	private float mX = 0;
-	private float mY = 0;
-	private Path mPath;
-	private Region mRegion;
+
+    final private Path mPath = new Path();
+    final private Region mRegion = new Region();
+    private float mX = 0;
+    private float mY = 0;
     private int mColor = 0xFF000000;
-    private int mSelectedColor = 0x8033B5E5;
+    private int mSelectedColor = -1;
 
     public LinePoint(){
     }
@@ -41,10 +42,12 @@ public class LinePoint {
 		this.mX = (float)x;
 		this.mY = (float)y;
 	}
+
 	public LinePoint(float x, float y){
 		this.mX = x;
 		this.mY = y;
 	}
+
 	public float getX() {
 		return mX;
 	}
@@ -68,16 +71,10 @@ public class LinePoint {
 	public Region getRegion() {
 		return mRegion;
 	}
-	public void setRegion(Region region) {
-		this.mRegion = region;
-	}
 	public Path getPath() {
 		return mPath;
 	}
-	public void setPath(Path path) {
-		this.mPath = path;
-	}
-	
+
 	@Override
 	public String toString(){
 		return "x= " + mX + ", y= " + mY;
@@ -92,6 +89,10 @@ public class LinePoint {
     }
 
     public int getSelectedColor() {
+        if(-1 == mSelectedColor) {
+            mSelectedColor = Utils.darkenColor(mColor);
+            mSelectedColor &= 0x80FFFFFF;
+        }
         return mSelectedColor;
     }
 
