@@ -78,7 +78,7 @@ public class PieGraph extends View {
 
         midX = getWidth()/2;
         midY = getHeight()/2;
-        if (midX < midY){
+        if (midX < midY) {
             radius = midX;
         } else {
             radius = midY;
@@ -86,17 +86,16 @@ public class PieGraph extends View {
         radius -= mPadding;
         innerRadius = radius * mInnerCircleRatio / 255;
 
-        for (PieSlice slice : mSlices){
+        for (PieSlice slice : mSlices) {
             totalValue += slice.getValue();
         }
 
         int count = 0;
-        for (PieSlice slice : mSlices){
+        for (PieSlice slice : mSlices) {
             Path p = new Path();
-            if (mSelectedIndex == count && mListener != null){
+            if (mSelectedIndex == count && mListener != null) {
                 mPaint.setColor(slice.getSelectedColor());
-            }
-            else {
+            } else {
                 mPaint.setColor(slice.getColor());
             }
             currentSweep = (slice.getValue()/totalValue)*(360);
@@ -127,28 +126,28 @@ public class PieGraph extends View {
             point.y = (int) event.getY();
 
             int count = 0;
-            for (PieSlice slice : mSlices){
+            for (PieSlice slice : mSlices) {
                 Region r = new Region();
                 r.setPath(slice.getPath(), slice.getRegion());
-                if (r.contains((int)point.x,(int) point.y) && event.getAction() == MotionEvent.ACTION_DOWN){
+                if (r.contains((int)point.x,(int) point.y) && event.getAction() == MotionEvent.ACTION_DOWN) {
                     mSelectedIndex = count;
-                } else if (event.getAction() == MotionEvent.ACTION_UP){
-                    if (r.contains((int)point.x,(int) point.y) && mListener != null){
-                        if (mSelectedIndex > -1){
+                } else if (event.getAction() == MotionEvent.ACTION_UP) {
+                    if (r.contains((int)point.x,(int) point.y) && mListener != null) {
+                        if (mSelectedIndex > -1) {
                             mListener.onClick(mSelectedIndex);
                         }
                         mSelectedIndex = -1;
                     }
 
-                }
-                else if(event.getAction() == MotionEvent.ACTION_CANCEL)
+                } else if (event.getAction() == MotionEvent.ACTION_CANCEL) {
                     mSelectedIndex = -1;
+                }
                 count++;
             }
 
             if (event.getAction() == MotionEvent.ACTION_DOWN ||
                     event.getAction() == MotionEvent.ACTION_UP ||
-                    event.getAction() == MotionEvent.ACTION_CANCEL){
+                    event.getAction() == MotionEvent.ACTION_CANCEL) {
                 postInvalidate();
             }
         }
@@ -177,8 +176,8 @@ public class PieGraph extends View {
         this.mListener = listener;
     }
 
-    public void removeSlices(){
-        for (int i = mSlices.size()-1; i >= 0; i--){
+    public void removeSlices() {
+        for (int i = mSlices.size()-1; i >= 0; i--) {
             mSlices.remove(i);
         }
         postInvalidate();

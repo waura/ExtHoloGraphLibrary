@@ -79,21 +79,21 @@ public class BarGraph extends View {
         mOrientation = a.getInt(R.styleable.BarGraph_orientation, ORIENTATION_VERTICAL);
     }
 
-    public void setShowBarText(boolean show){
+    public void setShowBarText(boolean show) {
         mShowBarText = show;
     }
 
-    public void setShowAxis(boolean show){
+    public void setShowAxis(boolean show) {
         mShowAxis = show;
     }
 
-    public void setBars(ArrayList<Bar> points){
+    public void setBars(ArrayList<Bar> points) {
         this.mBars = points;
         mShouldUpdate = true;
         postInvalidate();
     }
 
-    public ArrayList<Bar> getBars(){
+    public ArrayList<Bar> getBars() {
         return this.mBars;
     }
 
@@ -123,7 +123,7 @@ public class BarGraph extends View {
             }
 
             // Draw x-axis line
-            if (mShowAxis){
+            if (mShowAxis) {
                 mPaint.setColor(Color.BLACK);
                 mPaint.setStrokeWidth(2 * resources.getDisplayMetrics().density);
                 mPaint.setAlpha(50);
@@ -166,12 +166,11 @@ public class BarGraph extends View {
                 bar.setRegion(new Region(mRectangle.left-selectPadding, mRectangle.top-selectPadding, mRectangle.right+selectPadding, mRectangle.bottom+selectPadding));
 
                 // Draw x-axis label text
-                if (mShowAxis){
+                if (mShowAxis) {
                     this.mPaint.setColor(bar.getLabelColor());
                     this.mPaint.setTextSize(AXIS_LABEL_FONT_SIZE * resources.getDisplayMetrics().scaledDensity);
                     float textWidth = this.mPaint.measureText(bar.getName());
-                    while (right - left + (padding *LABEL_PADDING_MULTIPLIER)< textWidth)//decrease text size to fit and not overlap with other labels.
-                    {
+                    while (right - left + (padding *LABEL_PADDING_MULTIPLIER)< textWidth) { //decrease text size to fit and not overlap with other labels.
                         this.mPaint.setTextSize(this.mPaint.getTextSize() -  1);
                         textWidth = this.mPaint.measureText(bar.getName());
                     }
@@ -181,7 +180,7 @@ public class BarGraph extends View {
                 }
 
                 // Draw value text
-                if (mShowBarText){
+                if (mShowBarText) {
                     this.mPaint.setTextSize(VALUE_FONT_SIZE * resources.getDisplayMetrics().scaledDensity);
                     this.mPaint.setColor(Color.WHITE);
                     Rect r2 = new Rect();
@@ -191,19 +190,20 @@ public class BarGraph extends View {
                     int boundTop = (int) (mRectangle.top+(r2.top-r2.bottom)-18 * resources.getDisplayMetrics().density);
                     int boundRight = (int)(((mRectangle.left+mRectangle.right)/2)+(this.mPaint.measureText(bar.getValueString())/2)+10 * resources.getDisplayMetrics().density);
 
-                    if (boundLeft < mRectangle.left) boundLeft = mRectangle.left - ((int)padding /2);//limit popup width to bar width
+                    if (boundLeft < mRectangle.left) boundLeft = mRectangle.left - ((int)padding /2); //limit popup width to bar width
                     if (boundRight > mRectangle.right)boundRight = mRectangle.right + ((int) padding /2);
 
                     popup.setBounds(boundLeft, boundTop, boundRight, mRectangle.top);
                     popup.draw(canvas);
 
-                    if (!valueTextSizes.containsKey(bar.getValueString().length()))//check cache to see if we've done this calculation before
-                    {
-                        while (this.mPaint.measureText(bar.getValueString()) > boundRight - boundLeft)
+                    if (!valueTextSizes.containsKey(bar.getValueString().length())) { //check cache to see if we've done this calculation before
+                        while (this.mPaint.measureText(bar.getValueString()) > boundRight - boundLeft) {
                             this.mPaint.setTextSize(this.mPaint.getTextSize() - (float)1);
+                        }
                         valueTextSizes.put(bar.getValueString().length(), mPaint.getTextSize());
+                    } else {
+                        this.mPaint.setTextSize(valueTextSizes.get(bar.getValueString().length()));
                     }
-                    else this.mPaint.setTextSize(valueTextSizes.get(bar.getValueString().length()));
                     canvas.drawText(bar.getValueString(), (int)(((mRectangle.left+mRectangle.right)/2)-(this.mPaint.measureText(bar.getValueString()))/2), mRectangle.top-(mRectangle.top - boundTop)/2f+(float)Math.abs(r2.top-r2.bottom)/2f*0.7f, this.mPaint);
                 }
                 if (mIndexSelected == count && mListener != null) {
@@ -227,24 +227,24 @@ public class BarGraph extends View {
         point.y = (int) event.getY();
 
         int count = 0;
-        for (Bar bar : mBars){
+        for (Bar bar : mBars) {
             Region r = new Region();
             r.setPath(bar.getPath(), bar.getRegion());
-            if (r.contains((int)point.x,(int) point.y) && event.getAction() == MotionEvent.ACTION_DOWN){
+            if (r.contains((int)point.x,(int) point.y) && event.getAction() == MotionEvent.ACTION_DOWN) {
                 mIndexSelected = count;
-            } else if (event.getAction() == MotionEvent.ACTION_UP){
-                if (r.contains((int)point.x,(int) point.y) && mListener != null){
+            } else if (event.getAction() == MotionEvent.ACTION_UP) {
+                if (r.contains((int)point.x,(int) point.y) && mListener != null) {
                     if (mIndexSelected > -1) mListener.onClick(mIndexSelected);
                     mIndexSelected = -1;
                 }
-            }
-            else if(event.getAction() == MotionEvent.ACTION_CANCEL)
+            } else if (event.getAction() == MotionEvent.ACTION_CANCEL) {
                 mIndexSelected = -1;
+            }
 
             count++;
         }
 
-        if (event.getAction() == MotionEvent.ACTION_DOWN || event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL){
+        if (event.getAction() == MotionEvent.ACTION_DOWN || event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL) {
             mShouldUpdate = true;
             postInvalidate();
         }
@@ -253,10 +253,10 @@ public class BarGraph extends View {
     }
 
     @Override
-    protected void onDetachedFromWindow()
-    {
-        if(mFullImage != null)
+    protected void onDetachedFromWindow() {
+        if (mFullImage != null) {
             mFullImage.recycle();
+        }
 
         super.onDetachedFromWindow();
     }

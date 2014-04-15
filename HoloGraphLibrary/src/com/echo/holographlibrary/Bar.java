@@ -70,8 +70,7 @@ public class Bar {
         this.mValue = value;
     }
 
-    public String getValueString()
-    {
+    public String getValueString() {
         if (mValueString != null) {
             return mValueString;
         } else {
@@ -79,8 +78,7 @@ public class Bar {
         }
     }
 
-    public void setValueString(final String valueString)
-    {
+    public void setValueString(final String valueString) {
         mValueString = valueString;
     }
 
