@@ -73,14 +73,14 @@ public class Line {
 		}
 		points.add(point);
 	}
-	
+
 	public void removePoint(LinePoint point){
 		points.remove(point);
 	}
 	public LinePoint getPoint(int index){
 		return points.get(index);
 	}
-	
+
 	public LinePoint getPoint(float x, float y){
 		LinePoint p;
 		for(int i = 0; i < points.size(); i++){
@@ -99,5 +99,5 @@ public class Line {
 	public void setShowingPoints(boolean showPoints) {
 		this.showPoints = showPoints;
 	}
-	
+
 }

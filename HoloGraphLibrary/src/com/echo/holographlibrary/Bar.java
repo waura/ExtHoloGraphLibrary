@@ -35,7 +35,7 @@ public class Bar {
 	private String mValueString = null;
 	private Path mPath = null;
 	private Region mRegion = null;
-	
+
 	public int getColor() {
 		return mColor;
 	}
@@ -69,7 +69,7 @@ public class Bar {
 	public void setValue(float value) {
 		this.mValue = value;
 	}
-	
+
 	public String getValueString()
 	{
 		if (mValueString != null) {
@@ -78,12 +78,12 @@ public class Bar {
 			return String.valueOf(mValue);
 		}
 	}
-	
+
 	public void setValueString(final String valueString)
 	{
 		mValueString = valueString;
 	}
-	
+
 	public Path getPath() {
 		return mPath;
 	}
@@ -96,5 +96,5 @@ public class Bar {
 	public void setRegion(Region region) {
 		this.mRegion = region;
 	}
-	
+
 }

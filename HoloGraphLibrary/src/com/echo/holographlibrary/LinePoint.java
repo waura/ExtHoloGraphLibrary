@@ -57,11 +57,11 @@ public class LinePoint {
 	public void setY(float y) {
 		this.mY = y;
 	}
-	
+
 	public void setX(double x){
 		this.mX = (float) x;
 	}
-	
+
 	public void setY(double y){
 		this.mY = (float) y;
 	}
@@ -77,7 +77,7 @@ public class LinePoint {
 	public void setPath(Path path) {
 		this.mPath = path;
 	}
-	
+
 	@Override
 	public String toString(){
 		return "x= " + mX + ", y= " + mY;

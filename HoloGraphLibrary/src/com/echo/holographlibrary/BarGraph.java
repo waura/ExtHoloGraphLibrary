@@ -67,7 +67,7 @@ public class BarGraph extends View {
     public BarGraph(Context context) {
         this(context, null);
     }
-    
+
     public BarGraph(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
     }
@@ -82,23 +82,23 @@ public class BarGraph extends View {
     public void setShowBarText(boolean show){
         mShowBarText = show;
     }
-    
+
     public void setShowAxis(boolean show){
         mShowAxis = show;
     }
-    
+
     public void setBars(ArrayList<Bar> points){
         this.mBars = points;
         mShouldUpdate = true;
         postInvalidate();
     }
-    
+
     public ArrayList<Bar> getBars(){
         return this.mBars;
     }
 
     public void onDraw(Canvas ca) {
-    	
+
         if (mFullImage == null || mShouldUpdate) {
             final Resources resources = getContext().getResources();
 
@@ -106,12 +106,12 @@ public class BarGraph extends View {
             Canvas canvas = new Canvas(mFullImage);
             canvas.drawColor(Color.TRANSPARENT);
             NinePatchDrawable popup = (NinePatchDrawable)this.getResources().getDrawable(R.drawable.popup_black);
-            
+
             float maxValue = 0;
             float padding = 7 * getContext().getResources().getDisplayMetrics().density;
             int selectPadding = (int) (4 * resources.getDisplayMetrics().density);
             float bottomPadding = 30 * resources.getDisplayMetrics().density;
-            
+
             float usableHeight;
             if (mShowBarText) {
                 this.mPaint.setTextSize(VALUE_FONT_SIZE * resources.getDisplayMetrics().scaledDensity);
@@ -121,7 +121,7 @@ public class BarGraph extends View {
             } else {
                 usableHeight = getHeight()-bottomPadding;
             }
-             
+
             // Draw x-axis line
             if (mShowAxis){
                 mPaint.setColor(Color.BLACK);
@@ -141,9 +141,9 @@ public class BarGraph extends View {
             if (maxValue == 0) {
                 maxValue = 1;
             }
-            
+
             mRectangle = new Rect();
-            
+
             int count = 0;
             Map<Integer, Float> valueTextSizes = new HashMap<Integer, Float>();
             for (final Bar bar : mBars) {
@@ -186,7 +186,7 @@ public class BarGraph extends View {
                     this.mPaint.setColor(Color.WHITE);
                     Rect r2 = new Rect();
                     this.mPaint.getTextBounds(bar.getValueString(), 0, 1, r2);
-                    
+
                     int boundLeft = (int) (((mRectangle.left+mRectangle.right)/2)-(this.mPaint.measureText(bar.getValueString())/2)-10 * resources.getDisplayMetrics().density);
                     int boundTop = (int) (mRectangle.top+(r2.top-r2.bottom)-18 * resources.getDisplayMetrics().density);
                     int boundRight = (int)(((mRectangle.left+mRectangle.right)/2)+(this.mPaint.measureText(bar.getValueString())/2)+10 * resources.getDisplayMetrics().density);
@@ -215,7 +215,7 @@ public class BarGraph extends View {
             }
             mShouldUpdate = false;
         }
-        
+
         ca.drawBitmap(mFullImage, 0, 0, null);
     }
 
@@ -225,7 +225,7 @@ public class BarGraph extends View {
         Point point = new Point();
         point.x = (int) event.getX();
         point.y = (int) event.getY();
-        
+
         int count = 0;
         for (Bar bar : mBars){
             Region r = new Region();
@@ -240,10 +240,10 @@ public class BarGraph extends View {
             }
             else if(event.getAction() == MotionEvent.ACTION_CANCEL)
             	mIndexSelected = -1;
-            
+
             count++;
         }
-        
+
         if (event.getAction() == MotionEvent.ACTION_DOWN || event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL){
             mShouldUpdate = true;
             postInvalidate();
@@ -251,20 +251,20 @@ public class BarGraph extends View {
 
         return true;
     }
-    
+
     @Override
     protected void onDetachedFromWindow()
     {
     	if(mFullImage != null)
     		mFullImage.recycle();
-    	
+
     	super.onDetachedFromWindow();
     }
-    
+
     public void setOnBarClickedListener(OnBarClickedListener listener) {
         this.mListener = listener;
     }
-    
+
     public interface OnBarClickedListener {
         abstract void onClick(int index);
     }

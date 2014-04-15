@@ -73,5 +73,5 @@ public class PieSlice {
 	public void setRegion(Region region) {
 		this.mRegion = region;
 	}
-	
+
 }
