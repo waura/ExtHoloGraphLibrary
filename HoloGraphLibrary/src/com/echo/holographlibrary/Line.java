@@ -26,65 +26,65 @@ package com.echo.holographlibrary;
 import java.util.ArrayList;
 
 public class Line {
-    private ArrayList<LinePoint> points = new ArrayList<LinePoint>();
-    private int color;
-    private boolean showPoints = true;
+    private ArrayList<LinePoint> mPoints = new ArrayList<LinePoint>();
+    private int mColor;
+    private boolean mShowPoints = true;
     // 6 has been the default prior to the addition of custom stroke widths
-    private int strokeWidth = 6;
+    private int mStrokeWidth = 6;
     // since this is a new addition, it has to default to false to be backwards compatible
-    private boolean isUsingDips = false;
+    private boolean mUseDips = false;
 
 
     public boolean isUsingDips() {
-        return isUsingDips;
+        return mUseDips;
     }
     public void setUsingDips(boolean treatSizesAsDips) {
-        this.isUsingDips = treatSizesAsDips;
+        this.mUseDips = treatSizesAsDips;
     }
     public int getStrokeWidth() {
-        return strokeWidth;
+        return mStrokeWidth;
     }
     public void setStrokeWidth(int strokeWidth) {
         if (strokeWidth < 0) {
             throw new IllegalArgumentException("strokeWidth must not be less than zero");
         }
-        this.strokeWidth = strokeWidth;
+        this.mStrokeWidth = strokeWidth;
     }
     public int getColor() {
-        return color;
+        return mColor;
     }
     public void setColor(int color) {
-        this.color = color;
+        this.mColor = color;
     }
     public ArrayList<LinePoint> getPoints() {
-        return points;
+        return mPoints;
     }
     public void setPoints(ArrayList<LinePoint> points) {
-        this.points = points;
+        this.mPoints = points;
     }
     public void addPoint(LinePoint point) {
         LinePoint p;
-        for (int i = 0; i < points.size(); i++) {
-            p = points.get(i);
+        for (int i = 0; i < mPoints.size(); i++) {
+            p = mPoints.get(i);
             if (point.getX() < p.getX()) {
-                points.add(i, point);
+                mPoints.add(i, point);
                 return;
             }
         }
-        points.add(point);
+        mPoints.add(point);
     }
 
     public void removePoint(LinePoint point) {
-        points.remove(point);
+        mPoints.remove(point);
     }
     public LinePoint getPoint(int index) {
-        return points.get(index);
+        return mPoints.get(index);
     }
 
     public LinePoint getPoint(float x, float y) {
         LinePoint p;
-        for (int i = 0; i < points.size(); i++) {
-            p = points.get(i);
+        for (int i = 0; i < mPoints.size(); i++) {
+            p = mPoints.get(i);
             if (p.getX() == x && p.getY() == y) {
                 return p;
             }
@@ -92,13 +92,13 @@ public class Line {
         return null;
     }
     public int getSize() {
-        return points.size();
+        return mPoints.size();
     }
     public boolean isShowingPoints() {
-        return showPoints;
+        return mShowPoints;
     }
     public void setShowingPoints(boolean showPoints) {
-        this.showPoints = showPoints;
+        this.mShowPoints = showPoints;
     }
 
 }
