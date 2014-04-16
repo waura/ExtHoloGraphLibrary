@@ -125,9 +125,7 @@ public class PieGraph extends View {
 
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
-
 		if (mDrawCompleted) {
-
 			Point point = new Point();
 			point.x = (int) event.getX();
 			point.y = (int) event.getY();

@@ -32,7 +32,7 @@
             android:layout_width="0dip"
             android:layout_height="wrap_content"
             android:progress="128"
-            android:max="255"
+            android:max="240"
             android:id="@+id/seekBarRatio"
             android:layout_weight="1"/>
     </LinearLayout>
