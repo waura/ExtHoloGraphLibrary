@@ -30,55 +30,60 @@ public class LinePoint {
 
     final private Path mPath = new Path();
     final private Region mRegion = new Region();
-    private float mX = 0;
-    private float mY = 0;
+    private float mX;
+    private float mY;
     private int mColor = 0xFF000000;
     private int mSelectedColor = -1;
 
-    public LinePoint(){
+    public LinePoint() {
+        this(0, 0);
     }
 
-	public LinePoint(double x, double y){
-		this.mX = (float)x;
-		this.mY = (float)y;
-	}
+    public LinePoint(double x, double y) {
+        this((float) x, (float) y);
+    }
 
-	public LinePoint(float x, float y){
-		this.mX = x;
-		this.mY = y;
-	}
+    public LinePoint(float x, float y) {
+        this.mX = x;
+        this.mY = y;
+    }
 
-	public float getX() {
-		return mX;
-	}
-	public void setX(float x) {
-		this.mX = x;
-	}
-	public float getY() {
-		return mY;
-	}
-	public void setY(float y) {
-		this.mY = y;
-	}
-	
-	public void setX(double x){
-		this.mX = (float) x;
-	}
-	
-	public void setY(double y){
-		this.mY = (float) y;
-	}
-	public Region getRegion() {
-		return mRegion;
-	}
-	public Path getPath() {
-		return mPath;
-	}
+    public float getX() {
+        return mX;
+    }
 
-	@Override
-	public String toString(){
-		return "x= " + mX + ", y= " + mY;
-	}
+    public void setX(float x) {
+        this.mX = x;
+    }
+
+    public float getY() {
+        return mY;
+    }
+
+    public void setY(float y) {
+        this.mY = y;
+    }
+
+    public void setX(double x) {
+        this.mX = (float) x;
+    }
+
+    public void setY(double y) {
+        this.mY = (float) y;
+    }
+
+    public Region getRegion() {
+        return mRegion;
+    }
+
+    public Path getPath() {
+        return mPath;
+    }
+
+    @Override
+    public String toString() {
+        return "x= " + mX + ", y= " + mY;
+    }
 
     public int getColor() {
         return mColor;
@@ -89,7 +94,7 @@ public class LinePoint {
     }
 
     public int getSelectedColor() {
-        if(-1 == mSelectedColor) {
+        if (-1 == mSelectedColor) {
             mSelectedColor = Utils.darkenColor(mColor);
             mSelectedColor &= 0x80FFFFFF;
         }

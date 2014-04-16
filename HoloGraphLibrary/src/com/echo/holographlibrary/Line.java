@@ -38,30 +38,38 @@ public class Line {
     public boolean isUsingDips() {
         return mUseDips;
     }
+
     public void setUsingDips(boolean treatSizesAsDips) {
         this.mUseDips = treatSizesAsDips;
     }
+
     public int getStrokeWidth() {
         return mStrokeWidth;
     }
+
     public void setStrokeWidth(int strokeWidth) {
         if (strokeWidth < 0) {
             throw new IllegalArgumentException("strokeWidth must not be less than zero");
         }
         this.mStrokeWidth = strokeWidth;
     }
+
     public int getColor() {
         return mColor;
     }
+
     public void setColor(int color) {
         this.mColor = color;
     }
+
     public ArrayList<LinePoint> getPoints() {
         return mPoints;
     }
+
     public void setPoints(ArrayList<LinePoint> points) {
         this.mPoints = points;
     }
+
     public void addPoint(LinePoint point) {
         LinePoint p;
         for (int i = 0; i < mPoints.size(); i++) {
@@ -77,6 +85,7 @@ public class Line {
     public void removePoint(LinePoint point) {
         mPoints.remove(point);
     }
+
     public LinePoint getPoint(int index) {
         return mPoints.get(index);
     }
@@ -91,12 +100,15 @@ public class Line {
         }
         return null;
     }
+
     public int getSize() {
         return mPoints.size();
     }
+
     public boolean isShowingPoints() {
         return mShowPoints;
     }
+
     public void setShowingPoints(boolean showPoints) {
         this.mShowPoints = showPoints;
     }
