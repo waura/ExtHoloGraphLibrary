@@ -162,8 +162,9 @@ public class LineGraph extends View {
         LinePoint[] pts = new LinePoint[line.getPoints().size()];
         pts = line.getPoints().toArray(pts);
         for (LinePoint point : pts) {
-            if (point.getX() >= startX && point.getX() <= finishX)
+            if (point.getX() >= startX && point.getX() <= finishX) {
                 line.removePoint(point);
+            }
         }
         mLines.set(lineIndex, line);
         resetLimits();
