@@ -45,7 +45,8 @@ public class BarGraph extends View {
 
     private final static int VALUE_FONT_SIZE = 30;
     private final static int AXIS_LABEL_FONT_SIZE = 15;
-    private final static float LABEL_PADDING_MULTIPLIER = 1.6f; //how much space to leave between labels when shrunken. Increase for less space.
+    // How much space to leave between labels when shrunken. Increase for less space.
+    private final static float LABEL_PADDING_MULTIPLIER = 1.6f;
     private final static int ORIENTATION_HORIZONTAL = 0;
     private final static int ORIENTATION_VERTICAL = 1;
 
@@ -175,8 +176,8 @@ public class BarGraph extends View {
                 this.mPaint.setColor(bar.getLabelColor());
                 this.mPaint.setTextSize(AXIS_LABEL_FONT_SIZE * resources.getDisplayMetrics().scaledDensity);
                 float textWidth = this.mPaint.measureText(bar.getName());
+                // Decrease text size to fit and not overlap with other labels.
                 while (right - left + (padding * LABEL_PADDING_MULTIPLIER) < textWidth) {
-                    //decrease text size to fit and not overlap with other labels.
                     this.mPaint.setTextSize(this.mPaint.getTextSize() - 1);
                     textWidth = this.mPaint.measureText(bar.getName());
                 }
@@ -199,16 +200,17 @@ public class BarGraph extends View {
                         + (this.mPaint.measureText(bar.getValueString()) / 2)
                         + 10 * resources.getDisplayMetrics().density);
 
+                // Limit popup width to bar width
                 if (boundLeft < mBoundsRect.left)
-                    boundLeft = mBoundsRect.left - ((int) padding / 2);//limit popup width to bar width
+                    boundLeft = mBoundsRect.left - ((int) padding / 2);
                 if (boundRight > mBoundsRect.right)
                     boundRight = mBoundsRect.right + ((int) padding / 2);
 
                 popup.setBounds(boundLeft, boundTop, boundRight, mBoundsRect.top);
                 popup.draw(canvas);
 
+                // Check cache to see if we've done this calculation before
                 if (0 > valueTextSizes.indexOfKey(bar.getValueString().length())) {
-                    //check cache to see if we've done this calculation before
                     while (this.mPaint.measureText(bar.getValueString()) > boundRight - boundLeft)
                         this.mPaint.setTextSize(this.mPaint.getTextSize() - (float) 1);
                     valueTextSizes.put(bar.getValueString().length(), mPaint.getTextSize());
