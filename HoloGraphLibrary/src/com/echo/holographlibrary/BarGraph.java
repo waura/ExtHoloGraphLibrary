@@ -102,10 +102,10 @@ public class BarGraph extends View {
         final Resources resources = getContext().getResources();
 
         canvas.drawColor(Color.TRANSPARENT);
-        NinePatchDrawable popup = (NinePatchDrawable) this.getResources().getDrawable(R.drawable.popup_black);
+        NinePatchDrawable popup = (NinePatchDrawable) resources.getDrawable(R.drawable.popup_black);
 
         float maxValue = 0;
-        float padding = 7 * getContext().getResources().getDisplayMetrics().density;
+        float padding = 7 * resources.getDisplayMetrics().density;
         float bottomPadding = 30 * resources.getDisplayMetrics().density;
 
         float usableHeight;
