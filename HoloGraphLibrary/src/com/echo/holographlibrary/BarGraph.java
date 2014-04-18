@@ -73,7 +73,7 @@ public class BarGraph extends View {
 
         TypedArray a = getContext().obtainStyledAttributes(attrs, R.styleable.BarGraph);
         mOrientation = a.getInt(R.styleable.BarGraph_orientation, ORIENTATION_VERTICAL);
-        mAxisColor = a.getColor(R.styleable.BarGraph_axisColor, Color.LTGRAY);
+        mAxisColor = a.getColor(R.styleable.BarGraph_barAxisColor, Color.LTGRAY);
     }
 
     public void setShowBarText(boolean show) {
@@ -235,8 +235,8 @@ public class BarGraph extends View {
         point.y = (int) event.getY();
 
         int count = 0;
+        Region r = new Region();
         for (Bar bar : mBars) {
-            Region r = new Region();
             r.setPath(bar.getPath(), bar.getRegion());
             switch (event.getAction()) {
                 default:
@@ -248,20 +248,20 @@ public class BarGraph extends View {
                     }
                     break;
                 case MotionEvent.ACTION_UP:
-                    if (r.contains(point.x, point.y) && null != mListener) {
-                        if (mSelectedIndex > -1) {
-                            mListener.onClick(mSelectedIndex);
-                        }
-                        mSelectedIndex = -1;
+                    if (count == mSelectedIndex
+                            && mListener != null
+                            && r.contains(point.x, point.y)) {
+                        mListener.onClick(mSelectedIndex);
                     }
-                    postInvalidate();
-                    break;
-                case MotionEvent.ACTION_CANCEL:
-                    mSelectedIndex = -1;
-                    postInvalidate();
                     break;
             }
             count++;
+        }
+        // Reset selection
+        if (MotionEvent.ACTION_UP == event.getAction()
+                || MotionEvent.ACTION_CANCEL == event.getAction()) {
+            mSelectedIndex = -1;
+            postInvalidate();
         }
         return true;
     }

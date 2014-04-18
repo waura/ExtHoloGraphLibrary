@@ -29,6 +29,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.echo.holographlibrary.Line;
 import com.echo.holographlibrary.LineGraph;
@@ -71,9 +72,11 @@ public class LineFragment extends Fragment {
 
             @Override
             public void onClick(int lineIndex, int pointIndex) {
-
+                Toast.makeText(getActivity(),
+                        "Line " + lineIndex + " / Point " + pointIndex + " clicked",
+                        Toast.LENGTH_SHORT)
+                        .show();
             }
-
         });
 
         return v;
