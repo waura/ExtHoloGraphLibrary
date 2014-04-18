@@ -28,8 +28,8 @@ import android.graphics.Region;
 
 public class LinePoint {
 
-    final private Path mPath = new Path();
-    final private Region mRegion = new Region();
+    private final Path mPath = new Path();
+    private final Region mRegion = new Region();
     private float mX;
     private float mY;
     private int mColor = 0xFF000000;

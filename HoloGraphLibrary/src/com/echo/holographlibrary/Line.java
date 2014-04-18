@@ -31,7 +31,7 @@ public class Line {
     private boolean mShowPoints = true;
     // 6 has been the default prior to the addition of custom stroke widths
     private int mStrokeWidth = 6;
-    // since this is a new addition, it has to default to false to be backwards compatible
+    // Since this is a new addition, it has to default to false to be backwards compatible
     private boolean mUseDips = false;
 
 

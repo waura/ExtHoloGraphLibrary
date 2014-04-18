@@ -61,7 +61,7 @@ public class LineGraph extends View {
     private int mSelectedIndex = -1;
     private OnPointClickedListener mListener;
     private Bitmap mFullImage;
-    // since this is a new addition, it has to default to false to be backwards compatible
+    // Since this is a new addition, it has to default to false to be backwards compatible
     private boolean mUseDips;
     private Path mPath = new Path();
     private PorterDuffXfermode mXfermode = new PorterDuffXfermode(PorterDuff.Mode.CLEAR);
@@ -359,7 +359,9 @@ public class LineGraph extends View {
                 mPaint.setColor(mFillColor);
                 mPaint.setStrokeWidth(mStrokeWidth);
                 for (int i = 10; i - getWidth() < getHeight(); i = i + mStrokeSpacing) {
-                    mCanvas.drawLine(i, getHeight() - bottomPadding, 0, getHeight() - bottomPadding - i, mPaint);
+                    mCanvas.drawLine(
+                            i, getHeight() - bottomPadding,
+                            0, getHeight() - bottomPadding - i, mPaint);
                 }
 
                 // Erase lines above the line
@@ -413,7 +415,9 @@ public class LineGraph extends View {
         mPaint.setColor(mAxisColor);
         mPaint.setStrokeWidth(2 * getResources().getDisplayMetrics().density);
         mPaint.setAntiAlias(true);
-        mCanvas.drawLine(sidePadding, getHeight() - bottomPadding, getWidth() - sidePadding, getHeight() - bottomPadding, mPaint);
+        mCanvas.drawLine(
+                sidePadding, getHeight() - bottomPadding,
+                getWidth() - sidePadding, getHeight() - bottomPadding, mPaint);
         mPaint.reset();
 
         // Draw lines
