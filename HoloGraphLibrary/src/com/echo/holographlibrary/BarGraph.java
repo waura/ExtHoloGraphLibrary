@@ -145,7 +145,8 @@ public class BarGraph extends View {
         for (final Bar bar : mBars) {
             // Set bar bounds
             int left = (int) ((padding * 2) * count + padding + barWidth * count);
-            int top = (int) (getHeight() - bottomPadding - (usableHeight * (bar.getValue() / maxValue)));
+            int top = (int) (getHeight() - bottomPadding
+                    - (usableHeight * (bar.getValue() / maxValue)));
             int right = (int) ((padding * 2) * count + padding + barWidth * (count + 1));
             int bottom = (int) (getHeight() - bottomPadding);
             mBoundsRect.set(left, top, right, bottom);
@@ -174,7 +175,8 @@ public class BarGraph extends View {
             // Draw x-axis label text
             if (mShowAxis) {
                 this.mPaint.setColor(bar.getLabelColor());
-                this.mPaint.setTextSize(AXIS_LABEL_FONT_SIZE * resources.getDisplayMetrics().scaledDensity);
+                this.mPaint.setTextSize(AXIS_LABEL_FONT_SIZE
+                        * resources.getDisplayMetrics().scaledDensity);
                 float textWidth = this.mPaint.measureText(bar.getName());
                 // Decrease text size to fit and not overlap with other labels.
                 while (right - left + (padding * LABEL_PADDING_MULTIPLIER) < textWidth) {
@@ -188,12 +190,14 @@ public class BarGraph extends View {
 
             // Draw value text
             if (mShowBarText) {
-                this.mPaint.setTextSize(VALUE_FONT_SIZE * resources.getDisplayMetrics().scaledDensity);
+                this.mPaint.setTextSize(VALUE_FONT_SIZE
+                        * resources.getDisplayMetrics().scaledDensity);
                 this.mPaint.setColor(Color.WHITE);
                 this.mPaint.getTextBounds(bar.getValueString(), 0, 1, mTextRect);
 
                 int boundLeft = (int) (((mBoundsRect.left + mBoundsRect.right) / 2)
-                        - (this.mPaint.measureText(bar.getValueString()) / 2) - 10 * resources.getDisplayMetrics().density);
+                        - (this.mPaint.measureText(bar.getValueString()) / 2)
+                        - 10 * resources.getDisplayMetrics().density);
                 int boundTop = (int) (mBoundsRect.top + (mTextRect.top - mTextRect.bottom)
                         - 18 * resources.getDisplayMetrics().density);
                 int boundRight = (int) (((mBoundsRect.left + mBoundsRect.right) / 2)
