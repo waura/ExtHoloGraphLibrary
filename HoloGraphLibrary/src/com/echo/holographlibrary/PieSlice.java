@@ -27,27 +27,32 @@ import android.graphics.Path;
 import android.graphics.Region;
 
 public class PieSlice {
+
+    private final Path mPath = new Path();
+    private final Region mRegion = new Region();
     private int mColor = 0xFF33B5E5;
-    private int mSelectedColor = 0x8033B5E5;
+    private int mSelectedColor = -1;
     private float mValue;
     private String mTitle;
-    private Path mPath;
-    private Region mRegion;
 
     public String getTitle() {
         return mTitle;
     }
+
     public void setTitle(String title) {
         this.mTitle = title;
     }
+
     public int getColor() {
         return mColor;
     }
+
     public void setColor(int color) {
         this.mColor = color;
     }
 
     public int getSelectedColor() {
+        if (-1 == mSelectedColor) mSelectedColor = Utils.darkenColor(mColor);
         return mSelectedColor;
     }
 
@@ -58,20 +63,16 @@ public class PieSlice {
     public float getValue() {
         return mValue;
     }
+
     public void setValue(float value) {
         this.mValue = value;
     }
+
     public Path getPath() {
         return mPath;
     }
-    public void setPath(Path path) {
-        this.mPath = path;
-    }
+
     public Region getRegion() {
         return mRegion;
     }
-    public void setRegion(Region region) {
-        this.mRegion = region;
-    }
-
 }

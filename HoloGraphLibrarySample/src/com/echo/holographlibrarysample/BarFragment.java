@@ -29,6 +29,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.echo.holographlibrary.Bar;
 import com.echo.holographlibrary.BarGraph;
@@ -42,31 +43,33 @@ public class BarFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final View v = inflater.inflate(R.layout.fragment_bargraph, container, false);
         final Resources resources = getResources();
-        ArrayList<Bar> points = new ArrayList<Bar>();
-        Bar d = new Bar();
-        d.setColor(resources.getColor(R.color.green_light));
-        d.setSelectedColor(resources.getColor(R.color.transparent_orange));
-        d.setName("Test1");
-        d.setValue(1000);
-        d.setValueString("$1,000");
-        Bar d2 = new Bar();
-        d2.setColor(resources.getColor(R.color.orange));
-        d2.setName("Test2");
-        d2.setValue(2000);
-        d2.setValueString("$2,000");
-        points.add(d);
-        points.add(d2);
+        ArrayList<Bar> aBars = new ArrayList<Bar>();
+        Bar bar = new Bar();
+        bar.setColor(resources.getColor(R.color.green_light));
+        bar.setSelectedColor(resources.getColor(R.color.transparent_orange));
+        bar.setName("Test1");
+        bar.setValue(1000);
+        bar.setValueString("$1,000");
+        aBars.add(bar);
+        bar = new Bar();
+        bar.setColor(resources.getColor(R.color.orange));
+        bar.setName("Test2");
+        bar.setValue(2000);
+        bar.setValueString("$2,000");
+        aBars.add(bar);
 
-        BarGraph g = (BarGraph) v.findViewById(R.id.bargraph);
-        g.setBars(points);
+        BarGraph barGraph = (BarGraph) v.findViewById(R.id.bargraph);
+        barGraph.setBars(aBars);
 
-        g.setOnBarClickedListener(new OnBarClickedListener() {
+        barGraph.setOnBarClickedListener(new OnBarClickedListener() {
 
             @Override
             public void onClick(int index) {
-
+                Toast.makeText(getActivity(),
+                        "Bar " + index + " clicked",
+                        Toast.LENGTH_SHORT)
+                        .show();
             }
-
         });
 
         return v;

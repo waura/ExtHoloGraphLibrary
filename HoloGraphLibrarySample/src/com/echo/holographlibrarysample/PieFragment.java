@@ -29,6 +29,8 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.SeekBar;
+import android.widget.Toast;
 
 import com.echo.holographlibrary.PieGraph;
 import com.echo.holographlibrary.PieGraph.OnSliceClickedListener;
@@ -40,7 +42,7 @@ public class PieFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final View v = inflater.inflate(R.layout.fragment_piegraph, container, false);
         final Resources resources = getResources();
-        PieGraph pg = (PieGraph) v.findViewById(R.id.piegraph);
+        final PieGraph pg = (PieGraph) v.findViewById(R.id.piegraph);
         PieSlice slice = new PieSlice();
         slice.setColor(resources.getColor(R.color.green_light));
         slice.setSelectedColor(resources.getColor(R.color.transparent_orange));
@@ -58,9 +60,47 @@ public class PieFragment extends Fragment {
 
             @Override
             public void onClick(int index) {
+                Toast.makeText(getActivity(),
+                        "Slice " + index + " clicked",
+                        Toast.LENGTH_SHORT)
+                        .show();
+            }
+        });
+
+        SeekBar seekBar = (SeekBar) v.findViewById(R.id.seekBarRatio);
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                pg.setInnerCircleRatio(progress);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
 
             }
 
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+
+        seekBar = (SeekBar) v.findViewById(R.id.seekBarPadding);
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                pg.setPadding(progress);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
         });
 
         return v;
