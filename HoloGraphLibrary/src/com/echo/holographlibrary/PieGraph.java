@@ -109,6 +109,7 @@ public class PieGraph extends View {
                     (currentAngle + mPadding) + (currentSweep - mPadding), -(currentSweep - mPadding));
             p.close();
 
+            // Create selection region
             Region r = slice.getRegion();
             r.set((int) (midX - radius),
                     (int) (midY - radius),
@@ -130,8 +131,8 @@ public class PieGraph extends View {
             point.y = (int) event.getY();
 
             int count = 0;
+            Region r = new Region();
             for (PieSlice slice : mSlices) {
-                Region r = new Region();
                 r.setPath(slice.getPath(), slice.getRegion());
                 switch (event.getAction()) {
                     default:
@@ -143,21 +144,21 @@ public class PieGraph extends View {
                         }
                         break;
                     case MotionEvent.ACTION_UP:
-                        if (r.contains(point.x, point.y) && mListener != null) {
-                            if (mSelectedIndex > -1) {
-                                mListener.onClick(mSelectedIndex);
-                            }
-                            mSelectedIndex = -1;
-                            postInvalidate();
+                        if (count == mSelectedIndex
+                                && mListener != null
+                                && r.contains(point.x, point.y)) {
+                            mListener.onClick(mSelectedIndex);
                         }
-                        break;
-                    case MotionEvent.ACTION_CANCEL:
-                        mSelectedIndex = -1;
-                        postInvalidate();
                         break;
                 }
                 count++;
             }
+        }
+        // Reset selection
+        if (MotionEvent.ACTION_UP == event.getAction()
+                || MotionEvent.ACTION_CANCEL == event.getAction()) {
+            mSelectedIndex = -1;
+            postInvalidate();
         }
         return true;
     }
