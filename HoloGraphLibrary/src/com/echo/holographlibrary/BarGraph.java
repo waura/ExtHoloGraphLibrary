@@ -43,12 +43,12 @@ import java.util.ArrayList;
 
 public class BarGraph extends View {
 
-    private final static int VALUE_FONT_SIZE = 30;
-    private final static int AXIS_LABEL_FONT_SIZE = 15;
+    private static final int VALUE_FONT_SIZE = 30;
+    private static final int AXIS_LABEL_FONT_SIZE = 15;
     // How much space to leave between labels when shrunken. Increase for less space.
-    private final static float LABEL_PADDING_MULTIPLIER = 1.6f;
-    private final static int ORIENTATION_HORIZONTAL = 0;
-    private final static int ORIENTATION_VERTICAL = 1;
+    private static final float LABEL_PADDING_MULTIPLIER = 1.6f;
+    private static final int ORIENTATION_HORIZONTAL = 0;
+    private static final int ORIENTATION_VERTICAL = 1;
 
     private final int mOrientation;
     private ArrayList<Bar> mBars = new ArrayList<Bar>();
