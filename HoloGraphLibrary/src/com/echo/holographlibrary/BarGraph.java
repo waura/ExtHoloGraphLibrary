@@ -201,18 +201,21 @@ public class BarGraph extends View {
                         + 10 * resources.getDisplayMetrics().density);
 
                 // Limit popup width to bar width
-                if (boundLeft < mBoundsRect.left)
+                if (boundLeft < mBoundsRect.left) {
                     boundLeft = mBoundsRect.left - ((int) padding / 2);
-                if (boundRight > mBoundsRect.right)
+                }
+                if (boundRight > mBoundsRect.right) {
                     boundRight = mBoundsRect.right + ((int) padding / 2);
+                }
 
                 popup.setBounds(boundLeft, boundTop, boundRight, mBoundsRect.top);
                 popup.draw(canvas);
 
                 // Check cache to see if we've done this calculation before
                 if (0 > valueTextSizes.indexOfKey(bar.getValueString().length())) {
-                    while (this.mPaint.measureText(bar.getValueString()) > boundRight - boundLeft)
+                    while (this.mPaint.measureText(bar.getValueString()) > boundRight - boundLeft) {
                         this.mPaint.setTextSize(this.mPaint.getTextSize() - (float) 1);
+                    }
                     valueTextSizes.put(bar.getValueString().length(), mPaint.getTextSize());
                 } else {
                     this.mPaint.setTextSize(valueTextSizes.get(bar.getValueString().length()));
