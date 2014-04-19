@@ -104,9 +104,11 @@ public class PieGraph extends View {
             mRectF.set(midX - radius, midY - radius, midX + radius, midY + radius);
             p.arcTo(mRectF,
                     currentAngle + mPadding, currentSweep - mPadding);
-            mRectF.set(midX - innerRadius, midY - innerRadius, midX + innerRadius, midY + innerRadius);
+            mRectF.set(midX - innerRadius, midY - innerRadius,
+                    midX + innerRadius, midY + innerRadius);
             p.arcTo(mRectF,
-                    (currentAngle + mPadding) + (currentSweep - mPadding), -(currentSweep - mPadding));
+                    (currentAngle + mPadding) + (currentSweep - mPadding),
+                    -(currentSweep - mPadding));
             p.close();
 
             // Create selection region
