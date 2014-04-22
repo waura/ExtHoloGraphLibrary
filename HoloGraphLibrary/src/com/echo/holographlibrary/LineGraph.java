@@ -80,11 +80,11 @@ public class LineGraph extends View {
         mDipPadding = getPixelForDip(DEFAULT_PADDING);
 
         TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.LineGraph, 0, 0);
-        mFillColor = a.getColor(R.styleable.LineGraph_strokeColor, Color.BLACK);
+        mFillColor = a.getColor(R.styleable.LineGraph_lineStrokeColor, Color.BLACK);
         mAxisColor = a.getColor(R.styleable.LineGraph_lineAxisColor, Color.LTGRAY);
-        mStrokeWidth = a.getDimension(R.styleable.LineGraph_strokeWidth, 2);
-        mStrokeSpacing = a.getDimensionPixelSize(R.styleable.LineGraph_strokeSpacing, 10);
-        mUseDips = a.getBoolean(R.styleable.LineGraph_useDip, false);
+        mStrokeWidth = a.getDimension(R.styleable.LineGraph_lineStrokeWidth, 2);
+        mStrokeSpacing = a.getDimensionPixelSize(R.styleable.LineGraph_lineStrokeSpacing, 10);
+        mUseDips = a.getBoolean(R.styleable.LineGraph_lineUseDip, false);
     }
 
     public boolean isUsingDips() {

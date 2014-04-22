@@ -11,10 +11,10 @@
         android:layout_height="match_parent"
         android:id="@+id/linegraph"
         android:layout_margin="@dimen/default_margin"
-        app:strokeColor="@color/transparent_orange"
+        app:lineStrokeColor="@color/transparent_orange"
         app:lineAxisColor="@color/transparent_blue"
-        app:strokeWidth="1dip"
-        app:strokeSpacing="10dip"
-        app:useDip="true"/>
+        app:lineStrokeWidth="1dip"
+        app:lineStrokeSpacing="10dip"
+        app:lineUseDip="true"/>
 	
 </LinearLayout>

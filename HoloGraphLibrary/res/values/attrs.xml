@@ -2,16 +2,16 @@
 <resources>
 
     <declare-styleable name="PieGraph">
-        <attr name="innerCircleRatio" format="integer"/>
-        <attr name="slicePadding" format="dimension"/>
+        <attr name="pieInnerCircleRatio" format="integer"/>
+        <attr name="pieSlicePadding" format="dimension"/>
     </declare-styleable>
 
     <declare-styleable name="LineGraph">
-        <attr name="strokeColor" format="color"/>
+        <attr name="lineStrokeColor" format="color"/>
         <attr name="lineAxisColor" format="color"/>
-        <attr name="strokeWidth" format="dimension"/>
-        <attr name="strokeSpacing" format="dimension"/>
-        <attr name="useDip" format="boolean"/>
+        <attr name="lineStrokeWidth" format="dimension"/>
+        <attr name="lineStrokeSpacing" format="dimension"/>
+        <attr name="lineUseDip" format="boolean"/>
     </declare-styleable>
 
     <declare-styleable name="BarGraph">
@@ -20,6 +20,8 @@
             <enum name="horizontal" value="0"/>
             <enum name="vertical" value="1"/>
         </attr>
+        <attr name="barShowAxis" format="boolean"/>
+        <attr name="barShowText" format="boolean"/>
     </declare-styleable>
 
 </resources>
