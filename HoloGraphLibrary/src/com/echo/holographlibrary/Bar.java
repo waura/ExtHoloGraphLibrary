@@ -63,7 +63,7 @@ public class Bar {
     }
 
     public String getName() {
-        return mName;
+        return (null == mName) ? "" : mName;
     }
 
     public void setName(String name) {

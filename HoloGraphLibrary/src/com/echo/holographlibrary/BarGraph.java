@@ -55,8 +55,8 @@ public class BarGraph extends View {
     private Paint mPaint = new Paint();
     private Rect mBoundsRect = new Rect();
     private Rect mTextRect = new Rect();
-    private boolean mShowBarText = true;
-    private boolean mShowAxis = true;
+    private boolean mShowBarText;
+    private boolean mShowAxis;
     private int mSelectedIndex = -1;
     private OnBarClickedListener mListener;
     private int mAxisColor;
@@ -75,6 +75,8 @@ public class BarGraph extends View {
         TypedArray a = getContext().obtainStyledAttributes(attrs, R.styleable.BarGraph);
         mOrientation = a.getInt(R.styleable.BarGraph_orientation, ORIENTATION_VERTICAL);
         mAxisColor = a.getColor(R.styleable.BarGraph_barAxisColor, Color.LTGRAY);
+        mShowAxis = a.getBoolean(R.styleable.BarGraph_barShowAxis, true);
+        mShowBarText = a.getBoolean(R.styleable.BarGraph_barShowText, true);
     }
 
     public void setShowBarText(boolean show) {

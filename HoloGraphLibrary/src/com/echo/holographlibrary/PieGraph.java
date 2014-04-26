@@ -61,8 +61,8 @@ public class PieGraph extends View {
         super(context, attrs);
 
         TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.PieGraph, 0, 0);
-        mInnerCircleRatio = a.getInt(R.styleable.PieGraph_innerCircleRatio, 0);
-        mPadding = a.getDimensionPixelSize(R.styleable.PieGraph_slicePadding, 0);
+        mInnerCircleRatio = a.getInt(R.styleable.PieGraph_pieInnerCircleRatio, 0);
+        mPadding = a.getDimensionPixelSize(R.styleable.PieGraph_pieSlicePadding, 0);
     }
 
     public void onDraw(Canvas canvas) {
