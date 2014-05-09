@@ -194,7 +194,7 @@ public class BarGraph extends View {
             if (mShowBarText) {
                 this.mPaint.setTextSize(VALUE_FONT_SIZE
                         * resources.getDisplayMetrics().scaledDensity);
-                this.mPaint.setColor(Color.WHITE);
+                this.mPaint.setColor(bar.getValueColor());
                 this.mPaint.getTextBounds(bar.getValueString(), 0, 1, mTextRect);
 
                 int boundLeft = (int) (((mBoundsRect.left + mBoundsRect.right) / 2)
