@@ -55,8 +55,10 @@ public class BarGraph extends View {
     private Paint mPaint = new Paint();
     private Rect mBoundsRect = new Rect();
     private Rect mTextRect = new Rect();
-    private boolean mShowBarText;
     private boolean mShowAxis;
+    private boolean mShowAxisLabel;
+    private boolean mShowBarText;
+    private boolean mShowPopup;
     private int mSelectedIndex = -1;
     private OnBarClickedListener mListener;
     private int mAxisColor;
@@ -76,15 +78,25 @@ public class BarGraph extends View {
         mOrientation = a.getInt(R.styleable.BarGraph_orientation, ORIENTATION_VERTICAL);
         mAxisColor = a.getColor(R.styleable.BarGraph_barAxisColor, Color.LTGRAY);
         mShowAxis = a.getBoolean(R.styleable.BarGraph_barShowAxis, true);
+        mShowAxisLabel = a.getBoolean(R.styleable.BarGraph_barShowAxisLabel, true);
         mShowBarText = a.getBoolean(R.styleable.BarGraph_barShowText, true);
+        mShowPopup = a.getBoolean(R.styleable.BarGraph_barShowPopup, true);
+    }
+
+    public void setShowAxis(boolean show) {
+        mShowAxis = show;
+    }
+
+    public void setShowAxisLabel(boolean show) {
+        mShowAxisLabel = show;
     }
 
     public void setShowBarText(boolean show) {
         mShowBarText = show;
     }
 
-    public void setShowAxis(boolean show) {
-        mShowAxis = show;
+    public void setShowPopup(boolean show) {
+        mShowPopup = show;
     }
 
     public void setBars(ArrayList<Bar> points) {
@@ -114,8 +126,15 @@ public class BarGraph extends View {
         if (mShowBarText) {
             this.mPaint.setTextSize(VALUE_FONT_SIZE * resources.getDisplayMetrics().scaledDensity);
             this.mPaint.getTextBounds("$", 0, 1, mTextRect);
-            usableHeight = getHeight() - bottomPadding - Math.abs(mTextRect.top - mTextRect.bottom)
-                    - 24 * resources.getDisplayMetrics().density;
+            if (mShowPopup) {
+                usableHeight = getHeight() - bottomPadding
+                        - Math.abs(mTextRect.top - mTextRect.bottom)
+                        - 24 * resources.getDisplayMetrics().density;
+            } else {
+                usableHeight = getHeight() - bottomPadding
+                        - Math.abs(mTextRect.top - mTextRect.bottom)
+                        - 18 * resources.getDisplayMetrics().density;
+            }
         } else {
             usableHeight = getHeight() - bottomPadding;
         }
@@ -175,7 +194,7 @@ public class BarGraph extends View {
                     mBoundsRect.bottom);
 
             // Draw x-axis label text
-            if (mShowAxis) {
+            if (mShowAxisLabel) {
                 this.mPaint.setColor(bar.getLabelColor());
                 this.mPaint.setTextSize(AXIS_LABEL_FONT_SIZE
                         * resources.getDisplayMetrics().scaledDensity);
@@ -194,7 +213,7 @@ public class BarGraph extends View {
             if (mShowBarText) {
                 this.mPaint.setTextSize(VALUE_FONT_SIZE
                         * resources.getDisplayMetrics().scaledDensity);
-                this.mPaint.setColor(Color.WHITE);
+                this.mPaint.setColor(bar.getValueColor());
                 this.mPaint.getTextBounds(bar.getValueString(), 0, 1, mTextRect);
 
                 int boundLeft = (int) (((mBoundsRect.left + mBoundsRect.right) / 2)
@@ -214,8 +233,10 @@ public class BarGraph extends View {
                     boundRight = mBoundsRect.right + ((int) padding / 2);
                 }
 
-                popup.setBounds(boundLeft, boundTop, boundRight, mBoundsRect.top);
-                popup.draw(canvas);
+                if (mShowPopup) {
+                    popup.setBounds(boundLeft, boundTop, boundRight, mBoundsRect.top);
+                    popup.draw(canvas);
+                }
 
                 // Check cache to see if we've done this calculation before
                 if (0 > valueTextSizes.indexOfKey(bar.getValueString().length())) {

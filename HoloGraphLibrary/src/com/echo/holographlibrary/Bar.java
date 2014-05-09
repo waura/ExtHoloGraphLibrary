@@ -23,6 +23,7 @@
 
 package com.echo.holographlibrary;
 
+import android.graphics.Color;
 import android.graphics.Path;
 import android.graphics.Region;
 
@@ -33,6 +34,7 @@ public class Bar {
     private int mColor = 0xFF33B5E5;
     private int mLabelColor = -1;
     private int mSelectedColor = -1;
+    private int mValueColor = Color.WHITE;
     private String mName = null;
     private float mValue;
     private String mValueString = null;
@@ -60,6 +62,14 @@ public class Bar {
 
     public void setSelectedColor(int selectedColor) {
         mSelectedColor = selectedColor;
+    }
+
+    public int getValueColor() {
+        return mValueColor;
+    }
+
+    public void setValueColor(int valueColor) {
+        mValueColor = valueColor;
     }
 
     public String getName() {
