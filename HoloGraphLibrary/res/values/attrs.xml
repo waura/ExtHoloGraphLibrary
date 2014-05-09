@@ -21,7 +21,9 @@
             <enum name="vertical" value="1"/>
         </attr>
         <attr name="barShowAxis" format="boolean"/>
+        <attr name="barShowAxisLabel" format="boolean"/>
         <attr name="barShowText" format="boolean"/>
+        <attr name="barShowPopup" format="boolean"/>
     </declare-styleable>
 
 </resources>
