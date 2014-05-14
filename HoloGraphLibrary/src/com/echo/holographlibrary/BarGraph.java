@@ -160,8 +160,27 @@ public class BarGraph extends View {
         if (maxValue == 0) {
             maxValue = 1;
         }
-
+        
         int count = 0;
+        
+        //Calculate the maximum text size for all the axis labels
+        this.mPaint.setTextSize(AXIS_LABEL_FONT_SIZE
+                * resources.getDisplayMetrics().scaledDensity);
+        for(final Bar bar : mBars) {
+        	int left = (int) ((padding * 2) * count + padding + barWidth * count);
+        	int right = (int) ((padding * 2) * count + padding + barWidth * (count + 1));
+	        float textWidth = this.mPaint.measureText(bar.getName());
+	        // Decrease text size to fit and not overlap with other labels.
+	        while (right - left + (padding * LABEL_PADDING_MULTIPLIER) < textWidth) {
+	            this.mPaint.setTextSize(this.mPaint.getTextSize() - 1);
+	            textWidth = this.mPaint.measureText(bar.getName());
+	        }
+	        count++;
+        }
+        //Save it to use later
+        float labelTextSize = mPaint.getTextSize();
+
+        count = 0;
         SparseArray<Float> valueTextSizes = new SparseArray<Float>();
         for (final Bar bar : mBars) {
             // Set bar bounds
@@ -196,14 +215,8 @@ public class BarGraph extends View {
             // Draw x-axis label text
             if (mShowAxisLabel) {
                 this.mPaint.setColor(bar.getLabelColor());
-                this.mPaint.setTextSize(AXIS_LABEL_FONT_SIZE
-                        * resources.getDisplayMetrics().scaledDensity);
+                mPaint.setTextSize(labelTextSize);
                 float textWidth = this.mPaint.measureText(bar.getName());
-                // Decrease text size to fit and not overlap with other labels.
-                while (right - left + (padding * LABEL_PADDING_MULTIPLIER) < textWidth) {
-                    this.mPaint.setTextSize(this.mPaint.getTextSize() - 1);
-                    textWidth = this.mPaint.measureText(bar.getName());
-                }
                 int x = (int) (((mBoundsRect.left + mBoundsRect.right) / 2) - (textWidth / 2));
                 int y = (int) (getHeight() - 3 * resources.getDisplayMetrics().scaledDensity);
                 canvas.drawText(bar.getName(), x, y, this.mPaint);
