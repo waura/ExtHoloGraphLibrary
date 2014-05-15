@@ -40,7 +40,8 @@ import java.util.ArrayList;
 public class BarFragment extends Fragment {
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
         final View v = inflater.inflate(R.layout.fragment_bargraph, container, false);
         final Resources resources = getResources();
         ArrayList<Bar> aBars = new ArrayList<Bar>();

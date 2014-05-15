@@ -39,7 +39,8 @@ import com.echo.holographlibrary.PieSlice;
 public class PieFragment extends Fragment {
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
         final View v = inflater.inflate(R.layout.fragment_piegraph, container, false);
         final Resources resources = getResources();
         final PieGraph pg = (PieGraph) v.findViewById(R.id.piegraph);

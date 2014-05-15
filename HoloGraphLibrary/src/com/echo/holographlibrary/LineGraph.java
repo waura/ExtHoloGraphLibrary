@@ -79,7 +79,8 @@ public class LineGraph extends View {
         super(context, attrs, defStyleAttr);
         mDipPadding = getPixelForDip(DEFAULT_PADDING);
 
-        TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.LineGraph, 0, 0);
+        TypedArray a = context.getTheme().obtainStyledAttributes(
+                attrs, R.styleable.LineGraph, 0, 0);
         mFillColor = a.getColor(R.styleable.LineGraph_lineStrokeColor, Color.BLACK);
         mAxisColor = a.getColor(R.styleable.LineGraph_lineAxisColor, Color.LTGRAY);
         mStrokeWidth = a.getDimension(R.styleable.LineGraph_lineStrokeWidth, 2);

@@ -147,7 +147,8 @@ public class BarGraph extends View {
             canvas.drawLine(0,
                     getHeight() - bottomPadding + 10 * resources.getDisplayMetrics().density,
                     getWidth(),
-                    getHeight() - bottomPadding + 10 * resources.getDisplayMetrics().density, mPaint);
+                    getHeight() - bottomPadding + 10 * resources.getDisplayMetrics().density,
+                    mPaint);
         }
         float barWidth = (getWidth() - (padding * 2) * mBars.size()) / mBars.size();
 
