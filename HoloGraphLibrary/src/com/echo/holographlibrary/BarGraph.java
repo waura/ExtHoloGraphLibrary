@@ -100,12 +100,12 @@ public class BarGraph extends View {
     }
 
     public void setBars(ArrayList<Bar> points) {
-        this.mBars = points;
+        mBars = points;
         postInvalidate();
     }
 
     public ArrayList<Bar> getBars() {
-        return this.mBars;
+        return mBars;
     }
 
     public void setAxisColor(int axisColor) {
@@ -124,8 +124,8 @@ public class BarGraph extends View {
 
         float usableHeight;
         if (mShowBarText) {
-            this.mPaint.setTextSize(VALUE_FONT_SIZE * resources.getDisplayMetrics().scaledDensity);
-            this.mPaint.getTextBounds("$", 0, 1, mTextRect);
+            mPaint.setTextSize(VALUE_FONT_SIZE * resources.getDisplayMetrics().scaledDensity);
+            mPaint.getTextBounds("$", 0, 1, mTextRect);
             if (mShowPopup) {
                 usableHeight = getHeight() - bottomPadding
                         - Math.abs(mTextRect.top - mTextRect.bottom)
@@ -164,16 +164,16 @@ public class BarGraph extends View {
         int count = 0;
 
         // Calculate the maximum text size for all the axis labels
-        this.mPaint.setTextSize(AXIS_LABEL_FONT_SIZE
+        mPaint.setTextSize(AXIS_LABEL_FONT_SIZE
                 * resources.getDisplayMetrics().scaledDensity);
         for (final Bar bar : mBars) {
             int left = (int) ((padding * 2) * count + padding + barWidth * count);
             int right = (int) ((padding * 2) * count + padding + barWidth * (count + 1));
-            float textWidth = this.mPaint.measureText(bar.getName());
+            float textWidth = mPaint.measureText(bar.getName());
             // Decrease text size to fit and not overlap with other labels.
             while (right - left + (padding * LABEL_PADDING_MULTIPLIER) < textWidth) {
-                this.mPaint.setTextSize(this.mPaint.getTextSize() - 1);
-                textWidth = this.mPaint.measureText(bar.getName());
+                mPaint.setTextSize(mPaint.getTextSize() - 1);
+                textWidth = mPaint.measureText(bar.getName());
             }
             count++;
         }
@@ -193,11 +193,11 @@ public class BarGraph extends View {
 
             // Draw bar
             if (count == mSelectedIndex && null != mListener) {
-                this.mPaint.setColor(bar.getSelectedColor());
+                mPaint.setColor(bar.getSelectedColor());
             } else {
-                this.mPaint.setColor(bar.getColor());
+                mPaint.setColor(bar.getColor());
             }
-            canvas.drawRect(mBoundsRect, this.mPaint);
+            canvas.drawRect(mBoundsRect, mPaint);
 
             // Create selection region
             Path p = bar.getPath();
@@ -214,28 +214,28 @@ public class BarGraph extends View {
 
             // Draw x-axis label text
             if (mShowAxisLabel) {
-                this.mPaint.setColor(bar.getLabelColor());
+                mPaint.setColor(bar.getLabelColor());
                 mPaint.setTextSize(labelTextSize);
-                float textWidth = this.mPaint.measureText(bar.getName());
+                float textWidth = mPaint.measureText(bar.getName());
                 int x = (int) (((mBoundsRect.left + mBoundsRect.right) / 2) - (textWidth / 2));
                 int y = (int) (getHeight() - 3 * resources.getDisplayMetrics().scaledDensity);
-                canvas.drawText(bar.getName(), x, y, this.mPaint);
+                canvas.drawText(bar.getName(), x, y, mPaint);
             }
 
             // Draw value text
             if (mShowBarText) {
-                this.mPaint.setTextSize(VALUE_FONT_SIZE
+                mPaint.setTextSize(VALUE_FONT_SIZE
                         * resources.getDisplayMetrics().scaledDensity);
-                this.mPaint.setColor(bar.getValueColor());
-                this.mPaint.getTextBounds(bar.getValueString(), 0, 1, mTextRect);
+                mPaint.setColor(bar.getValueColor());
+                mPaint.getTextBounds(bar.getValueString(), 0, 1, mTextRect);
 
                 int boundLeft = (int) (((mBoundsRect.left + mBoundsRect.right) / 2)
-                        - (this.mPaint.measureText(bar.getValueString()) / 2)
+                        - (mPaint.measureText(bar.getValueString()) / 2)
                         - 10 * resources.getDisplayMetrics().density);
                 int boundTop = (int) (mBoundsRect.top + (mTextRect.top - mTextRect.bottom)
                         - 18 * resources.getDisplayMetrics().density);
                 int boundRight = (int) (((mBoundsRect.left + mBoundsRect.right) / 2)
-                        + (this.mPaint.measureText(bar.getValueString()) / 2)
+                        + (mPaint.measureText(bar.getValueString()) / 2)
                         + 10 * resources.getDisplayMetrics().density);
 
                 // Limit popup width to bar width
@@ -253,19 +253,19 @@ public class BarGraph extends View {
 
                 // Check cache to see if we've done this calculation before
                 if (0 > valueTextSizes.indexOfKey(bar.getValueString().length())) {
-                    while (this.mPaint.measureText(bar.getValueString()) > boundRight - boundLeft) {
-                        this.mPaint.setTextSize(this.mPaint.getTextSize() - (float) 1);
+                    while (mPaint.measureText(bar.getValueString()) > boundRight - boundLeft) {
+                        mPaint.setTextSize(mPaint.getTextSize() - (float) 1);
                     }
                     valueTextSizes.put(bar.getValueString().length(), mPaint.getTextSize());
                 } else {
-                    this.mPaint.setTextSize(valueTextSizes.get(bar.getValueString().length()));
+                    mPaint.setTextSize(valueTextSizes.get(bar.getValueString().length()));
                 }
                 canvas.drawText(bar.getValueString(),
                         (int) (((mBoundsRect.left + mBoundsRect.right) / 2)
-                                - (this.mPaint.measureText(bar.getValueString())) / 2),
+                                - (mPaint.measureText(bar.getValueString())) / 2),
                         mBoundsRect.top - (mBoundsRect.top - boundTop) / 2f
                                 + (float) Math.abs(mTextRect.top - mTextRect.bottom) / 2f * 0.7f,
-                        this.mPaint
+                        mPaint
                 );
             }
             count++;
@@ -312,7 +312,7 @@ public class BarGraph extends View {
     }
 
     public void setOnBarClickedListener(OnBarClickedListener listener) {
-        this.mListener = listener;
+        mListener = listener;
     }
 
     public interface OnBarClickedListener {

@@ -44,7 +44,7 @@ public class Bar {
     }
 
     public void setColor(int color) {
-        this.mColor = color;
+        mColor = color;
     }
 
     public int getLabelColor() {
@@ -52,7 +52,7 @@ public class Bar {
     }
 
     public void setLabelColor(int labelColor) {
-        this.mLabelColor = labelColor;
+        mLabelColor = labelColor;
     }
 
     public int getSelectedColor() {
@@ -77,7 +77,7 @@ public class Bar {
     }
 
     public void setName(String name) {
-        this.mName = name;
+        mName = name;
     }
 
     public float getValue() {
@@ -85,7 +85,7 @@ public class Bar {
     }
 
     public void setValue(float value) {
-        this.mValue = value;
+        mValue = value;
     }
 
     public String getValueString() {

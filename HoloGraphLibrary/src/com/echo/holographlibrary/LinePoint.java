@@ -44,8 +44,8 @@ public class LinePoint {
     }
 
     public LinePoint(float x, float y) {
-        this.mX = x;
-        this.mY = y;
+        mX = x;
+        mY = y;
     }
 
     public float getX() {
@@ -53,7 +53,7 @@ public class LinePoint {
     }
 
     public void setX(float x) {
-        this.mX = x;
+        mX = x;
     }
 
     public float getY() {
@@ -61,15 +61,15 @@ public class LinePoint {
     }
 
     public void setY(float y) {
-        this.mY = y;
+        mY = y;
     }
 
     public void setX(double x) {
-        this.mX = (float) x;
+        mX = (float) x;
     }
 
     public void setY(double y) {
-        this.mY = (float) y;
+        mY = (float) y;
     }
 
     public Region getRegion() {
@@ -90,7 +90,7 @@ public class LinePoint {
     }
 
     public void setColor(int color) {
-        this.mColor = color;
+        mColor = color;
     }
 
     public int getSelectedColor() {
