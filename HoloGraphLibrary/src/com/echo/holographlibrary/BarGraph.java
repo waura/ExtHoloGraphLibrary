@@ -163,10 +163,10 @@ public class BarGraph extends View {
 
         int count = 0;
 
-        //Calculate the maximum text size for all the axis labels
+        // Calculate the maximum text size for all the axis labels
         this.mPaint.setTextSize(AXIS_LABEL_FONT_SIZE
                 * resources.getDisplayMetrics().scaledDensity);
-        for(final Bar bar : mBars) {
+        for (final Bar bar : mBars) {
             int left = (int) ((padding * 2) * count + padding + barWidth * count);
             int right = (int) ((padding * 2) * count + padding + barWidth * (count + 1));
             float textWidth = this.mPaint.measureText(bar.getName());
@@ -177,7 +177,7 @@ public class BarGraph extends View {
             }
             count++;
         }
-        //Save it to use later
+        // Save it to use later
         float labelTextSize = mPaint.getTextSize();
 
         count = 0;
