@@ -79,7 +79,8 @@ public class LineGraph extends View {
         super(context, attrs, defStyleAttr);
         mDipPadding = getPixelForDip(DEFAULT_PADDING);
 
-        TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.LineGraph, 0, 0);
+        TypedArray a = context.getTheme().obtainStyledAttributes(
+                attrs, R.styleable.LineGraph, 0, 0);
         mFillColor = a.getColor(R.styleable.LineGraph_lineStrokeColor, Color.BLACK);
         mAxisColor = a.getColor(R.styleable.LineGraph_lineAxisColor, Color.LTGRAY);
         mStrokeWidth = a.getDimension(R.styleable.LineGraph_lineStrokeWidth, 2);
@@ -92,7 +93,7 @@ public class LineGraph extends View {
     }
 
     public void setUsingDips(boolean treatSizesAsDips) {
-        this.mUseDips = treatSizesAsDips;
+        mUseDips = treatSizesAsDips;
     }
 
     public void removeAllLines() {
@@ -122,7 +123,7 @@ public class LineGraph extends View {
     }
 
     public void setRangeYRatio(double rr) {
-        this.mRangeYRatio = rr;
+        mRangeYRatio = rr;
     }
 
     public double getRangeXRatio() {
@@ -130,7 +131,7 @@ public class LineGraph extends View {
     }
 
     public void setRangeXRatio(double rr) {
-        this.mRangeXRatio = rr;
+        mRangeXRatio = rr;
     }
 
     public void addPointToLine(int lineIndex, LinePoint point) {
@@ -218,7 +219,7 @@ public class LineGraph extends View {
     }
 
     public void setLineToFill(int indexOfLine) {
-        this.mLineToFill = indexOfLine;
+        mLineToFill = indexOfLine;
         postInvalidate();
     }
 
@@ -227,7 +228,7 @@ public class LineGraph extends View {
     }
 
     public void setLines(ArrayList<Line> lines) {
-        this.mLines = lines;
+        mLines = lines;
     }
 
     public Line getLine(int index) {
@@ -563,7 +564,7 @@ public class LineGraph extends View {
     }
 
     public void setOnPointClickedListener(OnPointClickedListener listener) {
-        this.mListener = listener;
+        mListener = listener;
     }
 
     public interface OnPointClickedListener {
