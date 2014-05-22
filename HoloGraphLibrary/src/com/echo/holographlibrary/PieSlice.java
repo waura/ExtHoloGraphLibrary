@@ -40,7 +40,7 @@ public class PieSlice {
     }
 
     public void setTitle(String title) {
-        this.mTitle = title;
+        mTitle = title;
     }
 
     public int getColor() {
@@ -48,7 +48,7 @@ public class PieSlice {
     }
 
     public void setColor(int color) {
-        this.mColor = color;
+        mColor = color;
     }
 
     public int getSelectedColor() {
@@ -65,7 +65,7 @@ public class PieSlice {
     }
 
     public void setValue(float value) {
-        this.mValue = value;
+        mValue = value;
     }
 
     public Path getPath() {

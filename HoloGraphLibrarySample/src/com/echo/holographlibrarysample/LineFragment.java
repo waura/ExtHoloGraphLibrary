@@ -39,7 +39,8 @@ import com.echo.holographlibrary.LinePoint;
 public class LineFragment extends Fragment {
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
         final View v = inflater.inflate(R.layout.fragment_linegraph, container, false);
         final Resources resources = getResources();
         Line l = new Line();

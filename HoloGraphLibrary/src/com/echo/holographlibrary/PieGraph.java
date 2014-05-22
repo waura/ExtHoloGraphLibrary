@@ -180,7 +180,7 @@ public class PieGraph extends View {
     }
 
     public void setSlices(ArrayList<PieSlice> slices) {
-        this.mSlices = slices;
+        mSlices = slices;
         postInvalidate();
     }
 
@@ -189,16 +189,16 @@ public class PieGraph extends View {
     }
 
     public void addSlice(PieSlice slice) {
-        this.mSlices.add(slice);
+        mSlices.add(slice);
         postInvalidate();
     }
 
     public void setOnSliceClickedListener(OnSliceClickedListener listener) {
-        this.mListener = listener;
+        mListener = listener;
     }
 
     public void removeSlices() {
-        this.mSlices.clear();
+        mSlices.clear();
         postInvalidate();
     }
 
