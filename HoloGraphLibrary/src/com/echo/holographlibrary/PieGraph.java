@@ -162,7 +162,6 @@ public class PieGraph extends View {
                 && mListener != null) {
             mListener.onClick(mSelectedIndex);
         }
-        
         // Reset selection
         if (MotionEvent.ACTION_UP == event.getAction()
                 || MotionEvent.ACTION_CANCEL == event.getAction()) {
