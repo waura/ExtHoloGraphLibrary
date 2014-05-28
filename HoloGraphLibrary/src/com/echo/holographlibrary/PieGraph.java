@@ -156,7 +156,6 @@ public class PieGraph extends View {
                 count++;
             }
         }
-        
         // Case we click somewhere else, also get feedback!
         if(MotionEvent.ACTION_UP == event.getAction()
                 && mSelectedIndex == -1
