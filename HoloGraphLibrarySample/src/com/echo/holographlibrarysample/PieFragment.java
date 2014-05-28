@@ -24,6 +24,8 @@
 package com.echo.holographlibrarysample;
 
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -67,6 +69,9 @@ public class PieFragment extends Fragment {
                         .show();
             }
         });
+
+        Bitmap b = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
+        pg.setBackgroundBitmap(b);
 
         SeekBar seekBar = (SeekBar) v.findViewById(R.id.seekBarRatio);
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
