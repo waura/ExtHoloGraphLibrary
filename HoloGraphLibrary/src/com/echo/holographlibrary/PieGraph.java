@@ -23,6 +23,9 @@
 
 package com.echo.holographlibrary;
 
+import android.animation.Animator;
+import android.animation.ValueAnimator;
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
@@ -32,13 +35,18 @@ import android.graphics.Path;
 import android.graphics.Point;
 import android.graphics.RectF;
 import android.graphics.Region;
+import android.os.Build;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.Interpolator;
+import android.view.animation.LinearInterpolator;
 
 import java.util.ArrayList;
 
-public class PieGraph extends View {
+public class PieGraph extends View implements  HoloGraphAnimate {
 
     private int mPadding;
     private int mInnerCircleRatio;
@@ -74,7 +82,7 @@ public class PieGraph extends View {
 
         float currentAngle = 270;
         float currentSweep = 0;
-        int totalValue = 0;
+        float totalValue = 0;
 
         midX = getWidth() / 2;
         midY = getHeight() / 2;
@@ -165,6 +173,10 @@ public class PieGraph extends View {
         return true;
     }
 
+    /**
+     * sets padding
+     * @param padding
+     */
     public void setPadding(int padding) {
         mPadding = padding;
         postInvalidate();
@@ -201,6 +213,59 @@ public class PieGraph extends View {
         mSlices.clear();
         postInvalidate();
     }
+
+    int mDuration = 300;
+    Interpolator mInterpolator;
+    Animator.AnimatorListener mAnimationListener;
+    @Override
+    public int getDuration() {
+        return mDuration;
+    }
+
+    @Override
+    public void setDuration(int duration) {mDuration = duration;}
+
+    @Override
+    public Interpolator getInterpolator() {
+        return mInterpolator;
+    }
+
+    @Override
+    public void setInterpolator(Interpolator interpolator) {mInterpolator = interpolator;}
+
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR1)
+    @Override
+    public void animateToGoalValues() {
+        if (android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB_MR1){
+            Log.e("HoloGraphLibrary compatibility error", "Animation not supported on api level 12 and below. Returning without animating.");
+            return;
+        }
+        for (PieSlice s : mSlices)
+            s.setOldValue(s.getValue());
+        ValueAnimator va = ValueAnimator.ofFloat(0,1);
+        va.setDuration(getDuration());
+        if (mInterpolator == null) mInterpolator = new LinearInterpolator();
+        va.setInterpolator(mInterpolator);
+        if (mAnimationListener != null) va.addListener(mAnimationListener);
+        va.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                float f = Math.max(animation.getAnimatedFraction(), 0.01f);//avoid blank frames; never multiply values by 0
+               // Log.d("f", String.valueOf(f));
+                for (PieSlice s : mSlices) {
+                    float x = s.getGoalValue() - s.getOldValue();
+                    s.setValue(s.getOldValue() + (x * f));
+                }
+                postInvalidate();
+            }});
+            va.start();
+
+        }
+
+
+
+    @Override
+    public void setAnimationListener(Animator.AnimatorListener animationListener) { mAnimationListener = animationListener;}
 
     public interface OnSliceClickedListener {
         public abstract void onClick(int index);

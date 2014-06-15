@@ -23,12 +23,19 @@
 
 package com.echo.holographlibrarysample;
 
+import android.animation.Animator;
+import android.animation.ValueAnimator;
+import android.annotation.TargetApi;
 import android.content.res.Resources;
+import android.os.Build;
+import android.view.animation.*;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.Toast;
 
@@ -44,10 +51,12 @@ public class PieFragment extends Fragment {
         final View v = inflater.inflate(R.layout.fragment_piegraph, container, false);
         final Resources resources = getResources();
         final PieGraph pg = (PieGraph) v.findViewById(R.id.piegraph);
+        final Button animateButton = (Button) v.findViewById(R.id.animatePieButton);
         PieSlice slice = new PieSlice();
         slice.setColor(resources.getColor(R.color.green_light));
         slice.setSelectedColor(resources.getColor(R.color.transparent_orange));
         slice.setValue(2);
+        slice.setTitle("first");
         pg.addSlice(slice);
         slice = new PieSlice();
         slice.setColor(resources.getColor(R.color.orange));
@@ -104,6 +113,47 @@ public class PieFragment extends Fragment {
             }
         });
 
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR1)
+        animateButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                for (PieSlice s : pg.getSlices())
+                    s.setGoalValue((float)Math.random() * 10);
+                pg.setDuration(1000);//default if unspecified is 300 ms
+                pg.setInterpolator(new AccelerateDecelerateInterpolator());//default if unspecified is linear
+                //pg.setAnimationListener(getAnimationListener());
+                pg.animateToGoalValues();
+
+            }
+        });
         return v;
     }
+
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR1)
+    public Animator.AnimatorListener getAnimationListener(){
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR1)
+        return new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {//you might want to call slice.setvalue(slice.getGoalValue)
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+
+            }
+        };
+        else return null;
+
+    }
+
 }
