@@ -33,6 +33,8 @@ public class PieSlice {
     private int mColor = 0xFF33B5E5;
     private int mSelectedColor = -1;
     private float mValue;
+    private float mOldValue;
+    private float mGoalValue;
     private String mTitle;
 
     public String getTitle() {
@@ -67,6 +69,18 @@ public class PieSlice {
     public void setValue(float value) {
         mValue = value;
     }
+
+    public float getOldValue() {
+        return mOldValue;
+    }
+
+    public void setOldValue(float oldValue) { mOldValue = oldValue; }
+
+    public float getGoalValue() {
+        return mGoalValue;
+    }
+
+    public void setGoalValue(float goalValue) { mGoalValue = goalValue; }
 
     public Path getPath() {
         return mPath;
