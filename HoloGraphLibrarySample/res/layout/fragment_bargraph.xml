@@ -15,12 +15,30 @@
         app:barAxisColor="@color/transparent_blue"
         app:barShowText="true"
         app:barShowAxis="true"/>
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_margin="@dimen/default_margin"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Animate change"
+            android:id="@+id/animateBarButton"
+            android:layout_weight="0"/>
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Insert"
+            android:id="@+id/animateInsertBarButton"
+            android:layout_weight="0"/>
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Delete"
+            android:id="@+id/animateDeleteBarButton"
+            android:layout_weight="0"/>
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Animate to random values"
-        android:id="@+id/animateBarButton"
-        android:layout_weight="0"/>
+    </LinearLayout>
 
 </LinearLayout>

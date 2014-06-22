@@ -43,6 +43,9 @@ public class Bar {
     private String mValuePrefix = null;
     private String mValueSuffix = null;
 
+    public int mWidthHelper = 0;
+    public int mAnimateSpecial = HoloGraphAnimate.ANIMATE_NORMAL;//add getter setter
+
     public int getColor() {
         return mColor;
     }

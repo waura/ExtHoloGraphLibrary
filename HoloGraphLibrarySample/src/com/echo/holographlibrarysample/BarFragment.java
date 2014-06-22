@@ -40,6 +40,7 @@ import android.view.animation.BounceInterpolator;
 import android.view.animation.CycleInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Interpolator;
+import android.view.animation.LinearInterpolator;
 import android.view.animation.OvershootInterpolator;
 import android.widget.Button;
 import android.widget.Toast;
@@ -47,11 +48,15 @@ import android.widget.Toast;
 import com.echo.holographlibrary.Bar;
 import com.echo.holographlibrary.BarGraph;
 import com.echo.holographlibrary.BarGraph.OnBarClickedListener;
+import com.echo.holographlibrary.HoloGraphAnimate;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Random;
 
 public class BarFragment extends Fragment {
 
+    BarGraph bg;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -79,6 +84,7 @@ public class BarFragment extends Fragment {
         aBars.add(bar);
 
         final BarGraph barGraph = (BarGraph) v.findViewById(R.id.bargraph);
+        bg = barGraph;
         barGraph.setBars(aBars);
 
         barGraph.setOnBarClickedListener(new OnBarClickedListener() {
@@ -92,6 +98,8 @@ public class BarFragment extends Fragment {
             }
         });
         Button animateBarButton = (Button) v.findViewById(R.id.animateBarButton);
+        Button animateInsertBarButton = (Button) v.findViewById(R.id.animateInsertBarButton);
+        Button animateDelteBarButton = (Button) v.findViewById(R.id.animateDeleteBarButton);
         animateBarButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -101,9 +109,54 @@ public class BarFragment extends Fragment {
                     Log.d("goal val", String.valueOf(b.getGoalValue()));
                 }
                 barGraph.setDuration(1500);//default if unspecified is 300 ms
-                barGraph.setInterpolator(new BounceInterpolator());//IMPORTANT: Read source comment before using
+                barGraph.setInterpolator(new AccelerateDecelerateInterpolator());//IMPORTANT: Read source comment before using
                 barGraph.setAnimationListener(getAnimationListener());
-                barGraph.animateToGoalValues();//animation will always overwrite. Pass true to call the onAnimationCancel Listener with onAnimationEnd
+                barGraph.animateToGoalValues();
+
+            }
+        });
+        animateInsertBarButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                barGraph.cancelAnimating(); //must clear existing to call onAnimationEndListener cleanup BEFORE adding new bars
+                int newPosition = new Random().nextInt(barGraph.getBars().size());
+                Bar bar = new Bar();
+                bar.setColor(resources.getColor(R.color.blue));
+                bar.setName("Insert bar " + String.valueOf(barGraph.getBars().size()));
+                bar.setValue(0);
+                bar.mAnimateSpecial = HoloGraphAnimate.ANIMATE_INSERT;
+                barGraph.getBars().add(1,bar);
+                for (Bar b : barGraph.getBars()) {
+                    b.setGoalValue((float) Math.random() * 1000);
+                    b.setValuePrefix("$");//display the prefix throughout the animation
+                    Log.d("goal val", String.valueOf(b.getGoalValue()));
+                }
+                barGraph.setDuration(1500);//default if unspecified is 300 ms
+                barGraph.setInterpolator(new DecelerateInterpolator());//Don't use over/undershoot interpolator for insert/delete
+                barGraph.setAnimationListener(getAnimationListener());
+                barGraph.animateToGoalValues();
+
+            }
+        });
+        animateDelteBarButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                barGraph.cancelAnimating(); //must clear existing to call onAnimationEndListener cleanup BEFORE adding new bars
+                int newPosition = new Random().nextInt(barGraph.getBars().size());
+                Bar bar = barGraph.getBars().get(newPosition);
+                bar.mAnimateSpecial = HoloGraphAnimate.ANIMATE_DELETE;
+                for (Bar b : barGraph.getBars()) {
+                    b.setGoalValue((float) Math.random() * 1000);
+                    b.setValuePrefix("$");//display the prefix throughout the animation
+                    Log.d("goal val", String.valueOf(b.getGoalValue()));
+                }
+                bar.setGoalValue(0);//animate to 0 then delete
+                barGraph.setDuration(1500);//default if unspecified is 300 ms
+                barGraph.setInterpolator(new AccelerateDecelerateInterpolator());//Don't use over/undershoot interpolator for insert/delete
+                barGraph.setAnimationListener(getAnimationListener());
+                barGraph.animateToGoalValues();
 
             }
         });
@@ -121,12 +174,18 @@ public class BarFragment extends Fragment {
 
                 @Override
                 public void onAnimationEnd(Animator animation) {//consider calling makeValueS
-                    Log.d("piefrag", "anim end");
+                    ArrayList<Bar> newBars = new ArrayList<Bar>();
+                    for (Bar b : bg.getBars()){
+                        if (b.mAnimateSpecial != HoloGraphAnimate.ANIMATE_DELETE){
+                            b.mAnimateSpecial = HoloGraphAnimate.ANIMATE_NORMAL;
+                            newBars.add(b);
+                        }
+                    }
+                    bg.setBars(newBars);
                 }
 
                 @Override
                 public void onAnimationCancel(Animator animation) {
-                    Log.d("piefrag", "anim cancel");
                 }
 
                 @Override
