@@ -23,12 +23,25 @@
 
 package com.echo.holographlibrarysample;
 
+import android.animation.Animator;
+import android.annotation.TargetApi;
 import android.content.res.Resources;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.AnticipateOvershootInterpolator;
+import android.view.animation.BounceInterpolator;
+import android.view.animation.CycleInterpolator;
+import android.view.animation.DecelerateInterpolator;
+import android.view.animation.Interpolator;
+import android.view.animation.OvershootInterpolator;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.echo.holographlibrary.Bar;
@@ -58,8 +71,14 @@ public class BarFragment extends Fragment {
         bar.setValue(2000);
         bar.setValueString("$2,000");
         aBars.add(bar);
+        bar = new Bar();
+        bar.setColor(resources.getColor(R.color.purple));
+        bar.setName("Test3");
+        bar.setValue(1500);
+        bar.setValueString("$1,500");
+        aBars.add(bar);
 
-        BarGraph barGraph = (BarGraph) v.findViewById(R.id.bargraph);
+        final BarGraph barGraph = (BarGraph) v.findViewById(R.id.bargraph);
         barGraph.setBars(aBars);
 
         barGraph.setOnBarClickedListener(new OnBarClickedListener() {
@@ -67,12 +86,55 @@ public class BarFragment extends Fragment {
             @Override
             public void onClick(int index) {
                 Toast.makeText(getActivity(),
-                        "Bar " + index + " clicked",
+                        "Bar " + index + " clicked " + String.valueOf(barGraph.getBars().get(index).getValue()),
                         Toast.LENGTH_SHORT)
                         .show();
             }
         });
+        Button animateBarButton = (Button) v.findViewById(R.id.animateBarButton);
+        animateBarButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                for (Bar b : barGraph.getBars()) {
+                    b.setGoalValue((float) Math.random() * 1000);
+                    b.setValuePrefix("$");//display the prefix throughout the animation
+                    Log.d("goal val", String.valueOf(b.getGoalValue()));
+                }
+                barGraph.setDuration(1500);//default if unspecified is 300 ms
+                barGraph.setInterpolator(new BounceInterpolator());//IMPORTANT: Read source comment before using
+                barGraph.setAnimationListener(getAnimationListener());
+                barGraph.animateToGoalValues();//animation will always overwrite. Pass true to call the onAnimationCancel Listener with onAnimationEnd
 
+            }
+        });
         return v;
+    }
+
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR1)
+    public Animator.AnimatorListener getAnimationListener(){
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR1)
+            return new Animator.AnimatorListener() {
+                @Override
+                public void onAnimationStart(Animator animation) {
+
+                }
+
+                @Override
+                public void onAnimationEnd(Animator animation) {//consider calling makeValueS
+                    Log.d("piefrag", "anim end");
+                }
+
+                @Override
+                public void onAnimationCancel(Animator animation) {
+                    Log.d("piefrag", "anim cancel");
+                }
+
+                @Override
+                public void onAnimationRepeat(Animator animation) {
+
+                }
+            };
+        else return null;
+
     }
 }

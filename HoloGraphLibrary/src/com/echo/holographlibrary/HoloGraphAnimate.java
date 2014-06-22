@@ -14,6 +14,8 @@ public interface HoloGraphAnimate {
     Interpolator getInterpolator();
     void setInterpolator(Interpolator interpolator);
 
+    boolean isAnimating();
+    boolean cancelAnimating();
     void animateToGoalValues();
     void setAnimationListener(Animator.AnimatorListener animationListener);
 }

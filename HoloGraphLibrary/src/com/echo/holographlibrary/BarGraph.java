@@ -23,6 +23,10 @@
 
 package com.echo.holographlibrary;
 
+import android.animation.Animator;
+import android.animation.TimeInterpolator;
+import android.animation.ValueAnimator;
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
@@ -34,14 +38,19 @@ import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.Region;
 import android.graphics.drawable.NinePatchDrawable;
+import android.os.Build;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.animation.Interpolator;
+import android.view.animation.LinearInterpolator;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 
-public class BarGraph extends View {
+public class BarGraph extends View implements HoloGraphAnimate {
 
     private static final int VALUE_FONT_SIZE = 30;
     private static final int AXIS_LABEL_FONT_SIZE = 15;
@@ -62,6 +71,17 @@ public class BarGraph extends View {
     private int mSelectedIndex = -1;
     private OnBarClickedListener mListener;
     private int mAxisColor;
+
+    private int mDuration = 300;//in ms
+    private Interpolator mInterpolator;
+    private Animator.AnimatorListener mAnimationListener;
+    private ValueAnimator mValueAnimator;
+    private float mMaxValue;            //max value to use when animating
+    private float mOldMaxValue;
+    private float mGoalMaxValue;
+    private long mLastTimeValueStringsUpdated;
+    private long mValueStringUpdateInterval = 200;//ms; how often to update the value strings when animating
+    private int mValueStringPrecision = 0;//how many decimals to put in the value string when animating; 0 for integers
 
     public BarGraph(Context context) {
         this(context, null);
@@ -152,14 +172,18 @@ public class BarGraph extends View {
         }
         float barWidth = (getWidth() - (padding * 2) * mBars.size()) / mBars.size();
 
-        // Maximum y value = sum of all values.
+        // Maximum y value = Max(highest current value, highest goal value when animation finishes)
         for (final Bar bar : mBars) {
             if (bar.getValue() > maxValue) {
                 maxValue = bar.getValue();
             }
         }
+
         if (maxValue == 0) {
             maxValue = 1;
+        }
+        if (isAnimating()){
+            maxValue = mMaxValue;
         }
 
         int count = 0;
@@ -314,6 +338,115 @@ public class BarGraph extends View {
 
     public void setOnBarClickedListener(OnBarClickedListener listener) {
         mListener = listener;
+    }
+
+
+    @Override
+    public int getDuration() {
+        return mDuration;
+    }
+
+    @Override
+    public void setDuration(int duration) {mDuration = duration;}
+
+    @Override
+    public Interpolator getInterpolator() {
+        return mInterpolator;
+    }
+
+    /**
+     * Make sure your interpolator ends at a value within .01 of 1 or else call makeValueString() on each bar + invalidate()
+     * in onAnimationEnd in a custom listener to make sure each valueString reflects the goalValue.
+     * Most end at 1.0 but some, like BounceInterpolator, do not. Be careful when using custom interpolators.
+     * @param interpolator
+     */
+    @Override
+    public void setInterpolator(Interpolator interpolator) {mInterpolator = interpolator;}
+
+    public int getmValueStringPrecision() {
+        return mValueStringPrecision;
+    }
+
+    public void setValueStringPrecision(int valueStringPrecision) {mValueStringPrecision = valueStringPrecision;}
+
+    public long getValueStringUpdateInterval() {
+        return mValueStringUpdateInterval;
+    }
+
+    public void setValueStringUpdateInterval(long valueStringUpdateInterval) {mValueStringUpdateInterval = valueStringUpdateInterval;}
+
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR1)
+    @Override
+    public boolean isAnimating() {
+        if(mValueAnimator != null)
+            return mValueAnimator.isRunning();
+        return false;
+    }
+
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR1)
+    @Override
+    public boolean cancelAnimating() {
+        if (mValueAnimator != null)
+            mValueAnimator.cancel();
+        return false;
+    }
+
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR1)
+    @Override
+    public void animateToGoalValues() {
+        if (android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB_MR1){
+            Log.e("HoloGraphLibrary compatibility error", "Animation not supported on api level 11 and below. Returning without animating.");
+            return;
+        }
+        if (mValueAnimator != null)
+            mValueAnimator.cancel();
+
+        mOldMaxValue = 0;
+        mGoalMaxValue = 0;
+        for (Bar b : mBars) {
+            b.setOldValue(b.getValue());
+            mOldMaxValue = Math.max(mOldMaxValue, b.getValue());
+            mGoalMaxValue = Math.max(mGoalMaxValue, b.getGoalValue());
+        }
+        mMaxValue = mOldMaxValue;
+        ValueAnimator va = ValueAnimator.ofFloat(0,1);
+        mValueAnimator = va;
+        va.setDuration(getDuration());
+        if (mInterpolator == null) mInterpolator = new LinearInterpolator();
+        va.setInterpolator(mInterpolator);
+        if (mAnimationListener != null) va.addListener(mAnimationListener);
+        mLastTimeValueStringsUpdated = System.currentTimeMillis();
+        va.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                float f = animation.getAnimatedFraction();
+                // Log.d("f", String.valueOf(f));
+
+                for (Bar b : mBars) {
+                    float x = b.getGoalValue() - b.getOldValue();
+                    b.setValue(b.getOldValue() + (x * f));
+                    float xMax = mGoalMaxValue - mOldMaxValue;
+                    mMaxValue = mOldMaxValue + (xMax * f);
+                }
+                long now = System.currentTimeMillis();
+                //check to see if f is close to 1f because some interpolators like BounceInterpolator don't quite end at 1f.
+                if ((mLastTimeValueStringsUpdated + mValueStringUpdateInterval < now) || (Math.round(f*100)==100f))
+                {
+                    for (Bar b : mBars)
+                        b.makeValueString(mValueStringPrecision);
+                    mLastTimeValueStringsUpdated = now;
+                }
+                postInvalidate();
+            }});
+        va.start();
+
+    }
+
+
+    @Override
+    public void setAnimationListener(Animator.AnimatorListener animationListener) {
+        mAnimationListener = animationListener;
+
     }
 
     public interface OnBarClickedListener {

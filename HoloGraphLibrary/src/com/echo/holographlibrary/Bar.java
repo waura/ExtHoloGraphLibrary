@@ -37,7 +37,11 @@ public class Bar {
     private int mValueColor = Color.WHITE;
     private String mName = null;
     private float mValue;
+    private float mOldValue;
+    private float mGoalValue;
     private String mValueString = null;
+    private String mValuePrefix = null;
+    private String mValueSuffix = null;
 
     public int getColor() {
         return mColor;
@@ -88,6 +92,18 @@ public class Bar {
         mValue = value;
     }
 
+    public float getOldValue() {
+        return mOldValue;
+    }
+
+    public void setOldValue(float oldValue) { mOldValue = oldValue; }
+
+    public float getGoalValue() {
+        return mGoalValue;
+    }
+
+    public void setGoalValue(float goalValue) { mGoalValue = goalValue; }
+
     public String getValueString() {
         if (mValueString != null) {
             return mValueString;
@@ -98,6 +114,20 @@ public class Bar {
 
     public void setValueString(final String valueString) {
         mValueString = valueString;
+    }
+    public String getValuePrefix() {return mValuePrefix;}
+
+    public void setValuePrefix(String valuePrefix) { mValuePrefix = valuePrefix; }
+
+    public String getValueSuffix() {return mValueSuffix;}
+
+    public void setValueSuffix(String valueSuffix) { mValueSuffix = valueSuffix; }
+
+    public void makeValueString(int decimalPrecision){
+        String base = String.format("%." + String.valueOf(decimalPrecision)+"f",mValue);
+        if (getValuePrefix() != null) base = getValuePrefix() + base;
+        if (getValueSuffix() != null) base = base + getValueSuffix();
+        setValueString(base);
     }
 
     public Path getPath() {
