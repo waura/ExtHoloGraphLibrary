@@ -28,6 +28,7 @@ import android.animation.ValueAnimator;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -56,6 +57,10 @@ public class PieGraph extends View implements  HoloGraphAnimate {
     private OnSliceClickedListener mListener;
     private boolean mDrawCompleted = false;
     private RectF mRectF = new RectF();
+    private Bitmap mBackgroundImage = null;
+    private Point mBackgroundImageAnchor = new Point(0,0);
+    private boolean mBackgroundImageCenter = false;
+
 
     public PieGraph(Context context) {
         this(context, null);
@@ -79,6 +84,15 @@ public class PieGraph extends View implements  HoloGraphAnimate {
         canvas.drawColor(Color.TRANSPARENT);
         mPaint.reset();
         mPaint.setAntiAlias(true);
+
+        if(mBackgroundImage != null) {
+            if(mBackgroundImageCenter)
+                mBackgroundImageAnchor.set(
+                        getWidth() / 2 - mBackgroundImage.getWidth() / 2,
+                        getHeight() / 2 - mBackgroundImage.getHeight() / 2
+                );
+            canvas.drawBitmap(mBackgroundImage, mBackgroundImageAnchor.x, mBackgroundImageAnchor.y, mPaint);
+        }
 
         float currentAngle = 270;
         float currentSweep = 0;
@@ -171,6 +185,22 @@ public class PieGraph extends View implements  HoloGraphAnimate {
             postInvalidate();
         }
         return true;
+    }
+
+    public Bitmap getBackgroundBitmap() {
+        return mBackgroundImage;
+    }
+
+    public void setBackgroundBitmap(Bitmap backgroundBitmap, int pos_x, int pos_y) {
+        mBackgroundImage = backgroundBitmap;
+        mBackgroundImageAnchor.set(pos_x, pos_y);
+        postInvalidate();
+    }
+
+    public void setBackgroundBitmap(Bitmap backgroundBitmap) {
+        mBackgroundImageCenter = true;
+        mBackgroundImage = backgroundBitmap;
+        postInvalidate();
     }
 
     /**
