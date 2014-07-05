@@ -35,6 +35,7 @@ public class Bar {
     private int mLabelColor = -1;
     private int mSelectedColor = -1;
     private int mValueColor = Color.WHITE;
+    private int mColorAlpha = 255;//no transparency by default. Used in animations to transition to a final alpha.
     private String mName = null;
     private float mValue;
     private float mOldValue;
@@ -43,15 +44,17 @@ public class Bar {
     private String mValuePrefix = null;
     private String mValueSuffix = null;
 
-    public int mWidthHelper = 0;
     public int mAnimateSpecial = HoloGraphAnimate.ANIMATE_NORMAL;//add getter setter
 
     public int getColor() {
         return mColor;
     }
 
+    public int getColorAlpha(){return mColorAlpha;}
+
     public void setColor(int color) {
         mColor = color;
+        mColorAlpha = Color.alpha(color);
     }
 
     public int getLabelColor() {

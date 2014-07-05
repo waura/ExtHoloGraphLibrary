@@ -26,6 +26,7 @@ package com.echo.holographlibrarysample;
 import android.animation.Animator;
 import android.annotation.TargetApi;
 import android.content.res.Resources;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -120,13 +121,13 @@ public class BarFragment extends Fragment {
             public void onClick(View v) {
 
                 barGraph.cancelAnimating(); //must clear existing to call onAnimationEndListener cleanup BEFORE adding new bars
-                int newPosition = new Random().nextInt(barGraph.getBars().size());
+                int newPosition = barGraph.getBars().size() == 0 ? 0 : new Random().nextInt(barGraph.getBars().size());
                 Bar bar = new Bar();
-                bar.setColor(resources.getColor(R.color.blue));
+                bar.setColor(Color.parseColor("#AA0000FF"));
                 bar.setName("Insert bar " + String.valueOf(barGraph.getBars().size()));
                 bar.setValue(0);
                 bar.mAnimateSpecial = HoloGraphAnimate.ANIMATE_INSERT;
-                barGraph.getBars().add(1,bar);
+                barGraph.getBars().add(newPosition,bar);
                 for (Bar b : barGraph.getBars()) {
                     b.setGoalValue((float) Math.random() * 1000);
                     b.setValuePrefix("$");//display the prefix throughout the animation
@@ -144,14 +145,16 @@ public class BarFragment extends Fragment {
             public void onClick(View v) {
 
                 barGraph.cancelAnimating(); //must clear existing to call onAnimationEndListener cleanup BEFORE adding new bars
-                int newPosition = new Random().nextInt(barGraph.getBars().size());
-                Bar bar = barGraph.getBars().get(newPosition);
-                bar.mAnimateSpecial = HoloGraphAnimate.ANIMATE_DELETE;
+                if (barGraph.getBars().size() == 0) return;
+
                 for (Bar b : barGraph.getBars()) {
                     b.setGoalValue((float) Math.random() * 1000);
                     b.setValuePrefix("$");//display the prefix throughout the animation
                     Log.d("goal val", String.valueOf(b.getGoalValue()));
                 }
+                int newPosition = new Random().nextInt(barGraph.getBars().size());
+                Bar bar = barGraph.getBars().get(newPosition);
+                bar.mAnimateSpecial = HoloGraphAnimate.ANIMATE_DELETE;
                 bar.setGoalValue(0);//animate to 0 then delete
                 barGraph.setDuration(1500);//default if unspecified is 300 ms
                 barGraph.setInterpolator(new AccelerateDecelerateInterpolator());//Don't use over/undershoot interpolator for insert/delete
