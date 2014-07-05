@@ -101,6 +101,8 @@ public class BarFragment extends Fragment {
         Button animateBarButton = (Button) v.findViewById(R.id.animateBarButton);
         Button animateInsertBarButton = (Button) v.findViewById(R.id.animateInsertBarButton);
         Button animateDelteBarButton = (Button) v.findViewById(R.id.animateDeleteBarButton);
+
+        //animate to random values
         animateBarButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -109,13 +111,15 @@ public class BarFragment extends Fragment {
                     b.setValuePrefix("$");//display the prefix throughout the animation
                     Log.d("goal val", String.valueOf(b.getGoalValue()));
                 }
-                barGraph.setDuration(1500);//default if unspecified is 300 ms
-                barGraph.setInterpolator(new AccelerateDecelerateInterpolator());//IMPORTANT: Read source comment before using
+                barGraph.setDuration(1200);//default if unspecified is 300 ms
+                barGraph.setInterpolator(new AccelerateDecelerateInterpolator());//Only use over/undershoot  when not inserting/deleting
                 barGraph.setAnimationListener(getAnimationListener());
                 barGraph.animateToGoalValues();
 
             }
         });
+
+        //insert a bar
         animateInsertBarButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -133,13 +137,15 @@ public class BarFragment extends Fragment {
                     b.setValuePrefix("$");//display the prefix throughout the animation
                     Log.d("goal val", String.valueOf(b.getGoalValue()));
                 }
-                barGraph.setDuration(1500);//default if unspecified is 300 ms
-                barGraph.setInterpolator(new DecelerateInterpolator());//Don't use over/undershoot interpolator for insert/delete
+                barGraph.setDuration(1200);//default if unspecified is 300 ms
+                barGraph.setInterpolator(new AccelerateDecelerateInterpolator());//Don't use over/undershoot interpolator for insert/delete
                 barGraph.setAnimationListener(getAnimationListener());
                 barGraph.animateToGoalValues();
 
             }
         });
+
+        //delete a bar
         animateDelteBarButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -156,8 +162,8 @@ public class BarFragment extends Fragment {
                 Bar bar = barGraph.getBars().get(newPosition);
                 bar.mAnimateSpecial = HoloGraphAnimate.ANIMATE_DELETE;
                 bar.setGoalValue(0);//animate to 0 then delete
-                barGraph.setDuration(1500);//default if unspecified is 300 ms
-                barGraph.setInterpolator(new AccelerateDecelerateInterpolator());//Don't use over/undershoot interpolator for insert/delete
+                barGraph.setDuration(1200);//default if unspecified is 300 ms
+                barGraph.setInterpolator(new AccelerateInterpolator());//Don't use over/undershoot interpolator for insert/delete
                 barGraph.setAnimationListener(getAnimationListener());
                 barGraph.animateToGoalValues();
 
@@ -176,8 +182,9 @@ public class BarFragment extends Fragment {
                 }
 
                 @Override
-                public void onAnimationEnd(Animator animation) {//consider calling makeValueS
+                public void onAnimationEnd(Animator animation) {
                     ArrayList<Bar> newBars = new ArrayList<Bar>();
+                    //Keep bars that were not deleted
                     for (Bar b : bg.getBars()){
                         if (b.mAnimateSpecial != HoloGraphAnimate.ANIMATE_DELETE){
                             b.mAnimateSpecial = HoloGraphAnimate.ANIMATE_NORMAL;

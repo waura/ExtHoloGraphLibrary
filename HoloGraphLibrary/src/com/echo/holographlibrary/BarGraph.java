@@ -224,7 +224,9 @@ public class BarGraph extends View implements HoloGraphAnimate {
             }
         }
 
+        count = 0;
         // Calculate the maximum text size for all the axis labels without regard to animation state so text doesn't jitter.
+        // TODO there's probably a better way to do this.
         mPaint.setTextSize(AXIS_LABEL_FONT_SIZE
                 * resources.getDisplayMetrics().scaledDensity);
         for (final Bar bar : mBars) {
@@ -233,9 +235,11 @@ public class BarGraph extends View implements HoloGraphAnimate {
             int width = (int)(defaultBarWidth + (padding *2));
             float textWidth = mPaint.measureText(bar.getName());
             // Decrease text size to fit and not overlap with other labels.
-            while (width + (padding * LABEL_PADDING_MULTIPLIER) < textWidth) {
+            while (right -left + (padding * LABEL_PADDING_MULTIPLIER) < textWidth) {
                 mPaint.setTextSize(mPaint.getTextSize() - 1);
-                textWidth = mPaint.measureText(bar.getName());
+                float newTextWidth = mPaint.measureText(bar.getName());
+                if (textWidth == newTextWidth) break;
+                textWidth =newTextWidth;
             }
             count++;
         }
@@ -251,12 +255,12 @@ public class BarGraph extends View implements HoloGraphAnimate {
             //Set alpha and width percentage if inserting or deleting
             if (isAnimating()){
                 if (bar.mAnimateSpecial == ANIMATE_INSERT) {
-                    alpha = ((int) (getAnimationFraction() * bar.getColorAlpha()));
-                    popupAlpha = ((int) (getAnimationFraction() * 255));
+                    alpha = ((int) (getAnimatedFractionSafe() * bar.getColorAlpha()));
+                    popupAlpha = ((int) (getAnimatedFractionSafe() * 255));
                 }
                 else if (bar.mAnimateSpecial == ANIMATE_DELETE){
-                    alpha = ((int) ((1 - getAnimationFraction()) * bar.getColorAlpha()));
-                    popupAlpha = ((int) ((1- getAnimationFraction()) * 255));
+                    alpha = ((int) ((1 - getAnimatedFractionSafe()) * bar.getColorAlpha()));
+                    popupAlpha = ((int) ((1- getAnimatedFractionSafe()) * 255));
             }
                 else {
                     alpha = bar.getColorAlpha();
