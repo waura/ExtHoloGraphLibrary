@@ -62,6 +62,12 @@ public class PieGraph extends View implements  HoloGraphAnimate {
     private boolean mBackgroundImageCenter = false;
 
 
+
+    private int mDuration = 300;//in ms
+    private Interpolator mInterpolator;
+    private Animator.AnimatorListener mAnimationListener;
+    private ValueAnimator mValueAnimator;
+
     public PieGraph(Context context) {
         this(context, null);
     }
@@ -250,9 +256,6 @@ public class PieGraph extends View implements  HoloGraphAnimate {
         postInvalidate();
     }
 
-    int mDuration = 300;
-    Interpolator mInterpolator;
-    Animator.AnimatorListener mAnimationListener;
     @Override
     public int getDuration() {
         return mDuration;
@@ -269,6 +272,29 @@ public class PieGraph extends View implements  HoloGraphAnimate {
     @Override
     public void setInterpolator(Interpolator interpolator) {mInterpolator = interpolator;}
 
+
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR1)
+    @Override
+    public boolean isAnimating() {
+        if(mValueAnimator != null)
+            return mValueAnimator.isRunning();
+        return false;
+    }
+
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR1)
+    @Override
+    public boolean cancelAnimating() {
+        if (mValueAnimator != null)
+            mValueAnimator.cancel();
+        return false;
+    }
+
+
+    /**
+     * Stops running animation and starts a new one, animating each slice from their current to goal value.
+     * If removing a slice, consider animating to 0 then removing in onAnimationEnd listener.
+     * Default inerpolator is linear; constant speed.
+     */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR1)
     @Override
     public void animateToGoalValues() {
@@ -276,9 +302,13 @@ public class PieGraph extends View implements  HoloGraphAnimate {
             Log.e("HoloGraphLibrary compatibility error", "Animation not supported on api level 12 and below. Returning without animating.");
             return;
         }
+        if (mValueAnimator != null)
+            mValueAnimator.cancel();
+
         for (PieSlice s : mSlices)
             s.setOldValue(s.getValue());
         ValueAnimator va = ValueAnimator.ofFloat(0,1);
+        mValueAnimator = va;
         va.setDuration(getDuration());
         if (mInterpolator == null) mInterpolator = new LinearInterpolator();
         va.setInterpolator(mInterpolator);
