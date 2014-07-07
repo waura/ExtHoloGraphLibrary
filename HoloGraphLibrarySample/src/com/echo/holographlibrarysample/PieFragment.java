@@ -125,9 +125,9 @@ public class PieFragment extends Fragment {
                 for (PieSlice s : pg.getSlices())
                     s.setGoalValue((float)Math.random() * 10);
                 pg.setDuration(1000);//default if unspecified is 300 ms
-                pg.setInterpolator(new AccelerateDecelerateInterpolator());//default if unspecified is linear
-                //pg.setAnimationListener(getAnimationListener());
-                pg.animateToGoalValues();
+                pg.setInterpolator(new AccelerateDecelerateInterpolator());//default if unspecified is linear; constant speed
+                pg.setAnimationListener(getAnimationListener());
+                pg.animateToGoalValues();//animation will always overwrite. Pass true to call the onAnimationCancel Listener with onAnimationEnd
 
             }
         });
@@ -144,12 +144,13 @@ public class PieFragment extends Fragment {
             }
 
             @Override
-            public void onAnimationEnd(Animator animation) {//you might want to call slice.setvalue(slice.getGoalValue)
+            public void onAnimationEnd(Animator animation) {
+                Log.d("piefrag", "anim end");
             }
 
             @Override
-            public void onAnimationCancel(Animator animation) {
-
+            public void onAnimationCancel(Animator animation) {//you might want to call slice.setvalue(slice.getGoalValue)
+                Log.d("piefrag", "anim cancel");
             }
 
             @Override
