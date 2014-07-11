@@ -1,25 +1,19 @@
 buildscript {
-  repositories {
-    mavenCentral()
-  }
+    repositories {
+        mavenCentral()
+    }
 
-  dependencies {
-    classpath 'com.android.tools.build:gradle:0.12.+'
-  }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:0.12.+'
+    }
 }
 
 allprojects {
-  group = 'com.echo.holographlibrary'
-  version = '1.0'
+    version = VERSION_NAME
+    group = GROUP
 
-  repositories {
-    mavenCentral()
-  }
+    repositories {
+        mavenCentral()
+    }
 }
 
-ext {
-    compileSdkVersion = 19
-    buildToolsVersion = "19.1.0"
-}
-
-apply plugin: 'android-reporting'
