@@ -50,6 +50,7 @@ public class LineGraph extends View {
     private final int mAxisColor;
     private final float mStrokeWidth;
     private final int mStrokeSpacing;
+    private final int mBackgroundColor;
     private ArrayList<Line> mLines = new ArrayList<Line>();
     private Paint mPaint = new Paint();
     private float mMinY = 0, mMinX = 0;
@@ -83,9 +84,11 @@ public class LineGraph extends View {
                 attrs, R.styleable.LineGraph, 0, 0);
         mFillColor = a.getColor(R.styleable.LineGraph_lineStrokeColor, Color.BLACK);
         mAxisColor = a.getColor(R.styleable.LineGraph_lineAxisColor, Color.LTGRAY);
+        mBackgroundColor = a.getColor(R.styleable.LineGraph_lineBackground, Color.WHITE);
         mStrokeWidth = a.getDimension(R.styleable.LineGraph_lineStrokeWidth, 2);
         mStrokeSpacing = a.getDimensionPixelSize(R.styleable.LineGraph_lineStrokeSpacing, 10);
         mUseDips = a.getBoolean(R.styleable.LineGraph_lineUseDip, false);
+        a.recycle();
     }
 
     public boolean isUsingDips() {
@@ -331,7 +334,7 @@ public class LineGraph extends View {
             mCanvas = new Canvas(mFullImage);
         }
 
-        mCanvas.drawColor(Color.WHITE);
+        mCanvas.drawColor(mBackgroundColor);
         mPaint.reset();
         float bottomPadding = 10, topPadding = 10;
         float sidePadding = 10;
