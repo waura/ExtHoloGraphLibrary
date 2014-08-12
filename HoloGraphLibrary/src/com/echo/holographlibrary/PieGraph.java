@@ -41,7 +41,6 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.animation.Animation;
 import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
 
@@ -129,14 +128,16 @@ public class PieGraph extends View implements  HoloGraphAnimate {
                 mPaint.setColor(slice.getColor());
             }
             currentSweep = (slice.getValue() / totalValue) * (360);
+
             mRectF.set(midX - radius, midY - radius, midX + radius, midY + radius);
-            p.arcTo(mRectF,
+            createArc(p, mRectF, currentSweep,
                     currentAngle + mPadding, currentSweep - mPadding);
             mRectF.set(midX - innerRadius, midY - innerRadius,
                     midX + innerRadius, midY + innerRadius);
-            p.arcTo(mRectF,
+            createArc(p, mRectF, currentSweep,
                     (currentAngle + mPadding) + (currentSweep - mPadding),
                     -(currentSweep - mPadding));
+
             p.close();
 
             // Create selection region
@@ -151,6 +152,14 @@ public class PieGraph extends View implements  HoloGraphAnimate {
             count++;
         }
         mDrawCompleted = true;
+    }
+
+    private void createArc(Path p, RectF mRectF, float currentSweep, float startAngle, float sweepAngle) {
+        if (currentSweep == 360) {
+            p.addArc(mRectF, startAngle, sweepAngle);
+        } else {
+            p.arcTo(mRectF, startAngle, sweepAngle);
+        }
     }
 
     @Override
