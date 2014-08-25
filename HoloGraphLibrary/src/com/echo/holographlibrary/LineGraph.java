@@ -328,6 +328,11 @@ public class LineGraph extends View {
         return mMinX;
     }
 
+    private void resetPaintWithAntiAlias(Paint paint, boolean antiAlias) {
+    	paint.reset();
+    	paint.setAntiAlias(antiAlias);
+    }
+    
     public void onDraw(Canvas canvas) {
         if (null == mFullImage) {
             mFullImage = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
@@ -335,7 +340,7 @@ public class LineGraph extends View {
         }
 
         mCanvas.drawColor(mBackgroundColor);
-        mPaint.reset();
+        resetPaintWithAntiAlias(mPaint, true);
         float bottomPadding = 10, topPadding = 10;
         float sidePadding = 10;
         if (mUseDips) {
@@ -369,7 +374,7 @@ public class LineGraph extends View {
                 }
 
                 // Erase lines above the line
-                mPaint.reset();
+                resetPaintWithAntiAlias(mPaint, true);
                 mPaint.setXfermode(mXfermode);
                 for (LinePoint p : line.getPoints()) {
                     float yPercent = (p.getY() - minY) / (maxY - minY);
@@ -415,14 +420,14 @@ public class LineGraph extends View {
         }
 
         // Draw x-axis line
-        mPaint.reset();
+        resetPaintWithAntiAlias(mPaint, true);
         mPaint.setColor(mAxisColor);
         mPaint.setStrokeWidth(2 * getResources().getDisplayMetrics().density);
-        mPaint.setAntiAlias(true);
+        
         mCanvas.drawLine(
                 sidePadding, getHeight() - bottomPadding,
                 getWidth() - sidePadding, getHeight() - bottomPadding, mPaint);
-        mPaint.reset();
+        resetPaintWithAntiAlias(mPaint, true);
 
         // Draw lines
         for (Line line : mLines) {
