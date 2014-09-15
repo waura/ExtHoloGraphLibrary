@@ -17,6 +17,18 @@ This is a library written to allow beautiful graphs and charts to be easily inco
 
 ### Gradle build
 
+To install the sample application to your device run the following task:
+
+```bash
+$ ./gradlew installDebug
+```
+
+To deploy the library to your local Maven repository run the following task:
+
+```bash
+$ ./gradlew install
+```
+
 Then, to use the library in your project add the following to your `build.gradle`:
 
 ```groovy
