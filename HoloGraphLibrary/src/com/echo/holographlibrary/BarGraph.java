@@ -133,6 +133,7 @@ public class BarGraph extends View {
 
             int count = 0;
             for (Bar p : points) {
+                Path path = new Path();
 
                 if(p.getStackedBar()){
                     // deep copy of StackedValues
