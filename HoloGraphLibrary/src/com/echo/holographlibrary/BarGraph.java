@@ -136,26 +136,22 @@ public class BarGraph extends View {
                 Path path = new Path();
 
                 if(p.getStackedBar()){
-                    // deep copy of StackedValues
-                    ArrayList<BarStackSegment> values = new ArrayList<BarStackSegment>();
-                    try {
-                        for (BarStackSegment value : p.getStackedValues()) {
-                            values.add((BarStackSegment) value.clone());
-                        }
-                    } catch (CloneNotSupportedException e) {
-                        e.printStackTrace();
-                        continue;
-                    }
+                    ArrayList<BarStackSegment> values = new ArrayList<BarStackSegment>(p.getStackedValues());
 
-                    float prevValue = 0;
+                    ArrayList<Rect> drawRectArray = new ArrayList<Rect>();
+                    float prevValue = 0.0f;
                     for(BarStackSegment value : values) {
-                        value.Value += prevValue;
+                        Rect drawRect = new Rect();
+                        drawRect.set((int) ((padding * 2) * count + padding + barWidth * count), (int) ((getHeight() - bottomPadding - (usableHeight * ((value.Value + prevValue) / maxValue)))), (int) ((padding * 2) * count + padding + barWidth * (count + 1)), (int) ((getHeight() - bottomPadding)));
                         prevValue += value.Value;
-                    }
-                    Collections.reverse(values);
 
-                    for(BarStackSegment value : values) {
-                        r.set((int) ((padding * 2) * count + padding + barWidth * count), (int) ((getHeight() - bottomPadding - (usableHeight * (value.Value / maxValue)))), (int) ((padding * 2) * count + padding + barWidth * (count + 1)), (int) ((getHeight() - bottomPadding)));
+                        drawRectArray.add(drawRect);
+                    }
+
+                    for (int i = drawRectArray.size() - 1; i >= 0; i--) {
+                        r = drawRectArray.get(i);
+                        BarStackSegment value = values.get(i);
+
                         path.addRect(new RectF(r.left - selectPadding, r.top - selectPadding, r.right + selectPadding, r.bottom + selectPadding), Path.Direction.CW);
                         p.setPath(path);
                         p.setRegion(new Region(r.left - selectPadding, r.top - selectPadding, r.right + selectPadding, r.bottom + selectPadding));
