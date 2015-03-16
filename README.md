@@ -20,7 +20,7 @@ This is a library written to allow beautiful graphs and charts to be easily inco
 
 ```xml
 
-<com.echo.holographlibrary.LineGraph
+<hm.orz.octworks.extholographlibrary.LineGraph
         android:layout_width="match_parent"
         android:layout_height="200dp"
         android:id="@+id/graph"/>
@@ -53,7 +53,7 @@ li.setLineToFill(0);
 
 ```xml
 
-<com.echo.holographlibrary.BarGraph
+<hm.orz.octworks.extholographlibrary.BarGraph
         android:layout_width="match_parent"
         android:layout_height="200dp"
         android:id="@+id/graph"/>
@@ -82,7 +82,7 @@ g.setUnit("$");
 
 ```xml
 
-<com.echo.holographlibrary.PieGraph
+<hm.orz.octworks.extholographlibrary.PieGraph
         android:layout_width="match_parent"
         android:layout_height="200dp"
         android:id="@+id/graph"/>

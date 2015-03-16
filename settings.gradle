@@ -1,2 +1,2 @@
-include ':HoloGraphLibrary'
-include ':HoloGraphLibrarySample'
+include ':ExtHoloGraphLibrary'
+include ':ExtHoloGraphLibrarySample'
