@@ -48,12 +48,15 @@ public class MainActivity extends ActionBarActivity {
 		bar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 		
 		LineFragment lineFrag = new LineFragment();
+        StackedLineFragment stackedLineFrag = new StackedLineFragment();
         BarFragment barFrag = new BarFragment();
         PieFragment pieFrag = new PieFragment();
 		
         mTabsAdapter = new TabsAdapter(this, mViewPager);
         mTabsAdapter.addTab(bar.newTab().setText("Line"),
                 LineFragment.class, null, lineFrag);
+        mTabsAdapter.addTab(bar.newTab().setText("Staced Line"),
+                StackedLineFragment.class, null, stackedLineFrag);
         mTabsAdapter.addTab(bar.newTab().setText("Bar"),
                 BarFragment.class, null, barFrag);
         mTabsAdapter.addTab(bar.newTab().setText("Pie"),
