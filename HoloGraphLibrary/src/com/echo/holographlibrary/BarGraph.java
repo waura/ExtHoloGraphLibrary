@@ -39,7 +39,6 @@ public class BarGraph extends View {
 
     private ArrayList<Bar> points = new ArrayList<Bar>();
     private Paint p = new Paint();
-    private Path path = new Path();
     private Rect r;
     private boolean showBarText = true;
     private int indexSelected = -1;
@@ -132,30 +131,37 @@ public class BarGraph extends View {
 
             r = new Rect();
 
-            path.reset();
-
             int count = 0;
             for (Bar p : points) {
+                Path path = new Path();
 
                 if(p.getStackedBar()){
                     ArrayList<BarStackSegment> values = new ArrayList<BarStackSegment>(p.getStackedValues());
-                    float prevValue = 0;
-                    for(BarStackSegment value : values) {
-                        value.Value += prevValue;
-                        prevValue += value.Value;
-                    }
-                    Collections.reverse(values);
 
+                    ArrayList<Rect> drawRectArray = new ArrayList<Rect>();
+                    float prevValue = 0.0f;
                     for(BarStackSegment value : values) {
-                        r.set((int) ((padding * 2) * count + padding + barWidth * count), (int) ((getHeight() - bottomPadding - (usableHeight * (value.Value / maxValue)))), (int) ((padding * 2) * count + padding + barWidth * (count + 1)), (int) ((getHeight() - bottomPadding)));
+                        Rect drawRect = new Rect();
+                        drawRect.set((int) ((padding * 2) * count + padding + barWidth * count), (int) ((getHeight() - bottomPadding - (usableHeight * ((value.Value + prevValue) / maxValue)))), (int) ((padding * 2) * count + padding + barWidth * (count + 1)), (int) ((getHeight() - bottomPadding)));
+                        prevValue += value.Value;
+
+                        drawRectArray.add(drawRect);
+                    }
+
+                    for (int i = drawRectArray.size() - 1; i >= 0; i--) {
+                        r = drawRectArray.get(i);
+                        BarStackSegment value = values.get(i);
+
                         path.addRect(new RectF(r.left - selectPadding, r.top - selectPadding, r.right + selectPadding, r.bottom + selectPadding), Path.Direction.CW);
                         p.setPath(path);
                         p.setRegion(new Region(r.left - selectPadding, r.top - selectPadding, r.right + selectPadding, r.bottom + selectPadding));
+                        value.setPath(path);
+                        value.setRegion(new Region(r.left - selectPadding, r.top - selectPadding, r.right + selectPadding, r.bottom + selectPadding));
                         this.p.setColor(value.Color);
                         this.p.setAlpha(255);
                         canvas.drawRect(r, this.p);
                     }
-                }else {
+                } else {
                     r.set((int) ((padding * 2) * count + padding + barWidth * count), (int) (getHeight() - bottomPadding - (usableHeight * (p.getValue() / maxValue))), (int) ((padding * 2) * count + padding + barWidth * (count + 1)), (int) (getHeight() - bottomPadding));
                     path.addRect(new RectF(r.left - selectPadding, r.top - selectPadding, r.right + selectPadding, r.bottom + selectPadding), Path.Direction.CW);
                     p.setPath(path);
@@ -202,19 +208,36 @@ public class BarGraph extends View {
         point.x = (int) event.getX();
         point.y = (int) event.getY();
 
-        int count = 0;
-        for (Bar bar : points) {
-            Region r = new Region();
-            r.setPath(bar.getPath(), bar.getRegion());
-            if (r.contains(point.x, point.y) && event.getAction() == MotionEvent.ACTION_DOWN) {
-                indexSelected = count;
-            } else if (event.getAction() == MotionEvent.ACTION_UP) {
-                if (r.contains(point.x, point.y) && listener != null) {
-                    listener.onClick(indexSelected);
+        if (event.getAction() == MotionEvent.ACTION_DOWN || event.getAction() == MotionEvent.ACTION_UP) {
+            // find clicked bar index
+            indexSelected = -1;
+            for (int i = 0; i < points.size(); i++) {
+                Region r = new Region();
+
+                if (points.get(i).getStackedBar()) {
+
+                    ArrayList<BarStackSegment> values = points.get(i).getStackedValues();
+                    for (BarStackSegment value : values) {
+                        r.setPath(value.getPath(), value.getRegion());
+                        if (r.contains(point.x, point.y)) {
+                            indexSelected = i;
+                        }
+                    }
                 }
-                indexSelected = -1;
+                else {
+                    r.setPath(points.get(i).getPath(), points.get(i).getRegion());
+                    if (r.contains(point.x, point.y)) {
+                        indexSelected = i;
+                    }
+                }
             }
-            count++;
+        }
+
+        if (event.getAction() == MotionEvent.ACTION_UP) {
+            // dispatch onClick event
+            if ((indexSelected != -1) && (listener != null)) {
+                listener.onClick(indexSelected);
+            }
         }
 
         if (event.getAction() == MotionEvent.ACTION_DOWN || event.getAction() == MotionEvent.ACTION_UP) {
