@@ -88,27 +88,9 @@ public class StackedLineGraph extends View {
     private class DrawStackedLineGraph {
         public ArrayList<DrawLine> lines = new ArrayList<DrawLine>();
 
-        public DrawStackedLineGraph(StackedLine stackedLine) {
-            int numOfLines = stackedLine.getNumOfLines();
-            if (numOfLines <= 0) {
-                return;
-            }
-
+        public DrawStackedLineGraph(int numOfLines) {
             for (int i = 0; i < numOfLines; i++) {
                 lines.add(new DrawLine());
-            }
-            for (int i = 0; i < stackedLine.getNumOfPoints(); i++) {
-                float stackedValue = 0.0f;
-                StackedLinePoint point = stackedLine.getPoint(i);
-                for (int j = 0; j < numOfLines; j++) {
-                    Float value = point.getValue(j);
-                    if (value != null) {
-                        stackedValue += value;
-                    }
-
-                    DrawLine line = lines.get(j);
-                    line.points.add(new DrawPoint(i, stackedValue));
-                }
             }
         }
 
@@ -204,7 +186,6 @@ public class StackedLineGraph extends View {
 
     public void setLine(StackedLine line) {
         drawLine = line;
-        drawStackedLineGraph = new DrawStackedLineGraph(line);
         shouldUpdate = true;
         postInvalidate();
     }
@@ -291,100 +272,23 @@ public class StackedLineGraph extends View {
                 bottomPadding = labelSize;
             }
 
-            float usableHeight = getHeight() - bottomPadding - topPadding;
-            float usableWidth = getWidth() - sidePadding * 2;
-            float lineSpace = usableHeight / 10;
-
-            /*
-            int lineCount = 0;
-            for (Line line : drawLine) {
-                int count = 0;
-                float lastXPixels = 0, newYPixels;
-                float lastYPixels = 0, newXPixels;
-                float maxY = getMaxY();
-                float minY = getMinY();
-                float maxX = getMaxX();
-                float minX = getMinX();
-
-                if (lineCount == lineToFill) {
-                    paint.setColor(Color.BLACK);
-                    paint.setAlpha(30);
-                    paint.setStrokeWidth(2);
-                    for (int i = 10; i - getWidth() < getHeight(); i = i + 20) {
-                        canvas.drawLine(i, getHeight() - bottomPadding, 0, getHeight() - bottomPadding - i, paint);
-                    }
-
-                    paint.reset();
-
-                    paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
-                    for (LinePoint p : line.getPoints()) {
-                        float yPercent = (p.getY() - minY) / (maxY - minY);
-                        float xPercent = (p.getX() - minX) / (maxX - minX);
-                        if (count == 0) {
-                            lastXPixels = sidePadding + (xPercent * usableWidth);
-                            lastYPixels = getHeight() - bottomPadding - (usableHeight * yPercent);
-                            path.moveTo(lastXPixels, lastYPixels);
-                        } else {
-                            newXPixels = sidePadding + (xPercent * usableWidth);
-                            newYPixels = getHeight() - bottomPadding - (usableHeight * yPercent);
-                            path.lineTo(newXPixels, newYPixels);
-                            Path pa = new Path();
-                            pa.moveTo(lastXPixels, lastYPixels);
-                            pa.lineTo(newXPixels, newYPixels);
-                            pa.lineTo(newXPixels, 0);
-                            pa.lineTo(lastXPixels, 0);
-                            pa.close();
-                            canvas.drawPath(pa, paint);
-                            lastXPixels = newXPixels;
-                            lastYPixels = newYPixels;
-                        }
-                        count++;
-                    }
-
-                    path.reset();
-
-                    path.moveTo(0, getHeight() - bottomPadding);
-                    path.lineTo(sidePadding, getHeight() - bottomPadding);
-                    path.lineTo(sidePadding, 0);
-                    path.lineTo(0, 0);
-                    path.close();
-                    canvas.drawPath(path, paint);
-
-                    path.reset();
-
-                    path.moveTo(getWidth(), getHeight() - bottomPadding);
-                    path.lineTo(getWidth() - sidePadding, getHeight() - bottomPadding);
-                    path.lineTo(getWidth() - sidePadding, 0);
-                    path.lineTo(getWidth(), 0);
-                    path.close();
-
-                    canvas.drawPath(path, paint);
-
-                }
-
-                lineCount++;
-            }
-            */
+            drawStackedLineGraph = createDrawStackedLineGraph(drawLine, topPadding, bottomPadding, sidePadding);
 
             paint.reset();
 
-            paint.setColor(this.gridColor);
-            paint.setAlpha(50);
-            paint.setAntiAlias(true);
-            canvas.drawLine(sidePadding, getHeight() - bottomPadding, getWidth(), getHeight() - bottomPadding, paint);
-            if (this.showHorizontalGrid)
-                for (int i = 1; i <= 10; i++) {
-                    canvas.drawLine(sidePadding, getHeight() - bottomPadding - (i * lineSpace), getWidth(), getHeight() - bottomPadding - (i * lineSpace), paint);
-                }
+            if (this.showHorizontalGrid) {
+                drawHorizontalGrid(canvas, topPadding, bottomPadding, sidePadding);
+            }
 
+            drawStackedLineGraphArea(canvas, topPadding, bottomPadding, sidePadding, drawStackedLineGraph);
 
             for (int i = 0; i < drawStackedLineGraph.getNumOfLine(); i++) {
-                drawLine(canvas, bottomPadding, sidePadding, usableHeight, usableWidth, drawStackedLineGraph.getLine(i));
+                drawLine(canvas, drawStackedLineGraph.getLine(i));
             }
 
             if (drawLine.isShowingPoints()) {
                 for (int i = 0; i < drawStackedLineGraph.getNumOfLine(); i++) {
-                    drawPoints(canvas, bottomPadding, sidePadding, usableHeight, usableWidth, drawStackedLineGraph.getLine(i));
+                    drawPoints(canvas, drawStackedLineGraph.getLine(i));
                 }
             }
 
@@ -398,7 +302,110 @@ public class StackedLineGraph extends View {
         ca.drawBitmap(fullImage, 0, 0, null);
     }
 
-    private void drawLine(Canvas canvas, float bottomPadding, float sidePadding, float usableHeight, float usableWidth, DrawLine line) {
+    private DrawStackedLineGraph createDrawStackedLineGraph(StackedLine stackedLine, float topPadding, float bottomPadding, float sidePadding) {
+        int numOfLines = stackedLine.getNumOfLines();
+        if (numOfLines <= 0) {
+            return null;
+        }
+
+        DrawStackedLineGraph drawStackedLineGraph = new DrawStackedLineGraph(stackedLine.getNumOfLines());
+
+        for (int i = 0; i < stackedLine.getNumOfPoints(); i++) {
+            float stackedValue = 0.0f;
+            StackedLinePoint point = stackedLine.getPoint(i);
+            for (int j = 0; j < numOfLines; j++) {
+                Float value = point.getValue(j);
+                if (value != null) {
+                    stackedValue += value;
+                }
+
+                DrawLine line = drawStackedLineGraph.getLine(j);
+                line.points.add(createDrawPoint(i, stackedValue, topPadding, bottomPadding, sidePadding));
+            }
+        }
+        return drawStackedLineGraph;
+    }
+
+    private DrawPoint createDrawPoint(float virtualX, float virtualY, float topPadding, float bottomPadding, float sidePadding) {
+        return new DrawPoint(
+                convertToRealXFromVirtualX(virtualX, sidePadding),
+                convertToRealYFromVirtualY(virtualY, topPadding, bottomPadding));
+    }
+
+    private float convertToRealXFromVirtualX(float virtualX, float sidePadding) {
+        float usableWidth = getWidth() - sidePadding * 2;
+        float xPercent = (virtualX - getMinX()) / (getMaxX() - getMinX());
+        return (sidePadding + (xPercent * usableWidth));
+    }
+
+    private float convertToRealYFromVirtualY(float virtualY, float topPadding, float bottomPadding) {
+        float usableHeight = getHeight() - topPadding - bottomPadding;
+        float yPercent = (virtualY - getMinY()) / (getMaxY() - getMinY());
+        return (getHeight() - bottomPadding - (usableHeight * yPercent));
+    }
+
+    private void drawHorizontalGrid(Canvas canvas, float topPadding, float bottomPadding, float sidePadding) {
+        float lineSpace = (getHeight() - bottomPadding - topPadding) / 10;
+
+        paint.setColor(this.gridColor);
+        paint.setAlpha(50);
+        paint.setAntiAlias(true);
+        canvas.drawLine(sidePadding, getHeight() - bottomPadding, getWidth(), getHeight() - bottomPadding, paint);
+
+        for (int i = 1; i <= 10; i++) {
+            canvas.drawLine(sidePadding, getHeight() - bottomPadding - (i * lineSpace), getWidth(), getHeight() - bottomPadding - (i * lineSpace), paint);
+        }
+    }
+
+    private void drawStackedLineGraphArea(Canvas canvas, float topPadding, float bottomPadding, float sidePadding, DrawStackedLineGraph drawStackedLineGraph) {
+        if (drawStackedLineGraph.getNumOfLine() <= 0) {
+            return;
+        }
+
+        paint.setStyle(Paint.Style.FILL_AND_STROKE);
+        paint.setColor(drawLine.getColor());
+        paint.setAlpha(100);
+
+        Path path = new Path();
+        DrawPoint p = null;
+        DrawLine nowLine = null;
+        DrawLine lastLine = null;
+
+        nowLine = drawStackedLineGraph.getLine(0);
+        if (nowLine.points.size() > 0) {
+            path.moveTo(
+                    nowLine.points.get(0).x,
+                    convertToRealYFromVirtualY(getMinY(), topPadding, bottomPadding));
+            for (int j = 0; j < nowLine.points.size(); j++) {
+                path.lineTo(nowLine.points.get(j).x, nowLine.points.get(j).y);
+            }
+            path.lineTo(
+                    nowLine.points.get(nowLine.points.size() - 1).x,
+                    convertToRealYFromVirtualY(getMinY(), topPadding, bottomPadding));
+            path.moveTo(
+                    nowLine.points.get(0).x,
+                    convertToRealYFromVirtualY(getMinY(), topPadding, bottomPadding));
+        }
+        lastLine = nowLine;
+
+        for (int i = 1; i < drawStackedLineGraph.getNumOfLine(); i++) {
+            nowLine = drawStackedLineGraph.getLine(i);
+            if (nowLine.points.size() > 0) {
+                path.moveTo(nowLine.points.get(0).x, nowLine.points.get(0).y);
+                for (int j = 1; j < nowLine.points.size(); j++) {
+                    path.lineTo(nowLine.points.get(j).x, nowLine.points.get(j).y);
+                }
+                for (int j = lastLine.points.size() - 1; j >= 0; j--) {
+                    path.lineTo(lastLine.points.get(j).x, lastLine.points.get(j).y);
+                }
+                path.lineTo(nowLine.points.get(0).x, nowLine.points.get(0).y);
+            }
+            lastLine = nowLine;
+        }
+        canvas.drawPath(path, paint);
+    }
+
+    private void drawLine(Canvas canvas, DrawLine line) {
 
         if (line.points.size() <= 1) {
             return;
@@ -419,17 +426,13 @@ public class StackedLineGraph extends View {
 
 
         {
-            float yPercent = (line.points.get(0).y - minY) / (maxY - minY);
-            float xPercent = (line.points.get(0).x - minX) / (maxX - minX);
-            lastXPixels = sidePadding + (xPercent * usableWidth);
-            lastYPixels = getHeight() - bottomPadding - (usableHeight * yPercent);
+            lastXPixels = line.points.get(0).x;
+            lastYPixels = line.points.get(0).y;
         }
 
         for (int i = 1; i < line.points.size(); i++) {
-            float yPercent = (line.points.get(i).y - minY) / (maxY - minY);
-            float xPercent = (line.points.get(i).x - minX) / (maxX - minX);
-            newXPixels = sidePadding + (xPercent * usableWidth);
-            newYPixels = getHeight() - bottomPadding - (usableHeight * yPercent);
+            newXPixels = line.points.get(i).x;
+            newYPixels = line.points.get(i).y;
 
             canvas.drawLine(lastXPixels, lastYPixels, newXPixels, newYPixels, paint);
 
@@ -444,7 +447,7 @@ public class StackedLineGraph extends View {
         }
     }
 
-    private void drawPoints(Canvas canvas, float bottomPadding, float sidePadding, float usableHeight, float usableWidth, DrawLine line) {
+    private void drawPoints(Canvas canvas, DrawLine line) {
         int pointCount = 0;
 
         float maxY = getMaxY();
@@ -457,10 +460,8 @@ public class StackedLineGraph extends View {
         paint.setStrokeCap(Paint.Cap.ROUND);
 
         for (DrawPoint point : line.points) {
-            float yPercent = (point.y - minY) / (maxY - minY);
-            float xPercent = (point.x - minX) / (maxX - minX);
-            float xPixels = sidePadding + (xPercent * usableWidth);
-            float yPixels = getHeight() - bottomPadding - (usableHeight * yPercent);
+            float xPixels = point.x;
+            float yPixels = point.y;
 
             paint.setColor(Color.GRAY);
             canvas.drawCircle(xPixels, yPixels, 10, paint);
