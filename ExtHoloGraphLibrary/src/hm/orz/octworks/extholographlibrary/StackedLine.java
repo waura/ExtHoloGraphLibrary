@@ -4,13 +4,19 @@ import java.util.ArrayList;
 import java.util.Stack;
 
 public class StackedLine {
+    private static final int DEFAULT_COLOR = 0xffffff;
+
     private ArrayList<StackedLinePoint> points = new ArrayList<StackedLinePoint>();
     private ArrayList<Integer> colors = new ArrayList<Integer>();
     private boolean showPoints = true;
 
 
     public Integer getColor(int indexOfLine) {
-        return colors.get(indexOfLine);
+        try {
+            return colors.get(indexOfLine);
+        } catch (IndexOutOfBoundsException e) {
+            return DEFAULT_COLOR;
+        }
     }
 
     public void setColor(int indexOfLine, int color) {
