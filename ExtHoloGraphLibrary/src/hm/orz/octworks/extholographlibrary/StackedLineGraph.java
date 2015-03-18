@@ -82,11 +82,32 @@ public class StackedLineGraph extends View {
     }
 
     private class DrawLine {
-        public ArrayList<DrawPoint> points = new ArrayList<DrawPoint>();
+        private ArrayList<DrawPoint> points = new ArrayList<DrawPoint>();
+
+        private int color;
+
+        public void addPoint(DrawPoint point) {
+            points.add(point);
+        }
+        public DrawPoint getPoint(int index) {
+            return points.get(index);
+        }
+
+        public int getNumOfPoint() {
+            return this.points.size();
+        }
+
+        public int getColor() {
+            return color;
+        }
+
+        public void setColor(int color) {
+            this.color = color;
+        }
     }
 
     private class DrawStackedLineGraph {
-        public ArrayList<DrawLine> lines = new ArrayList<DrawLine>();
+        private ArrayList<DrawLine> lines = new ArrayList<DrawLine>();
 
         public DrawStackedLineGraph(int numOfLines) {
             for (int i = 0; i < numOfLines; i++) {
@@ -106,13 +127,13 @@ public class StackedLineGraph extends View {
             if (getNumOfLine() <= 0) {
                 return 0;
             }
-            return lines.get(0).points.size();
+            return lines.get(0).getNumOfPoint();
         }
 
         public boolean isOnPoint(int pointIndex, int x, int y) {
             for (int i = 0; i < getNumOfLine(); i++) {
                 DrawLine line = lines.get(i);
-                DrawPoint point = line.points.get(pointIndex);
+                DrawPoint point = line.getPoint(pointIndex);
                 if (point.isOnPoint(x, y)) {
                     return true;
                 }
@@ -320,9 +341,15 @@ public class StackedLineGraph extends View {
                 }
 
                 DrawLine line = drawStackedLineGraph.getLine(j);
-                line.points.add(createDrawPoint(i, stackedValue, topPadding, bottomPadding, sidePadding));
+                line.addPoint(createDrawPoint(i, stackedValue, topPadding, bottomPadding, sidePadding));
             }
         }
+
+        for (int i = 0; i < stackedLine.getNumOfLines(); i++) {
+            DrawLine line = drawStackedLineGraph.getLine(i);
+            line.setColor(stackedLine.getColor(i));
+        }
+
         return drawStackedLineGraph;
     }
 
@@ -363,7 +390,6 @@ public class StackedLineGraph extends View {
         }
 
         paint.setStyle(Paint.Style.FILL_AND_STROKE);
-        paint.setColor(drawLine.getColor());
         paint.setAlpha(100);
 
         Path path = new Path();
@@ -372,42 +398,50 @@ public class StackedLineGraph extends View {
         DrawLine lastLine = null;
 
         nowLine = drawStackedLineGraph.getLine(0);
-        if (nowLine.points.size() > 0) {
+        if (nowLine.getNumOfPoint() > 0) {
+            paint.setColor(nowLine.getColor());
+            paint.setAlpha(100);
+
             path.moveTo(
-                    nowLine.points.get(0).x,
+                    nowLine.getPoint(0).x,
                     convertToRealYFromVirtualY(getMinY(), topPadding, bottomPadding));
-            for (int j = 0; j < nowLine.points.size(); j++) {
-                path.lineTo(nowLine.points.get(j).x, nowLine.points.get(j).y);
+            for (int j = 0; j < nowLine.getNumOfPoint(); j++) {
+                path.lineTo(nowLine.getPoint(j).x, nowLine.getPoint(j).y);
             }
             path.lineTo(
-                    nowLine.points.get(nowLine.points.size() - 1).x,
+                    nowLine.getPoint(nowLine.getNumOfPoint() - 1).x,
                     convertToRealYFromVirtualY(getMinY(), topPadding, bottomPadding));
             path.moveTo(
-                    nowLine.points.get(0).x,
+                    nowLine.getPoint(0).x,
                     convertToRealYFromVirtualY(getMinY(), topPadding, bottomPadding));
+            canvas.drawPath(path, paint);
         }
         lastLine = nowLine;
 
         for (int i = 1; i < drawStackedLineGraph.getNumOfLine(); i++) {
+            path.reset();
+
             nowLine = drawStackedLineGraph.getLine(i);
             if (nowLine.points.size() > 0) {
-                path.moveTo(nowLine.points.get(0).x, nowLine.points.get(0).y);
-                for (int j = 1; j < nowLine.points.size(); j++) {
-                    path.lineTo(nowLine.points.get(j).x, nowLine.points.get(j).y);
+                paint.setColor(nowLine.getColor());
+                paint.setAlpha(100);
+                path.moveTo(nowLine.getPoint(0).x, nowLine.getPoint(0).y);
+                for (int j = 1; j < nowLine.getNumOfPoint(); j++) {
+                    path.lineTo(nowLine.getPoint(j).x, nowLine.getPoint(j).y);
                 }
-                for (int j = lastLine.points.size() - 1; j >= 0; j--) {
-                    path.lineTo(lastLine.points.get(j).x, lastLine.points.get(j).y);
+                for (int j = lastLine.getNumOfPoint() - 1; j >= 0; j--) {
+                    path.lineTo(lastLine.getPoint(j).x, lastLine.getPoint(j).y);
                 }
-                path.lineTo(nowLine.points.get(0).x, nowLine.points.get(0).y);
+                path.lineTo(nowLine.getPoint(0).x, nowLine.getPoint(0).y);
+                canvas.drawPath(path, paint);
             }
             lastLine = nowLine;
         }
-        canvas.drawPath(path, paint);
     }
 
     private void drawLine(Canvas canvas, DrawLine line) {
 
-        if (line.points.size() <= 1) {
+        if (line.getNumOfPoint() <= 1) {
             return;
         }
 
@@ -418,21 +452,20 @@ public class StackedLineGraph extends View {
         float maxX = getMaxX();
         float minX = getMinX();
 
-        paint.setColor(drawLine.getColor());
+        paint.setColor(line.getColor());
         paint.setStrokeWidth(6);
         paint.setAlpha(255);
         paint.setTextAlign(Align.CENTER);
         paint.setTextSize(labelSize);
 
-
         {
-            lastXPixels = line.points.get(0).x;
-            lastYPixels = line.points.get(0).y;
+            lastXPixels = line.getPoint(0).x;
+            lastYPixels = line.getPoint(0).y;
         }
 
-        for (int i = 1; i < line.points.size(); i++) {
-            newXPixels = line.points.get(i).x;
-            newYPixels = line.points.get(i).y;
+        for (int i = 1; i < line.getNumOfPoint(); i++) {
+            newXPixels = line.getPoint(i).x;
+            newYPixels = line.getPoint(i).y;
 
             canvas.drawLine(lastXPixels, lastYPixels, newXPixels, newYPixels, paint);
 
@@ -455,7 +488,6 @@ public class StackedLineGraph extends View {
         float maxX = getMaxX();
         float minX = getMinX();
 
-        paint.setColor(drawLine.getColor());
         paint.setStrokeWidth(6);
         paint.setStrokeCap(Paint.Cap.ROUND);
 

@@ -5,16 +5,16 @@ import java.util.Stack;
 
 public class StackedLine {
     private ArrayList<StackedLinePoint> points = new ArrayList<StackedLinePoint>();
-    private int color;
+    private ArrayList<Integer> colors = new ArrayList<Integer>();
     private boolean showPoints = true;
 
 
-    public int getColor() {
-        return color;
+    public Integer getColor(int indexOfLine) {
+        return colors.get(indexOfLine);
     }
 
-    public void setColor(int color) {
-        this.color = color;
+    public void setColor(int indexOfLine, int color) {
+        this.colors.add(indexOfLine, color);
     }
 
     public ArrayList<StackedLinePoint> getPoints() {
@@ -29,8 +29,8 @@ public class StackedLine {
         points.add(point);
     }
 
-    public StackedLinePoint getPoint(int index) {
-        return points.get(index);
+    public StackedLinePoint getPoint(int indexOfLine) {
+        return points.get(indexOfLine);
     }
 
     public int getNumOfPoints() {
