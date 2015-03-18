@@ -44,17 +44,22 @@ public class StackedLineFragment extends Fragment {
 		StackedLinePoint p = new StackedLinePoint();
         p.addStackedValue(1);
         p.addStackedValue(0);
+        p.addStackedValue(2);
 		l.addPoint(p);
 		p = new StackedLinePoint();
 		p.addStackedValue(2);
+        p.addStackedValue(3);
 		p.addStackedValue(2);
 		l.addPoint(p);
 		p = new StackedLinePoint();
         p.addStackedValue(4);
+        p.addStackedValue(0);
         p.addStackedValue(4);
 		l.addPoint(p);
-		l.setColor(Color.parseColor("#FFBB33"));
-		
+		l.setColor(0, Color.parseColor("#FFBB33"));
+        l.setColor(1, Color.parseColor("#99CC00"));
+        l.setColor(2, Color.parseColor("#AA66CC"));
+
 		StackedLineGraph li = (StackedLineGraph)v.findViewById(R.id.stackedlinegraph);
         li.setLine(l);
 		li.setRangeY(0, 10);
