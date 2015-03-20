@@ -16,63 +16,8 @@ This is a library written to allow beautiful graphs and charts to be easily inco
 ![PieGraph](https://lh6.googleusercontent.com/-Ad0lLdyK1cA/US0_RBYcqKI/AAAAAAAAS20/lQ8zLo_VSiQ/s844/13+-+5)
 
 ## Usage
-
-###[LineGraph View](https://github.com/fughz/ExtHoloGraphLibrary/wiki/How-to-use-LineGraph)
-###BarGraph View
-
-```xml
-
-<hm.orz.octworks.extholographlibrary.BarGraph
-        android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:id="@+id/graph"/>
-```
-
-```java
-
-ArrayList<Bar> points = new ArrayList<Bar>();
-Bar d = new Bar();
-d.setColor(Color.parseColor("#99CC00"));
-d.setName("Test1");
-d.setValue(10);
-Bar d2 = new Bar();
-d2.setColor(Color.parseColor("#FFBB33"));
-d2.setName("Test2");
-d2.setValue(20);
-points.add(d);
-points.add(d2);
-
-BarGraph g = (BarGraph)findViewById(R.id.graph);
-g.setBars(points);
-g.setUnit("$");
-```
-
-###PieGraph View
-
-```xml
-
-<hm.orz.octworks.extholographlibrary.PieGraph
-        android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:id="@+id/graph"/>
-```
-
-```java
-
-PieGraph pg = (PieGraph)findViewById(R.id.graph);
-PieSlice slice = new PieSlice();
-slice.setColor(Color.parseColor("#99CC00"));
-slice.setValue(2);
-pg.addSlice(slice);
-slice = new PieSlice();
-slice.setColor(Color.parseColor("#FFBB33"));
-slice.setValue(3);
-pg.addSlice(slice);
-slice = new PieSlice();
-slice.setColor(Color.parseColor("#AA66CC"));
-slice.setValue(8);
-pg.addSlice(slice);
-```
-
+*[LineGraph](https://github.com/fughz/ExtHoloGraphLibrary/wiki/How-to-use-LineGraph)
+*[BarGraph](https://github.com/fughz/ExtHoloGraphLibrary/wiki/How-to-use-BarGraph)
+*[PieGraph](https://github.com/fughz/ExtHoloGraphLibrary/wiki/How-to-use-PieGraph)
 
 Have fun!
