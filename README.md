@@ -17,40 +17,8 @@ This is a library written to allow beautiful graphs and charts to be easily inco
 
 ## Usage
 
-#LineGraph View
-
-```xml
-
-<hm.orz.octworks.extholographlibrary.LineGraph
-        android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:id="@+id/graph"/>
-```
-
-```java
-
-Line l = new Line();
-LinePoint p = new LinePoint();
-p.setX(0);
-p.setY(5);
-l.addPoint(p);
-p = new LinePoint();
-p.setX(8);
-p.setY(8);
-l.addPoint(p);
-p = new LinePoint();
-p.setX(10);
-p.setY(4);
-l.addPoint(p);
-l.setColor(Color.parseColor("#FFBB33"));
-		
-LineGraph li = (LineGraph)findViewById(R.id.graph);
-li.addLine(l);
-li.setRangeY(0, 10);
-li.setLineToFill(0);
-```
-
-#BarGraph View
+###[LineGraph View](https://github.com/fughz/ExtHoloGraphLibrary/wiki/How-to-use-LineGraph)
+###BarGraph View
 
 ```xml
 
@@ -79,7 +47,7 @@ g.setBars(points);
 g.setUnit("$");
 ```
 
-#PieGraph View
+###PieGraph View
 
 ```xml
 
