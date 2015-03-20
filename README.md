@@ -16,8 +16,8 @@ This is a library written to allow beautiful graphs and charts to be easily inco
 ![PieGraph](https://lh6.googleusercontent.com/-Ad0lLdyK1cA/US0_RBYcqKI/AAAAAAAAS20/lQ8zLo_VSiQ/s844/13+-+5)
 
 ## Usage
-*[LineGraph](https://github.com/fughz/ExtHoloGraphLibrary/wiki/How-to-use-LineGraph)
-*[BarGraph](https://github.com/fughz/ExtHoloGraphLibrary/wiki/How-to-use-BarGraph)
-*[PieGraph](https://github.com/fughz/ExtHoloGraphLibrary/wiki/How-to-use-PieGraph)
+* [LineGraph](https://github.com/fughz/ExtHoloGraphLibrary/wiki/How-to-use-LineGraph)
+* [BarGraph](https://github.com/fughz/ExtHoloGraphLibrary/wiki/How-to-use-BarGraph)
+* [PieGraph](https://github.com/fughz/ExtHoloGraphLibrary/wiki/How-to-use-PieGraph)
 
 Have fun!
