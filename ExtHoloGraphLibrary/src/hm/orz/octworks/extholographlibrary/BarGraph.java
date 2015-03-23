@@ -24,29 +24,35 @@
 package hm.orz.octworks.extholographlibrary;
 
 import android.content.Context;
-import android.graphics.*;
+import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Path;
+import android.graphics.Point;
+import android.graphics.Rect;
+import android.graphics.RectF;
+import android.graphics.Region;
 import android.graphics.drawable.NinePatchDrawable;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
-
-
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 
-public class BarGraph extends View {
-
+public class BarGraph extends Graph {
     private ArrayList<Bar> points = new ArrayList<Bar>();
     private Paint p = new Paint();
+    private Path path = new Path();
     private Rect r;
     private boolean showBarText = true;
     private int indexSelected = -1;
     private OnBarClickedListener listener;
     private Bitmap fullImage;
     private boolean shouldUpdate = false;
-    private String unit = "$";
+    private String unit = "";
     private Boolean append = false;
     private Rect r2 = new Rect();
     private Rect r3 = new Rect();
@@ -65,11 +71,6 @@ public class BarGraph extends View {
 
     public void setBars(ArrayList<Bar> points) {
         this.points = points;
-        shouldUpdate = true;
-        postInvalidate();
-    }
-
-    public void update() {
         shouldUpdate = true;
         postInvalidate();
     }
@@ -103,26 +104,26 @@ public class BarGraph extends View {
             NinePatchDrawable popup = (NinePatchDrawable) this.getResources().getDrawable(R.drawable.popup_black);
 
             float maxValue = 0;
-            float padding = 7;
-            int selectPadding = 4;
-            float bottomPadding = 40;
+            float padding = convertToPx(7, DP);
+            int selectPadding = (int) convertToPx(4, DP);
+            float bottomPadding = convertToPx(40, DP);
 
             float usableHeight;
             if (showBarText) {
-                this.p.setTextSize(40);
-                this.p.getTextBounds(unit, 0, 1, r3);
-                usableHeight = getHeight() - bottomPadding - Math.abs(r3.top - r3.bottom) - 26;
+                this.p.setTextSize(convertToPx(20, SP));
+                this.p.getTextBounds(unit+"1", 0, unit.length()+1, r3);
+                usableHeight = getHeight() - bottomPadding - Math.abs(r3.top - r3.bottom) - convertToPx(30, DP);
             } else {
                 usableHeight = getHeight() - bottomPadding;
             }
 
 
             p.setColor(Color.BLACK);
-            p.setStrokeWidth(2);
+            p.setStrokeWidth(convertToPx(2, DP));
             p.setAlpha(50);
             p.setAntiAlias(true);
 
-            canvas.drawLine(0, getHeight() - bottomPadding + 10, getWidth(), getHeight() - bottomPadding + 10, p);
+            canvas.drawLine(0, getHeight() - bottomPadding + convertToPx(10, DP), getWidth(), getHeight() - bottomPadding + convertToPx(10, DP), p);
 
             float barWidth = (getWidth() - (padding * 2) * points.size()) / points.size();
 
@@ -132,60 +133,31 @@ public class BarGraph extends View {
 
             r = new Rect();
 
+            path.reset();
+
             int count = 0;
             for (Bar p : points) {
-                Path path = new Path();
+                r.set((int) ((padding * 2) * count + padding + barWidth * count), (int) (getHeight() - bottomPadding - (usableHeight * (p.getValue() / maxValue))), (int) ((padding * 2) * count + padding + barWidth * (count + 1)), (int) (getHeight() - bottomPadding));
 
-                if(p.getStackedBar()){
-                    ArrayList<BarStackSegment> values = new ArrayList<BarStackSegment>(p.getStackedValues());
+                path.addRect(new RectF(r.left - selectPadding, r.top - selectPadding, r.right + selectPadding, r.bottom + selectPadding), Path.Direction.CW);
+                p.setPath(path);
+                p.setRegion(new Region(r.left - selectPadding, r.top - selectPadding, r.right + selectPadding, r.bottom + selectPadding));
 
-                    ArrayList<Rect> drawRectArray = new ArrayList<Rect>();
-                    float prevValue = 0.0f;
-                    for(BarStackSegment value : values) {
-                        Rect drawRect = new Rect();
-                        drawRect.set((int) ((padding * 2) * count + padding + barWidth * count), (int) ((getHeight() - bottomPadding - (usableHeight * ((value.Value + prevValue) / maxValue)))), (int) ((padding * 2) * count + padding + barWidth * (count + 1)), (int) ((getHeight() - bottomPadding)));
-                        prevValue += value.Value;
-
-                        drawRectArray.add(drawRect);
-                    }
-
-                    for (int i = drawRectArray.size() - 1; i >= 0; i--) {
-                        r = drawRectArray.get(i);
-                        BarStackSegment value = values.get(i);
-
-                        path.addRect(new RectF(r.left - selectPadding, r.top - selectPadding, r.right + selectPadding, r.bottom + selectPadding), Path.Direction.CW);
-                        p.setPath(path);
-                        p.setRegion(new Region(r.left - selectPadding, r.top - selectPadding, r.right + selectPadding, r.bottom + selectPadding));
-                        value.setPath(path);
-                        value.setRegion(new Region(r.left - selectPadding, r.top - selectPadding, r.right + selectPadding, r.bottom + selectPadding));
-                        this.p.setColor(value.Color);
-                        this.p.setAlpha(255);
-                        canvas.drawRect(r, this.p);
-                    }
-                } else {
-                    r.set((int) ((padding * 2) * count + padding + barWidth * count), (int) (getHeight() - bottomPadding - (usableHeight * (p.getValue() / maxValue))), (int) ((padding * 2) * count + padding + barWidth * (count + 1)), (int) (getHeight() - bottomPadding));
-                    path.addRect(new RectF(r.left - selectPadding, r.top - selectPadding, r.right + selectPadding, r.bottom + selectPadding), Path.Direction.CW);
-                    p.setPath(path);
-                    p.setRegion(new Region(r.left - selectPadding, r.top - selectPadding, r.right + selectPadding, r.bottom + selectPadding));
-                    this.p.setColor(p.getColor());
-                    this.p.setAlpha(255);
-                    canvas.drawRect(r, this.p);
-                }
-
-
-                this.p.setTextSize(20);
-                canvas.drawText(p.getName(), (int) (((r.left + r.right) / 2) - (this.p.measureText(p.getName()) / 2)), getHeight() - 5, this.p);
+                this.p.setColor(p.getColor() == -1 ? DEFAULT_COLORS.get(count % DEFAULT_COLORS.size()) : p.getColor());
+                this.p.setAlpha(255);
+                canvas.drawRect(r, this.p);
+                this.p.setTextSize(convertToPx(20, SP));
+                canvas.drawText(p.getName(), (int) (((r.left + r.right) / 2) - (this.p.measureText(p.getName()) / 2)), getHeight() - convertToPx(5, DP), this.p);
                 if (showBarText) {
-                    this.p.setTextSize(40);
+                    this.p.setTextSize(convertToPx(20, SP));
                     this.p.setColor(Color.WHITE);
                     this.p.getTextBounds(unit + p.getValue(), 0, 1, r2);
-                    if (popup != null)
-                        popup.setBounds((int) (((r.left + r.right) / 2) - (this.p.measureText(unit + p.getValue()) / 2)) - 14, r.top + (r2.top - r2.bottom) - 26, (int) (((r.left + r.right) / 2) + (this.p.measureText(unit + p.getValue()) / 2)) + 14, r.top);
+                    popup.setBounds((int) (((r.left + r.right) / 2) - (this.p.measureText(unit + p.getValue()) / 2)) - (int) convertToPx(14, DP), r.top + (r2.top - r2.bottom) - (int) convertToPx(30, DP), (int) (((r.left + r.right) / 2) + (this.p.measureText(unit + p.getValue()) / 2)) + (int) convertToPx(14, DP), r.top);
                     popup.draw(canvas);
                     if (isAppended())
-                        canvas.drawText(p.getValue() + unit, (int) (((r.left + r.right) / 2) - (this.p.measureText(unit + p.getValue()) / 2)), r.top - 20, this.p);
+                        canvas.drawText(p.getValue() + unit, (int) (((r.left + r.right) / 2) - (this.p.measureText(unit + p.getValue()) / 2)), r.top - convertToPx(20, DP), this.p);
                     else
-                        canvas.drawText(unit + p.getValue(), (int) (((r.left + r.right) / 2) - (this.p.measureText(unit + p.getValue()) / 2)), r.top - 20, this.p);
+                        canvas.drawText(unit + p.getValue(), (int) (((r.left + r.right) / 2) - (this.p.measureText(unit + p.getValue()) / 2)), r.top - convertToPx(20, DP), this.p);
                 }
                 if (indexSelected == count && listener != null) {
                     this.p.setColor(Color.parseColor("#33B5E5"));
@@ -203,42 +175,25 @@ public class BarGraph extends View {
     }
 
     @Override
-    public boolean onTouchEvent(@NotNull MotionEvent event) {
+    public boolean onTouchEvent(MotionEvent event) {
 
         Point point = new Point();
         point.x = (int) event.getX();
         point.y = (int) event.getY();
 
-        if (event.getAction() == MotionEvent.ACTION_DOWN || event.getAction() == MotionEvent.ACTION_UP) {
-            // find clicked bar index
-            indexSelected = -1;
-            for (int i = 0; i < points.size(); i++) {
-                Region r = new Region();
-
-                if (points.get(i).getStackedBar()) {
-
-                    ArrayList<BarStackSegment> values = points.get(i).getStackedValues();
-                    for (BarStackSegment value : values) {
-                        r.setPath(value.getPath(), value.getRegion());
-                        if (r.contains(point.x, point.y)) {
-                            indexSelected = i;
-                        }
-                    }
+        int count = 0;
+        for (Bar bar : points) {
+            Region r = new Region();
+            r.setPath(bar.getPath(), bar.getRegion());
+            if (r.contains(point.x, point.y) && event.getAction() == MotionEvent.ACTION_DOWN) {
+                indexSelected = count;
+            } else if (event.getAction() == MotionEvent.ACTION_UP) {
+                if (r.contains(point.x, point.y) && listener != null) {
+                    listener.onClick(indexSelected);
                 }
-                else {
-                    r.setPath(points.get(i).getPath(), points.get(i).getRegion());
-                    if (r.contains(point.x, point.y)) {
-                        indexSelected = i;
-                    }
-                }
+                indexSelected = -1;
             }
-        }
-
-        if (event.getAction() == MotionEvent.ACTION_UP) {
-            // dispatch onClick event
-            if ((indexSelected != -1) && (listener != null)) {
-                listener.onClick(indexSelected);
-            }
+            count++;
         }
 
         if (event.getAction() == MotionEvent.ACTION_DOWN || event.getAction() == MotionEvent.ACTION_UP) {

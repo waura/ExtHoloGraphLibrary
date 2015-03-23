@@ -56,10 +56,7 @@ public class BarFragment extends Fragment {
         Bar d3 = new Bar();
         d3.setColor(Color.parseColor("#FFBB33"));
         d3.setName("Test3");
-        d3.setStackedBar(true);
-        d3.AddStackValue(new BarStackSegment(2, Color.parseColor("#FFBB33")));
-        d3.AddStackValue(new BarStackSegment(4, Color.RED));
-        //d3.setValue(30);
+        d3.setValue(30);
         points.add(d);
         points.add(d2);
         points.add(d3);

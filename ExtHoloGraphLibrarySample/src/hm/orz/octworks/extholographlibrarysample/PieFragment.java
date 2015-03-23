@@ -43,14 +43,17 @@ public class PieFragment extends Fragment {
 		PieSlice slice = new PieSlice();
 		slice.setColor(Color.parseColor("#99CC00"));
 		slice.setValue(2);
+        slice.setTitle("Test1");
 		pg.addSlice(slice);
 		slice = new PieSlice();
 		slice.setColor(Color.parseColor("#FFBB33"));
 		slice.setValue(3);
+        slice.setTitle("Test2");
 		pg.addSlice(slice);
 		slice = new PieSlice();
 		slice.setColor(Color.parseColor("#AA66CC"));
 		slice.setValue(8);
+        slice.setTitle("Test3");
 		pg.addSlice(slice);		
 		
 		pg.setOnSliceClickedListener(new PieGraph.OnSliceClickedListener(){
