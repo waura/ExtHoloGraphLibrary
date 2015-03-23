@@ -34,7 +34,6 @@ import android.graphics.RectF;
 import android.graphics.Region;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
-import android.view.View;
 
 import java.util.ArrayList;
 

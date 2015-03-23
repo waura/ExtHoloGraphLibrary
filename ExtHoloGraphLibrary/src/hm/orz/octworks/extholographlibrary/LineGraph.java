@@ -146,7 +146,7 @@ public class LineGraph extends Graph {
         return lines.size();
     }
 
-    public void setRange(float min, float max) {
+    public void setRangeY(float min, float max) {
         minY = min;
         maxY = max;
         isRangeSet = true;

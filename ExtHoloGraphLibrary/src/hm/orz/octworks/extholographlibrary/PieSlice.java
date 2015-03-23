@@ -31,7 +31,7 @@ public class PieSlice {
 
     private int color = -1;
     private float value;
-    private String title;
+    private String title = "";
     private Path path;
     private Region region;
 
