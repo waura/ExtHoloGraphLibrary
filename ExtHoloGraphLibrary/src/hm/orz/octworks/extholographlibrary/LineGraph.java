@@ -392,90 +392,16 @@ public class LineGraph extends Graph {
             }
 
             if (showAxisValues) {
-                int minSize = (int) convertToPx(50, DP);
-
-                // Find unique integers to display on the x axis
-                List<Integer> values = new LinkedList<Integer>();
-                int prevNum = Integer.MIN_VALUE;
-                int numbersToShow = (int) usableWidth / minSize + 1;
-                float step = (maxX - minX) / (numbersToShow - 1);
-                for(int i=0; i<numbersToShow; i++) {
-                    int num = (int) (minX + i * step);
-                    if(num != prevNum) {
-                        values.add(num);
-                    }
-                    prevNum = num;
-                }
-
-                // Draw the x axis
-                for(int i=0; i<values.size(); i++) {
-                    String num = values.get(i).toString();
-
-                    // Find the proper position for the text
-                    float pos = i * usableWidth / (values.size() - 1);
-                    // Add padding for the y axis
-                    pos += leftPadding;
-                    // Center text
-                    pos -= numPaint.measureText(num) / 2;
-
-                    // Draw text
-                    canvas.drawText(num, pos, usableHeight + topPadding + bottomPadding - numPaint.getTextSize() / 3, numPaint);
-                }
-
-                // Rotate the canvas for the y axis
-                canvas.save();
-                canvas.rotate(-90, getWidth() / 2, getHeight() / 2);
-                canvas.translate(0, getHeight() / 2);
-                canvas.translate(0, -getWidth() / 2);
-                canvas.translate(-getHeight() / 2, 0);
-                canvas.translate(getWidth() / 2, 0);
-
-                // Find unique integers to display on the y axis
-                values = new LinkedList<Integer>();
-                prevNum = Integer.MIN_VALUE;
-                numbersToShow = (int) usableHeight / minSize + 1;
-                step = (maxY - minY) / (numbersToShow - 1);
-                for(int i=0; i<numbersToShow; i++) {
-                    int num = (int) (minY + i * step);
-                    if(num != prevNum) {
-                        values.add(num);
-                    }
-                    prevNum = num;
-                }
-
-                // Draw the y axis
-                for(int i=0; i<values.size(); i++) {
-                    String num = values.get(i).toString();
-
-                    // Find the proper position for the text
-                    float pos = i * usableHeight / (values.size() - 1);
-                    // Add padding for the x axis
-                    pos += bottomPadding;
-                    // Center text
-                    pos -= numPaint.measureText(num) / 2;
-
-                    // Draw text
-                    canvas.drawText(num, pos, numPaint.getTextSize(), numPaint);
-                }
-
-                // Restore canvas upright
-                canvas.restore();
+                drawAxisValues(canvas, topPadding, bottomPadding, leftPadding, rightPadding);
             }
 
             if(xAxisTitle != null) {
-                ca.drawText(xAxisTitle, (getWidth() - txtPaint.measureText(xAxisTitle)) / 2, getHeight() - txtPaint.getTextSize() / 3, txtPaint);
+                drawXAxisTitle(ca, xAxisTitle);
             }
 
             if(yAxisTitle != null) {
-                ca.save();
-                ca.rotate(-90, getWidth() / 2, getHeight() / 2);
-                ca.translate(0, getHeight() / 2);
-                ca.translate(0, -getWidth() / 2);
-                ca.drawText(yAxisTitle, (getWidth() - txtPaint.measureText(yAxisTitle)) / 2 , txtPaint.getTextSize() * 4 / 5, txtPaint);
-                ca.restore();
+                drawYAxisTitle(ca, yAxisTitle);
             }
-
-            shouldUpdate = false;
         }
 
 
@@ -493,6 +419,93 @@ public class LineGraph extends Graph {
         ca.drawBitmap(fullImage, m, null);
 
 
+    }
+
+    private void drawAxisValues(Canvas canvas, float topPadding, float bottomPadding, float leftPadding, float rightPadding) {
+        float usableHeight = getHeight() - bottomPadding - topPadding;
+        float usableWidth = getWidth() - leftPadding - rightPadding;
+
+        int minSize = (int) convertToPx(50, DP);
+
+        // Find unique integers to display on the x axis
+        List<Integer> values = new LinkedList<Integer>();
+        int prevNum = Integer.MIN_VALUE;
+        int numbersToShow = (int) usableWidth / minSize + 1;
+        float step = (maxX - minX) / (numbersToShow - 1);
+        for(int i=0; i<numbersToShow; i++) {
+            int num = (int) (minX + i * step);
+            if(num != prevNum) {
+                values.add(num);
+            }
+            prevNum = num;
+        }
+
+        // Draw the x axis
+        for(int i=0; i<values.size(); i++) {
+            String num = values.get(i).toString();
+
+            // Find the proper position for the text
+            float pos = i * usableWidth / (values.size() - 1);
+            // Add padding for the y axis
+            pos += leftPadding;
+            // Center text
+            pos -= numPaint.measureText(num) / 2;
+
+            // Draw text
+            canvas.drawText(num, pos, usableHeight + topPadding + bottomPadding - numPaint.getTextSize() / 3, numPaint);
+        }
+
+        // Rotate the canvas for the y axis
+        canvas.save();
+        canvas.rotate(-90, getWidth() / 2, getHeight() / 2);
+        canvas.translate(0, getHeight() / 2);
+        canvas.translate(0, -getWidth() / 2);
+        canvas.translate(-getHeight() / 2, 0);
+        canvas.translate(getWidth() / 2, 0);
+
+        // Find unique integers to display on the y axis
+        values = new LinkedList<Integer>();
+        prevNum = Integer.MIN_VALUE;
+        numbersToShow = (int) usableHeight / minSize + 1;
+        step = (maxY - minY) / (numbersToShow - 1);
+        for(int i=0; i<numbersToShow; i++) {
+            int num = (int) (minY + i * step);
+            if(num != prevNum) {
+                values.add(num);
+            }
+            prevNum = num;
+        }
+
+        // Draw the y axis
+        for(int i=0; i<values.size(); i++) {
+            String num = values.get(i).toString();
+
+            // Find the proper position for the text
+            float pos = i * usableHeight / (values.size() - 1);
+            // Add padding for the x axis
+            pos += bottomPadding;
+            // Center text
+            pos -= numPaint.measureText(num) / 2;
+
+            // Draw text
+            canvas.drawText(num, pos, numPaint.getTextSize(), numPaint);
+        }
+
+        // Restore canvas upright
+        canvas.restore();
+    }
+
+    private void drawXAxisTitle(Canvas canvas, String xAxisTitle) {
+        canvas.drawText(xAxisTitle, (getWidth() - txtPaint.measureText(xAxisTitle)) / 2, getHeight() - txtPaint.getTextSize() / 3, txtPaint);
+    }
+
+    private void drawYAxisTitle(Canvas canvas, String yAxisTitle) {
+        canvas.save();
+        canvas.rotate(-90, getWidth() / 2, getHeight() / 2);
+        canvas.translate(0, getHeight() / 2);
+        canvas.translate(0, -getWidth() / 2);
+        canvas.drawText(yAxisTitle, (getWidth() - txtPaint.measureText(yAxisTitle)) / 2 , txtPaint.getTextSize() * 4 / 5, txtPaint);
+        canvas.restore();
     }
 
     @Override
