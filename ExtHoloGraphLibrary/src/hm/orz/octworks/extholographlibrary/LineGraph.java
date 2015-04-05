@@ -34,11 +34,9 @@ import android.graphics.Path;
 import android.graphics.Path.Direction;
 import android.graphics.Point;
 import android.graphics.PorterDuffXfermode;
-import android.graphics.Rect;
 import android.graphics.Region;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
-import android.view.View;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -59,9 +57,10 @@ public class LineGraph extends Graph {
     private Bitmap fullImage;
     private boolean shouldUpdate = false;
     private int gridColor = 0xffffffff;
-    private String yAxisTitle = null;
     private String xAxisTitle = null;
-    private boolean showAxisValues = true;
+    private String yAxisTitle = null;
+    private boolean showYAxisValues = true;
+    private boolean showXAxisValues = true;
 
     boolean debug = false;
 
@@ -81,8 +80,12 @@ public class LineGraph extends Graph {
         gridColor = color;
     }
 
-    public void showAxisValues(boolean show) {
-        showAxisValues = show;
+    public void showXAxisValues(boolean show) {
+        showXAxisValues = show;
+    }
+
+    public void showYAxisValues(boolean show) {
+        showYAxisValues = show;
     }
 
     public void setTextColor(int color) {
@@ -194,7 +197,7 @@ public class LineGraph extends Graph {
     }
 
     public float getMaxX() {
-        if(isDomainSet) return maxX;
+        if (isDomainSet) return maxX;
 
         for (Line line : lines) {
             for (LinePoint point : line.getPoints()) {
@@ -212,7 +215,7 @@ public class LineGraph extends Graph {
     }
 
     public float getMinX() {
-        if(isDomainSet) return minX;
+        if (isDomainSet) return minX;
 
         for (Line line : lines) {
             for (LinePoint point : line.getPoints()) {
@@ -240,16 +243,16 @@ public class LineGraph extends Graph {
             Path path = new Path();
 
             float topPadding = 0, bottomPadding = 0, leftPadding = 0, rightPadding = 0;
-            if (showAxisValues) {
-                bottomPadding = leftPadding = numPaint.getTextSize() * 2f;
-                rightPadding = numPaint.measureText(maxX+"") / 2;
-                topPadding = numPaint.measureText(maxY+"") / 2;
+            if (showXAxisValues || showYAxisValues) {
+                bottomPadding = rightPadding = numPaint.measureText(maxX + "") / 2;
+                leftPadding = numPaint.getTextSize() * 2f;
+                topPadding = numPaint.measureText(maxY + "") / 2;
             }
 
             float usableHeight = getHeight() - bottomPadding - topPadding;
             float usableWidth = getWidth() - leftPadding - rightPadding;
 
-            if(debug) {
+            if (debug) {
                 txtPaint.setColor(0xffff0000);
                 canvas.drawRect(0, 0, getWidth(), getHeight(), txtPaint);
                 txtPaint.setColor(0xff00ff00);
@@ -391,15 +394,19 @@ public class LineGraph extends Graph {
                 }
             }
 
-            if (showAxisValues) {
-                drawAxisValues(canvas, topPadding, bottomPadding, leftPadding, rightPadding);
+            if (showXAxisValues) {
+                drawXAxisValues(canvas, topPadding, bottomPadding, leftPadding, rightPadding);
             }
 
-            if(xAxisTitle != null) {
+            if (showYAxisValues) {
+                drawYAxisValues(canvas, topPadding, bottomPadding, leftPadding, rightPadding);
+            }
+
+            if (xAxisTitle != null) {
                 drawXAxisTitle(ca, xAxisTitle);
             }
 
-            if(yAxisTitle != null) {
+            if (yAxisTitle != null) {
                 drawYAxisTitle(ca, yAxisTitle);
             }
         }
@@ -407,11 +414,15 @@ public class LineGraph extends Graph {
 
         Matrix m = new Matrix();
 
-        if(xAxisTitle != null) {
+        if (xAxisTitle != null)
+
+        {
             m.preScale(1, (getHeight() - txtPaint.getTextSize()) / getHeight());
         }
 
-        if(yAxisTitle != null) {
+        if (yAxisTitle != null)
+
+        {
             m.postTranslate(txtPaint.getTextSize(), 0);
             m.preScale((getWidth() - txtPaint.getTextSize()) / getWidth(), 1);
         }
@@ -421,7 +432,7 @@ public class LineGraph extends Graph {
 
     }
 
-    private void drawAxisValues(Canvas canvas, float topPadding, float bottomPadding, float leftPadding, float rightPadding) {
+    private void drawXAxisValues(Canvas canvas, float topPadding, float bottomPadding, float leftPadding, float rightPadding) {
         float usableHeight = getHeight() - bottomPadding - topPadding;
         float usableWidth = getWidth() - leftPadding - rightPadding;
 
@@ -432,16 +443,16 @@ public class LineGraph extends Graph {
         int prevNum = Integer.MIN_VALUE;
         int numbersToShow = (int) usableWidth / minSize + 1;
         float step = (maxX - minX) / (numbersToShow - 1);
-        for(int i=0; i<numbersToShow; i++) {
+        for (int i = 0; i < numbersToShow; i++) {
             int num = (int) (minX + i * step);
-            if(num != prevNum) {
+            if (num != prevNum) {
                 values.add(num);
             }
             prevNum = num;
         }
 
         // Draw the x axis
-        for(int i=0; i<values.size(); i++) {
+        for (int i = 0; i < values.size(); i++) {
             String num = values.get(i).toString();
 
             // Find the proper position for the text
@@ -454,6 +465,13 @@ public class LineGraph extends Graph {
             // Draw text
             canvas.drawText(num, pos, usableHeight + topPadding + bottomPadding - numPaint.getTextSize() / 3, numPaint);
         }
+    }
+
+    private void drawYAxisValues(Canvas canvas, float topPadding, float bottomPadding, float leftPadding, float rightPadding) {
+        float usableHeight = getHeight() - bottomPadding - topPadding;
+        float usableWidth = getWidth() - leftPadding - rightPadding;
+
+        int minSize = (int) convertToPx(50, DP);
 
         // Rotate the canvas for the y axis
         canvas.save();
@@ -464,20 +482,20 @@ public class LineGraph extends Graph {
         canvas.translate(getWidth() / 2, 0);
 
         // Find unique integers to display on the y axis
-        values = new LinkedList<Integer>();
-        prevNum = Integer.MIN_VALUE;
-        numbersToShow = (int) usableHeight / minSize + 1;
-        step = (maxY - minY) / (numbersToShow - 1);
-        for(int i=0; i<numbersToShow; i++) {
+        List<Integer> values = new LinkedList<Integer>();
+        int prevNum = Integer.MIN_VALUE;
+        int numbersToShow = (int) usableHeight / minSize + 1;
+        float step = (maxY - minY) / (numbersToShow - 1);
+        for (int i = 0; i < numbersToShow; i++) {
             int num = (int) (minY + i * step);
-            if(num != prevNum) {
+            if (num != prevNum) {
                 values.add(num);
             }
             prevNum = num;
         }
 
         // Draw the y axis
-        for(int i=0; i<values.size(); i++) {
+        for (int i = 0; i < values.size(); i++) {
             String num = values.get(i).toString();
 
             // Find the proper position for the text
@@ -504,7 +522,7 @@ public class LineGraph extends Graph {
         canvas.rotate(-90, getWidth() / 2, getHeight() / 2);
         canvas.translate(0, getHeight() / 2);
         canvas.translate(0, -getWidth() / 2);
-        canvas.drawText(yAxisTitle, (getWidth() - txtPaint.measureText(yAxisTitle)) / 2 , txtPaint.getTextSize() * 4 / 5, txtPaint);
+        canvas.drawText(yAxisTitle, (getWidth() - txtPaint.measureText(yAxisTitle)) / 2, txtPaint.getTextSize() * 4 / 5, txtPaint);
         canvas.restore();
     }
 
