@@ -64,6 +64,8 @@ public class StackedLineFragment extends Fragment {
         li.setLine(l);
 		li.setRangeY(0, 10);
 		li.setLineToFill(0);
+        li.showXAxisValues(true);
+        li.showYAxisValues(true);
 		
 		li.setOnPointClickedListener(new StackedLineGraph.OnPointClickedListener(){
 

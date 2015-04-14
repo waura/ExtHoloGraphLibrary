@@ -58,6 +58,8 @@ public class LineFragment extends Fragment {
 		li.addLine(l);
 		li.setRangeY(0, 10);
 		li.setLineToFill(0);
+        li.showXAxisValues(true);
+        li.showYAxisValues(true);
 		
 		li.setOnPointClickedListener(new LineGraph.OnPointClickedListener(){
 
