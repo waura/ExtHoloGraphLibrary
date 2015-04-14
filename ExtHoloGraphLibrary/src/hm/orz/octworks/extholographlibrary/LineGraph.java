@@ -24,11 +24,8 @@
 package hm.orz.octworks.extholographlibrary;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Path.Direction;
@@ -39,14 +36,10 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
 
-public class LineGraph extends Graph {
+public class LineGraph extends AbstractLineGraph {
     private ArrayList<Line> lines = new ArrayList<Line>();
     private Paint paint = new Paint();
-    private Paint txtPaint = new Paint();
-    private Paint numPaint = new Paint();
     private float minY = 0, minX = 0;
     private float maxY = 0, maxX = 0;
     private boolean isRangeSet = false;
@@ -54,13 +47,8 @@ public class LineGraph extends Graph {
     private int lineToFill = -1;
     private int indexSelected = -1;
     private OnPointClickedListener listener;
-    private Bitmap fullImage;
-    private boolean shouldUpdate = false;
     private int gridColor = 0xffffffff;
-    private String xAxisTitle = null;
-    private String yAxisTitle = null;
-    private boolean showYAxisValues = true;
-    private boolean showXAxisValues = true;
+
 
     boolean debug = false;
 
@@ -70,57 +58,23 @@ public class LineGraph extends Graph {
 
     public LineGraph(Context context, AttributeSet attrs) {
         super(context, attrs);
-        txtPaint.setColor(0xdd000000);
-        txtPaint.setTextSize(convertToPx(20, SP));
-        numPaint.setColor(0xdd000000);
-        numPaint.setTextSize(convertToPx(16, SP));
     }
 
     public void setGridColor(int color) {
         gridColor = color;
     }
 
-    public void showXAxisValues(boolean show) {
-        showXAxisValues = show;
-    }
-
-    public void showYAxisValues(boolean show) {
-        showYAxisValues = show;
-    }
-
-    public void setTextColor(int color) {
-        txtPaint.setColor(color);
-    }
-
-    public void setTextSize(float s) {
-        txtPaint.setTextSize(s);
-    }
-
-    public void setYAxisTitle(String title) {
-        yAxisTitle = title;
-    }
-
-    public void setXAxisTitle(String title) {
-        xAxisTitle = title;
-    }
-
-    public void update() {
-        shouldUpdate = true;
-        postInvalidate();
-    }
 
     public void removeAllLines() {
         while (lines.size() > 0) {
             lines.remove(0);
         }
-        shouldUpdate = true;
-        postInvalidate();
+        update();
     }
 
     public void addLine(Line line) {
         lines.add(line);
-        shouldUpdate = true;
-        postInvalidate();
+        update();
     }
 
     public ArrayList<Line> getLines() {
@@ -137,8 +91,7 @@ public class LineGraph extends Graph {
 
     public void setLineToFill(int indexOfLine) {
         this.lineToFill = indexOfLine;
-        shouldUpdate = true;
-        postInvalidate();
+        update();
     }
 
     public Line getLine(int index) {
@@ -231,299 +184,147 @@ public class LineGraph extends Graph {
         return minX;
     }
 
-    public void onDraw(Canvas ca) {
-        if (fullImage == null || shouldUpdate) {
-            fullImage = Bitmap.createBitmap(getWidth(), getHeight(), Config.ARGB_8888);
-            Canvas canvas = new Canvas(fullImage);
-            getMaxY();
-            getMinY();
-            getMaxX();
-            getMinX();
-            paint.reset();
-            Path path = new Path();
+    protected void drawGraphArea(Canvas ca) {
+        float topPadding = 0, bottomPadding = 0;
+        float leftPadding = convertToPx(6, DP), rightPadding = convertToPx(6, DP);
+        float usableHeight = ca.getHeight() - bottomPadding - topPadding;
+        float usableWidth = ca.getWidth() - leftPadding - rightPadding;
 
-            float topPadding = 0, bottomPadding = 0, leftPadding = 0, rightPadding = 0;
-            if (showXAxisValues || showYAxisValues) {
-                bottomPadding = rightPadding = numPaint.measureText(maxX + "") / 2;
-                leftPadding = numPaint.getTextSize() * 2f;
-                topPadding = numPaint.measureText(maxY + "") / 2;
-            }
+        paint.reset();
+        Path path = new Path();
 
-            float usableHeight = getHeight() - bottomPadding - topPadding;
-            float usableWidth = getWidth() - leftPadding - rightPadding;
+        int lineCount = 0;
+        for (Line line : lines) {
+            int count = 0;
+            float lastXPixels = 0, newYPixels;
+            float lastYPixels = 0, newXPixels;
 
-            if (debug) {
-                txtPaint.setColor(0xffff0000);
-                canvas.drawRect(0, 0, getWidth(), getHeight(), txtPaint);
-                txtPaint.setColor(0xff00ff00);
-                canvas.drawRect(leftPadding, topPadding, usableWidth + leftPadding, usableHeight + topPadding, txtPaint);
-                txtPaint.setColor(0xdd000000);
-            }
-
-            int lineCount = 0;
-            for (Line line : lines) {
-                int count = 0;
-                float lastXPixels = 0, newYPixels;
-                float lastYPixels = 0, newXPixels;
-
-                if (lineCount == lineToFill) {
-                    paint.setColor(Color.BLACK);
-                    paint.setAlpha(30);
-                    paint.setStrokeWidth(2);
-                    for (int i = (int) convertToPx(5, DP); i - getWidth() < getHeight(); i += convertToPx(10, DP)) {
-                        canvas.drawLine(i, getHeight() - bottomPadding, 0, getHeight() - bottomPadding - i, paint);
-                    }
-
-                    paint.reset();
-
-                    paint.setXfermode(new PorterDuffXfermode(android.graphics.PorterDuff.Mode.CLEAR));
-                    for (LinePoint p : line.getPoints()) {
-                        float yPercent = (p.getY() - minY) / (maxY - minY);
-                        float xPercent = (p.getX() - minX) / (maxX - minX);
-                        if (count == 0) {
-                            lastXPixels = leftPadding + (xPercent * usableWidth);
-                            lastYPixels = getHeight() - bottomPadding - (usableHeight * yPercent);
-                            path.moveTo(lastXPixels, lastYPixels);
-                        } else {
-                            newXPixels = leftPadding + (xPercent * usableWidth);
-                            newYPixels = getHeight() - bottomPadding - (usableHeight * yPercent);
-                            path.lineTo(newXPixels, newYPixels);
-                            Path pa = new Path();
-                            pa.moveTo(lastXPixels, lastYPixels);
-                            pa.lineTo(newXPixels, newYPixels);
-                            pa.lineTo(newXPixels, 0);
-                            pa.lineTo(lastXPixels, 0);
-                            pa.close();
-                            canvas.drawPath(pa, paint);
-                            lastXPixels = newXPixels;
-                            lastYPixels = newYPixels;
-                        }
-                        count++;
-                    }
-
-                    path.reset();
-
-                    path.moveTo(0, getHeight() - bottomPadding);
-                    path.lineTo(leftPadding, getHeight() - bottomPadding);
-                    path.lineTo(leftPadding, 0);
-                    path.lineTo(0, 0);
-                    path.close();
-                    canvas.drawPath(path, paint);
-
-                    path.reset();
-
-                    path.moveTo(getWidth(), getHeight() - bottomPadding);
-                    path.lineTo(getWidth() - leftPadding, getHeight() - bottomPadding);
-                    path.lineTo(getWidth() - leftPadding, 0);
-                    path.lineTo(getWidth(), 0);
-                    path.close();
-
-                    canvas.drawPath(path, paint);
-
+            if (lineCount == lineToFill) {
+                paint.setColor(Color.BLACK);
+                paint.setAlpha(30);
+                paint.setStrokeWidth(2);
+                for (int i = (int) convertToPx(5, DP); i - ca.getWidth() < ca.getHeight(); i += convertToPx(10, DP)) {
+                    ca.drawLine(i, ca.getHeight(), 0, ca.getHeight() - i, paint);
                 }
 
-                lineCount++;
-            }
+                paint.reset();
 
-            paint.reset();
-
-            paint.setColor(this.gridColor);
-            paint.setAlpha(50);
-            paint.setAntiAlias(true);
-            canvas.drawLine(leftPadding, getHeight() - bottomPadding, getWidth(), getHeight() - bottomPadding, paint);
-            paint.setAlpha(255);
-
-            for (Line line : lines) {
-                int count = 0;
-                float lastXPixels = 0, newYPixels;
-                float lastYPixels = 0, newXPixels;
-
-                paint.setColor(line.getColor());
-                paint.setStrokeWidth(convertToPx(3, DP));
-
+                paint.setXfermode(new PorterDuffXfermode(android.graphics.PorterDuff.Mode.CLEAR));
                 for (LinePoint p : line.getPoints()) {
-                    float yPercent = (p.getY() - minY) / (maxY - minY);
-                    float xPercent = (p.getX() - minX) / (maxX - minX);
+                    float yPercent = (p.getY() - getMinY()) / (getMaxY() - getMinY());
+                    float xPercent = (p.getX() - getMinX()) / (getMaxX() - getMinX());
                     if (count == 0) {
-                        lastXPixels = leftPadding + (xPercent * usableWidth);
-                        lastYPixels = getHeight() - bottomPadding - (usableHeight * yPercent);
+                        lastXPixels = xPercent * ca.getWidth();
+                        lastYPixels = ca.getHeight() - (ca.getHeight() * yPercent);
+                        path.moveTo(lastXPixels, lastYPixels);
                     } else {
-                        newXPixels = leftPadding + (xPercent * usableWidth);
-                        newYPixels = getHeight() - bottomPadding - (usableHeight * yPercent);
-                        canvas.drawLine(lastXPixels, lastYPixels, newXPixels, newYPixels, paint);
+                        newXPixels = xPercent * ca.getWidth();
+                        newYPixels = ca.getHeight() - (ca.getHeight() * yPercent);
+                        path.lineTo(newXPixels, newYPixels);
+                        Path pa = new Path();
+                        pa.moveTo(lastXPixels, lastYPixels);
+                        pa.lineTo(newXPixels, newYPixels);
+                        pa.lineTo(newXPixels, 0);
+                        pa.lineTo(lastXPixels, 0);
+                        pa.close();
+                        ca.drawPath(pa, paint);
                         lastXPixels = newXPixels;
                         lastYPixels = newYPixels;
                     }
                     count++;
                 }
+
+                path.reset();
+
+                path.moveTo(0, ca.getHeight() - bottomPadding);
+                path.lineTo(leftPadding, ca.getHeight() - bottomPadding);
+                path.lineTo(leftPadding, 0);
+                path.lineTo(0, 0);
+                path.close();
+                ca.drawPath(path, paint);
+
+                path.reset();
+
+                path.moveTo(ca.getWidth(), ca.getHeight() - bottomPadding);
+                path.lineTo(ca.getWidth() - leftPadding, ca.getHeight() - bottomPadding);
+                path.lineTo(ca.getWidth() - leftPadding, 0);
+                path.lineTo(ca.getWidth(), 0);
+                path.close();
+
+                ca.drawPath(path, paint);
             }
 
-            int pointCount = 0;
+            lineCount++;
+        }
 
-            for (Line line : lines) {
-                paint.setColor(line.getColor());
-                paint.setStrokeWidth(convertToPx(6, DP));
-                paint.setStrokeCap(Paint.Cap.ROUND);
+        paint.reset();
 
-                if (line.isShowingPoints()) {
-                    for (LinePoint p : line.getPoints()) {
-                        float yPercent = (p.getY() - minY) / (maxY - minY);
-                        float xPercent = (p.getX() - minX) / (maxX - minX);
-                        float xPixels = leftPadding + (xPercent * usableWidth);
-                        float yPixels = getHeight() - bottomPadding - (usableHeight * yPercent);
+        paint.setColor(this.gridColor);
+        paint.setAlpha(50);
+        paint.setAntiAlias(true);
+        ca.drawLine(leftPadding, ca.getHeight() - bottomPadding, ca.getWidth(), ca.getHeight() - bottomPadding, paint);
+        paint.setAlpha(255);
 
-                        paint.setColor(Color.GRAY);
-                        canvas.drawCircle(xPixels, yPixels, convertToPx(6, DP), paint);
-                        paint.setColor(Color.WHITE);
-                        canvas.drawCircle(xPixels, yPixels, convertToPx(3, DP), paint);
+        for (Line line : lines) {
+            int count = 0;
+            float lastXPixels = 0, newYPixels;
+            float lastYPixels = 0, newXPixels;
 
-                        Path path2 = new Path();
-                        path2.addCircle(xPixels, yPixels, convertToPx(30, DP), Direction.CW);
-                        p.setPath(path2);
-                        p.setRegion(new Region((int) (xPixels - convertToPx(30, DP)), (int) (yPixels - convertToPx(30, DP)), (int) (xPixels + convertToPx(30, DP)), (int) (yPixels + convertToPx(30, DP))));
+            paint.setColor(line.getColor());
+            paint.setStrokeWidth(convertToPx(3, DP));
 
-                        if (indexSelected == pointCount && listener != null) {
-                            paint.setColor(Color.parseColor("#33B5E5"));
-                            paint.setAlpha(100);
-                            canvas.drawPath(p.getPath(), paint);
-                            paint.setAlpha(255);
-                        }
+            for (LinePoint p : line.getPoints()) {
+                float yPercent = (p.getY() - getMinY()) / (getMaxY() - getMinY());
+                float xPercent = (p.getX() - getMinX()) / (getMaxX() - getMinX());
+                if (count == 0) {
+                    lastXPixels = leftPadding + (xPercent * usableWidth);
+                    lastYPixels = ca.getHeight() - bottomPadding - (usableHeight * yPercent);
+                } else {
+                    newXPixels = leftPadding + (xPercent * usableWidth);
+                    newYPixels = ca.getHeight() - bottomPadding - (usableHeight * yPercent);
+                    ca.drawLine(lastXPixels, lastYPixels, newXPixels, newYPixels, paint);
+                    lastXPixels = newXPixels;
+                    lastYPixels = newYPixels;
+                }
+                count++;
+            }
+        }
 
-                        pointCount++;
+        int pointCount = 0;
+
+        for (Line line : lines) {
+            paint.setColor(line.getColor());
+            paint.setStrokeWidth(convertToPx(6, DP));
+            paint.setStrokeCap(Paint.Cap.ROUND);
+
+            if (line.isShowingPoints()) {
+                for (LinePoint p : line.getPoints()) {
+                    float yPercent = (p.getY() - getMinY()) / (getMaxY() - getMinY());
+                    float xPercent = (p.getX() - getMinX()) / (getMaxX() - getMinX());
+                    float xPixels = leftPadding + (xPercent * usableWidth);
+                    float yPixels = ca.getHeight() - bottomPadding - (usableHeight * yPercent);
+
+                    paint.setColor(Color.GRAY);
+                    ca.drawCircle(xPixels, yPixels, convertToPx(6, DP), paint);
+                    paint.setColor(Color.WHITE);
+                    ca.drawCircle(xPixels, yPixels, convertToPx(3, DP), paint);
+
+                    Path path2 = new Path();
+                    path2.addCircle(xPixels, yPixels, convertToPx(30, DP), Direction.CW);
+                    p.setPath(path2);
+                    p.setRegion(new Region((int) (xPixels - convertToPx(30, DP)), (int) (yPixels - convertToPx(30, DP)), (int) (xPixels + convertToPx(30, DP)), (int) (yPixels + convertToPx(30, DP))));
+
+                    if (indexSelected == pointCount && listener != null) {
+                        paint.setColor(Color.parseColor("#33B5E5"));
+                        paint.setAlpha(100);
+                        ca.drawPath(p.getPath(), paint);
+                        paint.setAlpha(255);
                     }
+
+                    pointCount++;
                 }
             }
-
-            if (showXAxisValues) {
-                drawXAxisValues(canvas, topPadding, bottomPadding, leftPadding, rightPadding);
-            }
-
-            if (showYAxisValues) {
-                drawYAxisValues(canvas, topPadding, bottomPadding, leftPadding, rightPadding);
-            }
-
-            if (xAxisTitle != null) {
-                drawXAxisTitle(ca, xAxisTitle);
-            }
-
-            if (yAxisTitle != null) {
-                drawYAxisTitle(ca, yAxisTitle);
-            }
         }
-
-
-        Matrix m = new Matrix();
-
-        if (xAxisTitle != null)
-
-        {
-            m.preScale(1, (getHeight() - txtPaint.getTextSize()) / getHeight());
-        }
-
-        if (yAxisTitle != null)
-
-        {
-            m.postTranslate(txtPaint.getTextSize(), 0);
-            m.preScale((getWidth() - txtPaint.getTextSize()) / getWidth(), 1);
-        }
-
-        ca.drawBitmap(fullImage, m, null);
-
-
-    }
-
-    private void drawXAxisValues(Canvas canvas, float topPadding, float bottomPadding, float leftPadding, float rightPadding) {
-        float usableHeight = getHeight() - bottomPadding - topPadding;
-        float usableWidth = getWidth() - leftPadding - rightPadding;
-
-        int minSize = (int) convertToPx(50, DP);
-
-        // Find unique integers to display on the x axis
-        List<Integer> values = new LinkedList<Integer>();
-        int prevNum = Integer.MIN_VALUE;
-        int numbersToShow = (int) usableWidth / minSize + 1;
-        float step = (maxX - minX) / (numbersToShow - 1);
-        for (int i = 0; i < numbersToShow; i++) {
-            int num = (int) (minX + i * step);
-            if (num != prevNum) {
-                values.add(num);
-            }
-            prevNum = num;
-        }
-
-        // Draw the x axis
-        for (int i = 0; i < values.size(); i++) {
-            String num = values.get(i).toString();
-
-            // Find the proper position for the text
-            float pos = i * usableWidth / (values.size() - 1);
-            // Add padding for the y axis
-            pos += leftPadding;
-            // Center text
-            pos -= numPaint.measureText(num) / 2;
-
-            // Draw text
-            canvas.drawText(num, pos, usableHeight + topPadding + bottomPadding - numPaint.getTextSize() / 3, numPaint);
-        }
-    }
-
-    private void drawYAxisValues(Canvas canvas, float topPadding, float bottomPadding, float leftPadding, float rightPadding) {
-        float usableHeight = getHeight() - bottomPadding - topPadding;
-        float usableWidth = getWidth() - leftPadding - rightPadding;
-
-        int minSize = (int) convertToPx(50, DP);
-
-        // Rotate the canvas for the y axis
-        canvas.save();
-        canvas.rotate(-90, getWidth() / 2, getHeight() / 2);
-        canvas.translate(0, getHeight() / 2);
-        canvas.translate(0, -getWidth() / 2);
-        canvas.translate(-getHeight() / 2, 0);
-        canvas.translate(getWidth() / 2, 0);
-
-        // Find unique integers to display on the y axis
-        List<Integer> values = new LinkedList<Integer>();
-        int prevNum = Integer.MIN_VALUE;
-        int numbersToShow = (int) usableHeight / minSize + 1;
-        float step = (maxY - minY) / (numbersToShow - 1);
-        for (int i = 0; i < numbersToShow; i++) {
-            int num = (int) (minY + i * step);
-            if (num != prevNum) {
-                values.add(num);
-            }
-            prevNum = num;
-        }
-
-        // Draw the y axis
-        for (int i = 0; i < values.size(); i++) {
-            String num = values.get(i).toString();
-
-            // Find the proper position for the text
-            float pos = i * usableHeight / (values.size() - 1);
-            // Add padding for the x axis
-            pos += bottomPadding;
-            // Center text
-            pos -= numPaint.measureText(num) / 2;
-
-            // Draw text
-            canvas.drawText(num, pos, numPaint.getTextSize(), numPaint);
-        }
-
-        // Restore canvas upright
-        canvas.restore();
-    }
-
-    private void drawXAxisTitle(Canvas canvas, String xAxisTitle) {
-        canvas.drawText(xAxisTitle, (getWidth() - txtPaint.measureText(xAxisTitle)) / 2, getHeight() - txtPaint.getTextSize() / 3, txtPaint);
-    }
-
-    private void drawYAxisTitle(Canvas canvas, String yAxisTitle) {
-        canvas.save();
-        canvas.rotate(-90, getWidth() / 2, getHeight() / 2);
-        canvas.translate(0, getHeight() / 2);
-        canvas.translate(0, -getWidth() / 2);
-        canvas.drawText(yAxisTitle, (getWidth() - txtPaint.measureText(yAxisTitle)) / 2, txtPaint.getTextSize() * 4 / 5, txtPaint);
-        canvas.restore();
     }
 
     @Override
@@ -560,8 +361,7 @@ public class LineGraph extends Graph {
         }
 
         if (event.getAction() == MotionEvent.ACTION_DOWN || event.getAction() == MotionEvent.ACTION_UP) {
-            shouldUpdate = true;
-            postInvalidate();
+            update();
         }
 
         return true;
