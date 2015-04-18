@@ -7,16 +7,19 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.graphics.PorterDuffXfermode;
+import android.graphics.Rect;
 import android.graphics.Region;
 import android.util.AttributeSet;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.jar.Attributes;
 
 public abstract class AbstractLineGraph extends Graph {
 
+    private int STROKE_WIDTH = 6;
+    private int POINT_DIAMETER = 30;
+
+    private Paint paint = new Paint();
     private Paint txtPaint = new Paint();
     private Paint numPaint = new Paint();
 
@@ -122,6 +125,15 @@ public abstract class AbstractLineGraph extends Graph {
 
     protected abstract void drawGraphArea(Canvas ca);
 
+    protected void drawLine(Canvas canvas, Rect drawRange, Line line) {
+        drawSimpleLine(canvas, drawRange, line);
+        if (line.isShowingPoints()) {
+            for (int i = 0; i < line.getSize(); i++) {
+                drawPoint(canvas, drawRange, line.getPoint(i));
+            }
+        }
+    }
+
     private void drawXAxisValues(Canvas canvas, float topPadding, float bottomPadding, float leftPadding, float rightPadding) {
         float usableWidth = getWidth() - leftPadding - rightPadding;
 
@@ -215,4 +227,100 @@ public abstract class AbstractLineGraph extends Graph {
         canvas.restore();
     }
 
+    private void drawSimpleLine(Canvas canvas, Rect drawRange, Line line) {
+        if (line.getSize() <= 1) {
+            return;
+        }
+
+        LinePoint lastPoint, newPoint;
+
+        paint.reset();
+        paint.setColor(line.getColor());
+        paint.setStrokeWidth(convertToPx(STROKE_WIDTH, DP));
+        paint.setAlpha(255);
+        paint.setTextAlign(Paint.Align.CENTER);
+
+        {
+            lastPoint = line.getPoint(0);
+        }
+
+        for (int i = 1; i < line.getSize(); i++) {
+            newPoint = line.getPoint(i);
+
+            canvas.drawLine(
+                    convertToPixelXFromVirtualX(canvas, drawRange, lastPoint.getX()),
+                    convertToPixelYFromVirtualY(canvas, drawRange, lastPoint.getY()),
+                    convertToPixelXFromVirtualX(canvas, drawRange, newPoint.getX()),
+                    convertToPixelYFromVirtualY(canvas, drawRange, newPoint.getY()),
+                    paint);
+
+            lastPoint = newPoint;
+        }
+    }
+
+    private void drawPoint(Canvas canvas, Rect drawRange, LinePoint point) {
+        int pointCount = 0;
+
+        paint.reset();
+        paint.setStrokeWidth(convertToPx(STROKE_WIDTH, DP));
+        paint.setStrokeCap(Paint.Cap.ROUND);
+
+        float xPixels = convertToPixelXFromVirtualX(canvas, drawRange, point.getX());
+        float yPixels = convertToPixelYFromVirtualY(canvas, drawRange, point.getY());
+
+        paint.setColor(Color.GRAY);
+        canvas.drawCircle(xPixels, yPixels, convertToPx(6, DP), paint);
+        paint.setColor(Color.WHITE);
+        canvas.drawCircle(xPixels, yPixels, convertToPx(3, DP), paint);
+
+        Path path2 = new Path();
+        path2.addCircle(xPixels, yPixels, convertToPx(30, DP), Path.Direction.CW);
+        point.setPath(path2);
+        point.setRegion(new Region(
+                (int) (xPixels - convertToPx(30, DP)),
+                (int) (yPixels - convertToPx(30, DP)),
+                (int) (xPixels + convertToPx(30, DP)),
+                (int) (yPixels + convertToPx(30, DP))));
+    }
+
+    private float getGraphPaddingTop() {
+        if (showXAxisValues || showYAxisValues) {
+            return numPaint.measureText(getMaxY() + "") / 2;
+        }
+        return 0.0f;
+    }
+
+    private float getGraphPaddingBottom() {
+        if (showXAxisValues || showYAxisValues) {
+            return numPaint.getTextSize() * 2f;
+        }
+        return 0.0f;
+    }
+
+    private float getGraphPaddingLeft() {
+        if (showXAxisValues || showYAxisValues) {
+            return numPaint.getTextSize() * 2f;
+        }
+        return 0.0f;
+    }
+    private float getGraphPaddingRight() {
+        if (showXAxisValues || showYAxisValues) {
+            return numPaint.measureText(getMaxX() + "") / 2;
+        }
+        return 0.0f;
+    }
+
+    private float convertToPixelXFromVirtualX(Canvas graphCanvas, Rect drawRange, float virtualX) {
+        float usableWidth = drawRange.right - drawRange.left;
+        float xPercent = (virtualX - getMinX()) / (getMaxX() - getMinX());
+        return (drawRange.left + (xPercent * usableWidth));
+    }
+
+    private float convertToPixelYFromVirtualY(Canvas graphCanvas, Rect drawRange, float virtualY) {
+        float usableHeight = drawRange.bottom - drawRange.top;
+        float yPercent = (virtualY - getMinY()) / (getMaxY() - getMinY());
+        return (drawRange.top + (usableHeight * (1.0f - yPercent)));
+    }
+
 }
+

@@ -28,9 +28,9 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.graphics.Path.Direction;
 import android.graphics.Point;
 import android.graphics.PorterDuffXfermode;
+import android.graphics.Rect;
 import android.graphics.Region;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -265,66 +265,33 @@ public class LineGraph extends AbstractLineGraph {
         ca.drawLine(leftPadding, ca.getHeight() - bottomPadding, ca.getWidth(), ca.getHeight() - bottomPadding, paint);
         paint.setAlpha(255);
 
+        Rect drawRange = new Rect(
+                (int) leftPadding,
+                (int) topPadding,
+                (int) (leftPadding + usableWidth),
+                (int) (topPadding + usableHeight));
         for (Line line : lines) {
-            int count = 0;
-            float lastXPixels = 0, newYPixels;
-            float lastYPixels = 0, newXPixels;
-
-            paint.setColor(line.getColor());
-            paint.setStrokeWidth(convertToPx(3, DP));
-
-            for (LinePoint p : line.getPoints()) {
-                float yPercent = (p.getY() - getMinY()) / (getMaxY() - getMinY());
-                float xPercent = (p.getX() - getMinX()) / (getMaxX() - getMinX());
-                if (count == 0) {
-                    lastXPixels = leftPadding + (xPercent * usableWidth);
-                    lastYPixels = ca.getHeight() - bottomPadding - (usableHeight * yPercent);
-                } else {
-                    newXPixels = leftPadding + (xPercent * usableWidth);
-                    newYPixels = ca.getHeight() - bottomPadding - (usableHeight * yPercent);
-                    ca.drawLine(lastXPixels, lastYPixels, newXPixels, newYPixels, paint);
-                    lastXPixels = newXPixels;
-                    lastYPixels = newYPixels;
-                }
-                count++;
-            }
+            drawLine(ca, drawRange, line);
         }
 
-        int pointCount = 0;
-
+        /* TODO:
         for (Line line : lines) {
-            paint.setColor(line.getColor());
             paint.setStrokeWidth(convertToPx(6, DP));
             paint.setStrokeCap(Paint.Cap.ROUND);
 
             if (line.isShowingPoints()) {
-                for (LinePoint p : line.getPoints()) {
-                    float yPercent = (p.getY() - getMinY()) / (getMaxY() - getMinY());
-                    float xPercent = (p.getX() - getMinX()) / (getMaxX() - getMinX());
-                    float xPixels = leftPadding + (xPercent * usableWidth);
-                    float yPixels = ca.getHeight() - bottomPadding - (usableHeight * yPercent);
+                LinePoint p = line.getPoint(indexSelected);
 
-                    paint.setColor(Color.GRAY);
-                    ca.drawCircle(xPixels, yPixels, convertToPx(6, DP), paint);
-                    paint.setColor(Color.WHITE);
-                    ca.drawCircle(xPixels, yPixels, convertToPx(3, DP), paint);
-
-                    Path path2 = new Path();
-                    path2.addCircle(xPixels, yPixels, convertToPx(30, DP), Direction.CW);
-                    p.setPath(path2);
-                    p.setRegion(new Region((int) (xPixels - convertToPx(30, DP)), (int) (yPixels - convertToPx(30, DP)), (int) (xPixels + convertToPx(30, DP)), (int) (yPixels + convertToPx(30, DP))));
-
-                    if (indexSelected == pointCount && listener != null) {
-                        paint.setColor(Color.parseColor("#33B5E5"));
-                        paint.setAlpha(100);
-                        ca.drawPath(p.getPath(), paint);
-                        paint.setAlpha(255);
-                    }
-
-                    pointCount++;
+                if (indexSelected == pointCount && listener != null) {
+                    paint.setColor(Color.parseColor("#33B5E5"));
+                    paint.setAlpha(100);
+                    ca.drawPath(p.getPath(), paint);
+                    paint.setAlpha(255);
                 }
+
             }
         }
+        */
     }
 
     @Override
@@ -341,12 +308,11 @@ public class LineGraph extends AbstractLineGraph {
         for (Line line : lines) {
             pointCount = 0;
             for (LinePoint p : line.getPoints()) {
-                if (p.getPath() != null && p.getRegion() != null) {
-                    r.setPath(p.getPath(), p.getRegion());
-                    if (r.contains(point.x, point.y) && event.getAction() == MotionEvent.ACTION_DOWN) {
+                if (p.isOnPoint(point.x, point.y)) {
+                    if (event.getAction() == MotionEvent.ACTION_DOWN) {
                         indexSelected = count;
                     } else if (event.getAction() == MotionEvent.ACTION_UP) {
-                        if (r.contains(point.x, point.y) && listener != null) {
+                        if (listener != null) {
                             listener.onClick(lineCount, pointCount);
                         }
                         indexSelected = -1;
@@ -357,7 +323,6 @@ public class LineGraph extends AbstractLineGraph {
                 count++;
             }
             lineCount++;
-
         }
 
         if (event.getAction() == MotionEvent.ACTION_DOWN || event.getAction() == MotionEvent.ACTION_UP) {
@@ -371,7 +336,7 @@ public class LineGraph extends AbstractLineGraph {
         this.listener = listener;
     }
 
-    public interface OnPointClickedListener {
-        abstract void onClick(int lineIndex, int pointIndex);
-    }
+public interface OnPointClickedListener {
+    abstract void onClick(int lineIndex, int pointIndex);
+}
 }

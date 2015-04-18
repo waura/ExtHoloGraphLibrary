@@ -26,6 +26,7 @@ package hm.orz.octworks.extholographlibrary;
 
 import android.graphics.Path;
 import android.graphics.Region;
+import android.view.MotionEvent;
 
 public class LinePoint {
 
@@ -81,5 +82,14 @@ public class LinePoint {
 	public void setLabel_string(String label_string) {
 		this.label_string = label_string;
 	}
+
+    public boolean isOnPoint(float x, float y) {
+        if (getPath() != null && getRegion() != null) {
+            Region r = new Region();
+            r.setPath(getPath(), getRegion());
+            return r.contains((int)x, (int)y);
+        }
+        return false;
+    }
 
 }
