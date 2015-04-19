@@ -8,21 +8,20 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Point;
-import android.graphics.Rect;
 import android.graphics.Region;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
 
 public abstract class AbstractLineGraph extends Graph {
 
     private static final int UNSELECTED = -1;
 
-    private static final int STROKE_WIDTH = 6;
-    private static final int POINT_DIAMETER = 30;
+    private static final int GRAPH_STROKE_WIDTH = 3;
+    private static final int GRID_STROKE_WIDTH = 1;
+    private static final int POINT_DIAMETER = 6;
+    private static final int POINT_CLICK_DIAMETER = 30;
 
     private ArrayList<Line> lines = new ArrayList<Line>();
 
@@ -39,6 +38,10 @@ public abstract class AbstractLineGraph extends Graph {
 
     private String xAxisTitle = null;
     private String yAxisTitle = null;
+
+    private ArrayList<Integer> xGridList = new ArrayList<Integer>();
+    private ArrayList<Integer> yGridList = new ArrayList<Integer>();
+
     private boolean showYAxisValues = true;
     private boolean showXAxisValues = true;
 
@@ -93,6 +96,14 @@ public abstract class AbstractLineGraph extends Graph {
 
     public void setXAxisTitle(String title) {
         xAxisTitle = title;
+    }
+
+    public void setXGrid(ArrayList<Integer> gridList) {
+        this.xGridList = gridList;
+    }
+
+    public void setYGrid(ArrayList<Integer> gridList) {
+        this.yGridList = gridList;
     }
 
     public void setGridColor(int color) {
@@ -191,6 +202,8 @@ public abstract class AbstractLineGraph extends Graph {
                 drawYAxisValues(canvas, topPadding, bottomPadding, leftPadding, rightPadding);
             }
 
+            drawHorizontalGrid(canvas, topPadding, bottomPadding, leftPadding, rightPadding);
+
             for (Line line : lines) {
                 drawLine(canvas, line, topPadding, bottomPadding, leftPadding, rightPadding);
             }
@@ -265,19 +278,23 @@ public abstract class AbstractLineGraph extends Graph {
                                     float bottomPadding,
                                     float leftPadding,
                                     float rightPadding) {
-        float lineSpace = (canvas.getHeight() - bottomPadding - topPadding) / 10;
+        float usableHeight = canvas.getHeight() - topPadding - bottomPadding;
+        float height = getMaxY() - getMinY();
 
+        paint.reset();
         paint.setColor(this.gridColor);
+        paint.setStrokeWidth(convertToPx(GRID_STROKE_WIDTH, DP));
         paint.setAlpha(50);
         paint.setAntiAlias(true);
-        canvas.drawLine(leftPadding, canvas.getHeight() - bottomPadding, canvas.getWidth(), canvas.getHeight() - bottomPadding, paint);
 
-        for (int i = 1; i <= 10; i++) {
+        for (Integer gridValue : yGridList) {
+            float pos = usableHeight * (gridValue / height);
+
             canvas.drawLine(
                     leftPadding,
-                    canvas.getHeight() - bottomPadding - (i * lineSpace),
-                    canvas.getWidth(),
-                    canvas.getHeight() - bottomPadding - (i * lineSpace),
+                    canvas.getHeight() - (pos + bottomPadding),
+                    canvas.getWidth() - rightPadding,
+                    canvas.getHeight() - (pos + bottomPadding),
                     paint);
         }
     }
@@ -286,26 +303,14 @@ public abstract class AbstractLineGraph extends Graph {
         float usableWidth = getWidth() - leftPadding - rightPadding;
 
         int minSize = (int) convertToPx(50, DP);
-
-        // Find unique integers to display on the x axis
-        List<Integer> values = new LinkedList<Integer>();
-        int prevNum = Integer.MIN_VALUE;
-        int numbersToShow = (int) usableWidth / minSize + 1;
-        float step = (getMaxX() - getMinX()) / (numbersToShow - 1);
-        for (int i = 0; i < numbersToShow; i++) {
-            int num = (int) (getMinX() + i * step);
-            if (num != prevNum) {
-                values.add(num);
-            }
-            prevNum = num;
-        }
+        float width = getMaxX() - getMinX();
 
         // Draw the x axis
-        for (int i = 0; i < values.size(); i++) {
-            String num = values.get(i).toString();
+        for (Integer gridValue : xGridList) {
+            String num = gridValue.toString();
 
             // Find the proper position for the text
-            float pos = i * usableWidth / (values.size() - 1);
+            float pos = usableWidth * (gridValue / width);
             // Add padding for the y axis
             pos += leftPadding;
             // Center text
@@ -317,49 +322,26 @@ public abstract class AbstractLineGraph extends Graph {
     }
 
     private void drawYAxisValues(Canvas canvas, float topPadding, float bottomPadding, float leftPadding, float rightPadding) {
-        float usableHeight = getHeight() - bottomPadding - topPadding;
-        float usableWidth = getWidth() - leftPadding - rightPadding;
+        float usableHeight = canvas.getHeight() - bottomPadding - topPadding;
 
         int minSize = (int) convertToPx(50, DP);
-
-        // Rotate the canvas for the y axis
-        canvas.save();
-        canvas.rotate(-90, getWidth() / 2, getHeight() / 2);
-        canvas.translate(0, getHeight() / 2);
-        canvas.translate(0, -getWidth() / 2);
-        canvas.translate(-getHeight() / 2, 0);
-        canvas.translate(getWidth() / 2, 0);
-
-        // Find unique integers to display on the y axis
-        List<Integer> values = new LinkedList<Integer>();
-        int prevNum = Integer.MIN_VALUE;
-        int numbersToShow = (int) usableHeight / minSize + 1;
-        float step = (getMaxY() - getMinY()) / (numbersToShow - 1);
-        for (int i = 0; i < numbersToShow; i++) {
-            int num = (int) (getMinY() + i * step);
-            if (num != prevNum) {
-                values.add(num);
-            }
-            prevNum = num;
-        }
+        float height = getMaxY() - getMinY();
 
         // Draw the y axis
-        for (int i = 0; i < values.size(); i++) {
-            String num = values.get(i).toString();
+        for (Integer gridValue : yGridList) {
+            String num = gridValue.toString();
 
             // Find the proper position for the text
-            float pos = i * usableHeight / (values.size() - 1);
-            // Add padding for the x axis
-            pos += bottomPadding;
+            float posY = usableHeight * (gridValue / height);
+            posY = canvas.getHeight() - (posY + bottomPadding);
+
             // Center text
-            pos -= numPaint.measureText(num) / 2;
+            float posX = numPaint.getTextSize() - numPaint.measureText(num) / 2;
+            posY += numPaint.measureText(num) / 2;
 
             // Draw text
-            canvas.drawText(num, pos, numPaint.getTextSize(), numPaint);
+            canvas.drawText(num, posX, posY, numPaint);
         }
-
-        // Restore canvas upright
-        canvas.restore();
     }
 
     private void drawXAxisTitle(Canvas canvas, String xAxisTitle) {
@@ -379,7 +361,7 @@ public abstract class AbstractLineGraph extends Graph {
         drawSimpleLine(canvas, line, topPadding, bottomPadding, leftPadding, rightPadding);
         if (line.isShowingPoints()) {
             for (int i = 0; i < line.getSize(); i++) {
-                drawPoint(canvas, line.getPoint(i), topPadding, bottomPadding, leftPadding, rightPadding);
+                drawPoint(canvas, line.getPoint(i), line.getColor(), topPadding, bottomPadding, leftPadding, rightPadding);
             }
         }
     }
@@ -393,7 +375,7 @@ public abstract class AbstractLineGraph extends Graph {
 
         paint.reset();
         paint.setColor(line.getColor());
-        paint.setStrokeWidth(convertToPx(STROKE_WIDTH, DP));
+        paint.setStrokeWidth(convertToPx(GRAPH_STROKE_WIDTH, DP));
         paint.setAlpha(255);
         paint.setTextAlign(Paint.Align.CENTER);
 
@@ -415,29 +397,29 @@ public abstract class AbstractLineGraph extends Graph {
         }
     }
 
-    private void drawPoint(Canvas canvas, LinePoint point, float topPadding, float bottomPadding, float leftPadding, float rightPadding) {
+    private void drawPoint(Canvas canvas, LinePoint point, int color, float topPadding, float bottomPadding, float leftPadding, float rightPadding) {
         int pointCount = 0;
 
         paint.reset();
-        paint.setStrokeWidth(convertToPx(STROKE_WIDTH, DP));
+        paint.setStrokeWidth(convertToPx(GRAPH_STROKE_WIDTH, DP));
         paint.setStrokeCap(Paint.Cap.ROUND);
 
         float xPixels = convertToRealXFromVirtualX(point.getX(), canvas, leftPadding, rightPadding);
         float yPixels = convertToRealYFromVirtualY(point.getY(), canvas, topPadding, bottomPadding);
 
-        paint.setColor(Color.GRAY);
-        canvas.drawCircle(xPixels, yPixels, convertToPx(6, DP), paint);
+        paint.setColor(color);
+        canvas.drawCircle(xPixels, yPixels, convertToPx(POINT_DIAMETER, DP), paint);
         paint.setColor(Color.WHITE);
-        canvas.drawCircle(xPixels, yPixels, convertToPx(3, DP), paint);
+        canvas.drawCircle(xPixels, yPixels, convertToPx(POINT_DIAMETER / 2, DP), paint);
 
         Path path2 = new Path();
-        path2.addCircle(xPixels, yPixels, convertToPx(30, DP), Path.Direction.CW);
+        path2.addCircle(xPixels, yPixels, convertToPx(POINT_CLICK_DIAMETER, DP), Path.Direction.CW);
         point.setPath(path2);
         point.setRegion(new Region(
-                (int) (xPixels - convertToPx(30, DP)),
-                (int) (yPixels - convertToPx(30, DP)),
-                (int) (xPixels + convertToPx(30, DP)),
-                (int) (yPixels + convertToPx(30, DP))));
+                (int) (xPixels - convertToPx(POINT_CLICK_DIAMETER, DP)),
+                (int) (yPixels - convertToPx(POINT_CLICK_DIAMETER, DP)),
+                (int) (xPixels + convertToPx(POINT_CLICK_DIAMETER, DP)),
+                (int) (yPixels + convertToPx(POINT_CLICK_DIAMETER, DP))));
     }
 
     private float getGraphPaddingTop() {

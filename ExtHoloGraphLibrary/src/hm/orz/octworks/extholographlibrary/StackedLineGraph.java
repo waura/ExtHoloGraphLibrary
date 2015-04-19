@@ -45,7 +45,6 @@ public class StackedLineGraph extends AbstractLineGraph {
     private boolean isDomainSet = false;
     private int lineToFill = -1;
     private OnPointClickedListener listener;
-    private int gridColor = 0xffffffff;
     private boolean showHorizontalGrid = false;
 
     public StackedLineGraph(Context context) {
@@ -54,10 +53,6 @@ public class StackedLineGraph extends AbstractLineGraph {
 
     public StackedLineGraph(Context context, AttributeSet attrs) {
         super(context, attrs);
-    }
-
-    public void setGridColor(int color) {
-        gridColor = color;
     }
 
     public void showHorizontalGrid(boolean show) {

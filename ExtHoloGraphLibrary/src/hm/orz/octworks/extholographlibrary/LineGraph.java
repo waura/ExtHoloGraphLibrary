@@ -28,22 +28,17 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.graphics.Point;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
-import android.graphics.Rect;
 import android.util.AttributeSet;
-import android.view.MotionEvent;
-
-import java.util.ArrayList;
 
 public class LineGraph extends AbstractLineGraph {
 
     private Paint paint = new Paint();
     private float minY = 0, minX = 0;
     private float maxY = 0, maxX = 0;
-    private boolean isRangeSet = false;
-    private boolean isDomainSet = false;
+    private boolean isRangeYSet = false;
+    private boolean isRangeXSet = false;
     private int lineToFill = -1;
 
 
@@ -67,17 +62,17 @@ public class LineGraph extends AbstractLineGraph {
     public void setRangeY(float min, float max) {
         minY = min;
         maxY = max;
-        isRangeSet = true;
+        isRangeYSet = true;
     }
 
-    public void setDomain(float min, float max) {
+    public void setRangeX(float min, float max) {
         minX = min;
         maxX = max;
-        isDomainSet = true;
+        isRangeXSet = true;
     }
 
     public float getMaxY() {
-        if (isRangeSet) return maxY;
+        if (isRangeYSet) return maxY;
 
         for (Line line : getLines()) {
             for (LinePoint point : line.getPoints()) {
@@ -95,7 +90,7 @@ public class LineGraph extends AbstractLineGraph {
     }
 
     public float getMinY() {
-        if (isRangeSet) return minY;
+        if (isRangeYSet) return minY;
 
         for (Line line : getLines()) {
             for (LinePoint point : line.getPoints()) {
@@ -112,7 +107,7 @@ public class LineGraph extends AbstractLineGraph {
     }
 
     public float getMaxX() {
-        if (isDomainSet) return maxX;
+        if (isRangeXSet) return maxX;
 
         for (Line line : getLines()) {
             for (LinePoint point : line.getPoints()) {
@@ -130,7 +125,7 @@ public class LineGraph extends AbstractLineGraph {
     }
 
     public float getMinX() {
-        if (isDomainSet) return minX;
+        if (isRangeXSet) return minX;
 
         for (Line line : getLines()) {
             for (LinePoint point : line.getPoints()) {

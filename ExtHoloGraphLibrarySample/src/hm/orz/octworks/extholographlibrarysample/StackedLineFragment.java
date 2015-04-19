@@ -30,6 +30,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.ArrayList;
+
 import hm.orz.octworks.extholographlibrary.StackedLine;
 import hm.orz.octworks.extholographlibrary.StackedLineGraph;
 import hm.orz.octworks.extholographlibrary.StackedLinePoint;
@@ -66,6 +68,12 @@ public class StackedLineFragment extends Fragment {
         li.setLineToFill(0);
         li.showXAxisValues(true);
         li.showYAxisValues(true);
+
+        ArrayList<Integer> gridList = new ArrayList<Integer>();
+        gridList.add(1);
+        gridList.add(9);
+        li.setYGrid(gridList);
+        li.setGridColor(Color.parseColor("#111111"));
 
         li.setOnPointClickedListener(new StackedLineGraph.OnPointClickedListener() {
             @Override
