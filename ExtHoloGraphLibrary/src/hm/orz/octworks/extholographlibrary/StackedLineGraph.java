@@ -25,11 +25,8 @@ package hm.orz.octworks.extholographlibrary;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Paint.Align;
 import android.graphics.Path;
-import android.graphics.Path.Direction;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.Region;
@@ -41,21 +38,15 @@ import java.util.ArrayList;
 public class StackedLineGraph extends AbstractLineGraph {
 
     private StackedLine drawLine = null;
-    ArrayList<Line> drawStackedLines = new ArrayList<Line>();
     private Paint paint = new Paint();
     private float minY = 0, minX = 0;
     private float maxY = 0, maxX = 0;
     private boolean isRangeSet = false;
     private boolean isDomainSet = false;
     private int lineToFill = -1;
-    private int indexSelected = -1;
     private OnPointClickedListener listener;
     private int gridColor = 0xffffffff;
     private boolean showHorizontalGrid = false;
-
-    public interface OnPointClickedListener {
-        abstract void onClick(int lineIndex, int pointIndex);
-    }
 
     public StackedLineGraph(Context context) {
         this(context, null);
@@ -75,11 +66,15 @@ public class StackedLineGraph extends AbstractLineGraph {
 
     public void removeAllLines() {
         drawLine = null;
+        super.removeAllLines();
         update();
     }
 
     public void setLine(StackedLine line) {
         drawLine = line;
+        for (Line l : createDrawStackedLineGraph(drawLine)) {
+            addLine(l);
+        }
         update();
     }
 
@@ -147,75 +142,11 @@ public class StackedLineGraph extends AbstractLineGraph {
         return minX;
     }
 
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        Point point = new Point();
-        point.x = (int) event.getX();
-        point.y = (int) event.getY();
-
-        int count = 0;
-        int lineCount = 0;
-        int pointCount;
-
-        Region r = new Region();
-        for (int i = 0; i < drawStackedLines.size(); i++) {
-            Line line = drawStackedLines.get(i);
-
-                pointCount = 0;
-                for (LinePoint p : line.getPoints()) {
-                    if (p.isOnPoint(point.x, point.y)) {
-                        if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                            indexSelected = count;
-                        } else if (event.getAction() == MotionEvent.ACTION_UP) {
-                            if (listener != null) {
-                                listener.onClick(lineCount, pointCount);
-                            }
-                            indexSelected = -1;
-                        }
-                    }
-
-                    pointCount++;
-                    count++;
-                }
-                lineCount++;
-        }
-
-        if (event.getAction() == MotionEvent.ACTION_DOWN || event.getAction() == MotionEvent.ACTION_UP) {
-            update();
-        }
-
-        return true;
+    protected void onPreDrawGraph(Canvas canvas, float topPadding, float bottomPadding, float leftPadding, float rightPadding) {
+        drawStackedLineGraphArea(canvas, topPadding, bottomPadding, leftPadding, rightPadding);
     }
 
-    public void setOnPointClickedListener(OnPointClickedListener listener) {
-        this.listener = listener;
-    }
-
-
-    protected void drawGraphArea(Canvas ca) {
-        float topPadding = 0, bottomPadding = 0;
-        float leftPadding = convertToPx(6, DP), rightPadding = convertToPx(6, DP);
-        float usableHeight = ca.getHeight() - bottomPadding - topPadding;
-        float usableWidth = ca.getWidth() - leftPadding - rightPadding;
-
-        paint.reset();
-
-        drawStackedLines = createDrawStackedLineGraph(drawLine);
-
-        if (this.showHorizontalGrid) {
-            drawHorizontalGrid(ca, topPadding, bottomPadding, leftPadding, rightPadding);
-        }
-
-        drawStackedLineGraphArea(ca, topPadding, bottomPadding, leftPadding, rightPadding, drawStackedLines);
-
-        Rect drawRange = new Rect(
-                (int) leftPadding,
-                (int) topPadding,
-                (int) (leftPadding + usableWidth),
-                (int) (topPadding + usableHeight));
-        for (int i = 0; i < drawStackedLines.size(); i++) {
-            drawLine(ca, drawRange, drawStackedLines.get(i));
-        }
+    protected void onPostDrawGraph(Canvas canvas, float topPadding, float bottomPadding, float leftPadding, float rightPadding) {
     }
 
     private ArrayList<Line> createDrawStackedLineGraph(StackedLine stackedLine) {
@@ -251,40 +182,20 @@ public class StackedLineGraph extends AbstractLineGraph {
         return drawStackedLines;
     }
 
-    private void drawHorizontalGrid(Canvas canvas,
-                                    float topPadding,
-                                    float bottomPadding,
-                                    float leftPadding,
-                                    float rightPadding) {
-        float lineSpace = (canvas.getHeight() - bottomPadding - topPadding) / 10;
 
-        paint.setColor(this.gridColor);
-        paint.setAlpha(50);
-        paint.setAntiAlias(true);
-        canvas.drawLine(leftPadding, canvas.getHeight() - bottomPadding, canvas.getWidth(), canvas.getHeight() - bottomPadding, paint);
-
-        for (int i = 1; i <= 10; i++) {
-            canvas.drawLine(
-                    leftPadding,
-                    canvas.getHeight() - bottomPadding - (i * lineSpace),
-                    canvas.getWidth(),
-                    canvas.getHeight() - bottomPadding - (i * lineSpace),
-                    paint);
-        }
-    }
 
     private void drawStackedLineGraphArea(
             Canvas canvas,
             float topPadding,
             float bottomPadding,
             float leftPadding,
-            float rightPadding,
-            ArrayList<Line> drawStackedLines) {
+            float rightPadding) {
 
-        if (drawStackedLines.size() <= 0) {
+        if (getLines().size() <= 0) {
             return;
         }
 
+        paint.reset();
         paint.setStyle(Paint.Style.FILL_AND_STROKE);
         paint.setAlpha(100);
 
@@ -293,7 +204,7 @@ public class StackedLineGraph extends AbstractLineGraph {
         Line nowLine = null;
         Line lastLine = null;
 
-        nowLine = drawStackedLines.get(0);
+        nowLine = getLines().get(0);
         if (nowLine.getSize() > 0) {
             paint.setColor(nowLine.getColor());
             paint.setAlpha(100);
@@ -316,10 +227,10 @@ public class StackedLineGraph extends AbstractLineGraph {
         }
         lastLine = nowLine;
 
-        for (int i = 1; i < drawStackedLines.size(); i++) {
+        for (int i = 1; i < getLines().size(); i++) {
             path.reset();
 
-            nowLine = drawStackedLines.get(i);
+            nowLine = getLines().get(i);
             if (nowLine.getSize() > 0) {
                 paint.setColor(nowLine.getColor());
                 paint.setAlpha(100);
@@ -343,17 +254,5 @@ public class StackedLineGraph extends AbstractLineGraph {
             }
             lastLine = nowLine;
         }
-    }
-
-    private float convertToRealXFromVirtualX(float virtualX, Canvas canvas, float leftPadding, float rightPadding) {
-        float usableWidth = canvas.getWidth() - leftPadding - rightPadding;
-        float xPercent = (virtualX - getMinX()) / (getMaxX() - getMinX());
-        return (leftPadding + (xPercent * usableWidth));
-    }
-
-    private float convertToRealYFromVirtualY(float virtualY, Canvas canvas, float topPadding, float bottomPadding) {
-        float usableHeight = canvas.getHeight() - topPadding - bottomPadding;
-        float yPercent = (virtualY - getMinY()) / (getMaxY() - getMinY());
-        return (canvas.getHeight() - bottomPadding - (usableHeight * yPercent));
     }
 }

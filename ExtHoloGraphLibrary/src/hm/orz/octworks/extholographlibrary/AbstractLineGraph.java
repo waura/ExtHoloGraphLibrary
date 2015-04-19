@@ -7,17 +7,24 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.Region;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
 public abstract class AbstractLineGraph extends Graph {
 
-    private int STROKE_WIDTH = 6;
-    private int POINT_DIAMETER = 30;
+    private static final int UNSELECTED = -1;
+
+    private static final int STROKE_WIDTH = 6;
+    private static final int POINT_DIAMETER = 30;
+
+    private ArrayList<Line> lines = new ArrayList<Line>();
 
     private Paint paint = new Paint();
     private Paint txtPaint = new Paint();
@@ -27,10 +34,21 @@ public abstract class AbstractLineGraph extends Graph {
 
     private boolean shouldUpdate = false;
 
+    private int selectedLineIndex = UNSELECTED;
+    private int selectedPointIndex = UNSELECTED;
+
     private String xAxisTitle = null;
     private String yAxisTitle = null;
     private boolean showYAxisValues = true;
     private boolean showXAxisValues = true;
+
+    private int gridColor = 0xffffffff;
+
+    private OnPointClickedListener listener;
+
+    public interface OnPointClickedListener {
+        abstract void onClick(int lineIndex, int pointIndex);
+    }
 
     public AbstractLineGraph(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -77,6 +95,79 @@ public abstract class AbstractLineGraph extends Graph {
         xAxisTitle = title;
     }
 
+    public void setGridColor(int color) {
+        gridColor = color;
+    }
+
+    public void removeAllLines() {
+        while (lines.size() > 0) {
+            lines.remove(0);
+        }
+        update();
+    }
+
+    public void addLine(Line line) {
+        lines.add(line);
+        update();
+    }
+
+    public ArrayList<Line> getLines() {
+        return lines;
+    }
+
+    public void setLines(ArrayList<Line> lines) {
+        this.lines = lines;
+    }
+
+    public Line getLine(int index) {
+        return lines.get(index);
+    }
+
+    public int getSize() {
+        return lines.size();
+    }
+
+    public void setOnPointClickedListener(OnPointClickedListener listener) {
+        this.listener = listener;
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        Point point = new Point();
+        point.x = (int) event.getX();
+        point.y = (int) event.getY();
+
+        int lineCount = 0;
+        int pointCount;
+
+        for (Line line : lines) {
+            pointCount = 0;
+            for (LinePoint p : line.getPoints()) {
+                if (p.isOnPoint(point.x, point.y)) {
+                    if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                        selectedLineIndex = lineCount;
+                        selectedPointIndex = pointCount;
+                    } else if (event.getAction() == MotionEvent.ACTION_UP) {
+                        if (listener != null) {
+                            listener.onClick(lineCount, pointCount);
+                        }
+
+                        selectedLineIndex = UNSELECTED;
+                        selectedPointIndex = UNSELECTED;
+                    }
+                }
+                pointCount++;
+            }
+            lineCount++;
+        }
+
+        if (event.getAction() == MotionEvent.ACTION_DOWN || event.getAction() == MotionEvent.ACTION_UP) {
+            update();
+        }
+
+        return true;
+    }
+
     public void onDraw(Canvas ca) {
         if (fullImage == null || shouldUpdate) {
             fullImage = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
@@ -90,11 +181,7 @@ public abstract class AbstractLineGraph extends Graph {
                 bottomPadding = numPaint.getTextSize() * 2f;
             }
 
-            float usableHeight = getHeight() - bottomPadding - topPadding;
-            float usableWidth = getWidth() - leftPadding - rightPadding;
-            Bitmap graphAreaImage = Bitmap.createBitmap((int)usableWidth, (int)usableHeight, Bitmap.Config.ARGB_8888);
-            Canvas graphAreaCanvas = new Canvas(graphAreaImage);
-            drawGraphArea(graphAreaCanvas);
+            onPreDrawGraph(canvas, topPadding, bottomPadding, leftPadding, rightPadding);
 
             if (showXAxisValues) {
                 drawXAxisValues(canvas, topPadding, bottomPadding, leftPadding, rightPadding);
@@ -104,7 +191,23 @@ public abstract class AbstractLineGraph extends Graph {
                 drawYAxisValues(canvas, topPadding, bottomPadding, leftPadding, rightPadding);
             }
 
-            canvas.drawBitmap(graphAreaImage, leftPadding, topPadding, null);
+            for (Line line : lines) {
+                drawLine(canvas, line, topPadding, bottomPadding, leftPadding, rightPadding);
+            }
+
+            // draw select marker
+            {
+                if (selectedLineIndex != UNSELECTED) {
+                    Line selectedLine = lines.get(selectedLineIndex);
+                    if (selectedLine != null) {
+                        LinePoint selectedPoint = selectedLine.getPoint(selectedPointIndex);
+                        drawPointSelectedMark(ca, selectedPoint);
+                    }
+                }
+            }
+
+            onPostDrawGraph(canvas, topPadding, bottomPadding, leftPadding, rightPadding);
+
             shouldUpdate = false;
         }
 
@@ -123,14 +226,59 @@ public abstract class AbstractLineGraph extends Graph {
         ca.drawBitmap(fullImage, m, null);
     }
 
-    protected abstract void drawGraphArea(Canvas ca);
+    protected abstract void onPreDrawGraph(Canvas canvas,
+                                           float topPadding,
+                                           float bottomPadding,
+                                           float leftPadding,
+                                           float rightPadding);
 
-    protected void drawLine(Canvas canvas, Rect drawRange, Line line) {
-        drawSimpleLine(canvas, drawRange, line);
-        if (line.isShowingPoints()) {
-            for (int i = 0; i < line.getSize(); i++) {
-                drawPoint(canvas, drawRange, line.getPoint(i));
-            }
+    protected abstract void onPostDrawGraph(Canvas canvas,
+                                            float topPadding,
+                                            float bottomPadding,
+                                            float leftPadding,
+                                            float rightPadding);
+
+    protected float convertToRealXFromVirtualX(float virtualX, Canvas canvas, float leftPadding, float rightPadding) {
+        float usableWidth = canvas.getWidth() - leftPadding - rightPadding;
+        float xPercent = (virtualX - getMinX()) / (getMaxX() - getMinX());
+        return (leftPadding + (xPercent * usableWidth));
+    }
+
+    protected float convertToRealYFromVirtualY(float virtualY, Canvas canvas, float topPadding, float bottomPadding) {
+        float usableHeight = canvas.getHeight() - topPadding - bottomPadding;
+        float yPercent = (virtualY - getMinY()) / (getMaxY() - getMinY());
+        return (canvas.getHeight() - bottomPadding - (usableHeight * yPercent));
+    }
+
+    private void drawPointSelectedMark(Canvas canvas, LinePoint point) {
+        paint.setStrokeWidth(convertToPx(6, DP));
+        paint.setStrokeCap(Paint.Cap.ROUND);
+
+        paint.setColor(Color.parseColor("#33B5E5"));
+        paint.setAlpha(100);
+        canvas.drawPath(point.getPath(), paint);
+        paint.setAlpha(255);
+    }
+
+    private void drawHorizontalGrid(Canvas canvas,
+                                    float topPadding,
+                                    float bottomPadding,
+                                    float leftPadding,
+                                    float rightPadding) {
+        float lineSpace = (canvas.getHeight() - bottomPadding - topPadding) / 10;
+
+        paint.setColor(this.gridColor);
+        paint.setAlpha(50);
+        paint.setAntiAlias(true);
+        canvas.drawLine(leftPadding, canvas.getHeight() - bottomPadding, canvas.getWidth(), canvas.getHeight() - bottomPadding, paint);
+
+        for (int i = 1; i <= 10; i++) {
+            canvas.drawLine(
+                    leftPadding,
+                    canvas.getHeight() - bottomPadding - (i * lineSpace),
+                    canvas.getWidth(),
+                    canvas.getHeight() - bottomPadding - (i * lineSpace),
+                    paint);
         }
     }
 
@@ -227,7 +375,16 @@ public abstract class AbstractLineGraph extends Graph {
         canvas.restore();
     }
 
-    private void drawSimpleLine(Canvas canvas, Rect drawRange, Line line) {
+    protected void drawLine(Canvas canvas, Line line, float topPadding, float bottomPadding, float leftPadding, float rightPadding) {
+        drawSimpleLine(canvas, line, topPadding, bottomPadding, leftPadding, rightPadding);
+        if (line.isShowingPoints()) {
+            for (int i = 0; i < line.getSize(); i++) {
+                drawPoint(canvas, line.getPoint(i), topPadding, bottomPadding, leftPadding, rightPadding);
+            }
+        }
+    }
+
+    private void drawSimpleLine(Canvas canvas, Line line, float topPadding, float bottomPadding, float leftPadding, float rightPadding) {
         if (line.getSize() <= 1) {
             return;
         }
@@ -248,25 +405,25 @@ public abstract class AbstractLineGraph extends Graph {
             newPoint = line.getPoint(i);
 
             canvas.drawLine(
-                    convertToPixelXFromVirtualX(canvas, drawRange, lastPoint.getX()),
-                    convertToPixelYFromVirtualY(canvas, drawRange, lastPoint.getY()),
-                    convertToPixelXFromVirtualX(canvas, drawRange, newPoint.getX()),
-                    convertToPixelYFromVirtualY(canvas, drawRange, newPoint.getY()),
+                    convertToRealXFromVirtualX(lastPoint.getX(), canvas, leftPadding, rightPadding),
+                    convertToRealYFromVirtualY(lastPoint.getY(), canvas, topPadding, bottomPadding),
+                    convertToRealXFromVirtualX(newPoint.getX(), canvas, leftPadding, rightPadding),
+                    convertToRealYFromVirtualY(newPoint.getY(), canvas, topPadding, bottomPadding),
                     paint);
 
             lastPoint = newPoint;
         }
     }
 
-    private void drawPoint(Canvas canvas, Rect drawRange, LinePoint point) {
+    private void drawPoint(Canvas canvas, LinePoint point, float topPadding, float bottomPadding, float leftPadding, float rightPadding) {
         int pointCount = 0;
 
         paint.reset();
         paint.setStrokeWidth(convertToPx(STROKE_WIDTH, DP));
         paint.setStrokeCap(Paint.Cap.ROUND);
 
-        float xPixels = convertToPixelXFromVirtualX(canvas, drawRange, point.getX());
-        float yPixels = convertToPixelYFromVirtualY(canvas, drawRange, point.getY());
+        float xPixels = convertToRealXFromVirtualX(point.getX(), canvas, leftPadding, rightPadding);
+        float yPixels = convertToRealYFromVirtualY(point.getY(), canvas, topPadding, bottomPadding);
 
         paint.setColor(Color.GRAY);
         canvas.drawCircle(xPixels, yPixels, convertToPx(6, DP), paint);
@@ -303,23 +460,12 @@ public abstract class AbstractLineGraph extends Graph {
         }
         return 0.0f;
     }
+
     private float getGraphPaddingRight() {
         if (showXAxisValues || showYAxisValues) {
             return numPaint.measureText(getMaxX() + "") / 2;
         }
         return 0.0f;
-    }
-
-    private float convertToPixelXFromVirtualX(Canvas graphCanvas, Rect drawRange, float virtualX) {
-        float usableWidth = drawRange.right - drawRange.left;
-        float xPercent = (virtualX - getMinX()) / (getMaxX() - getMinX());
-        return (drawRange.left + (xPercent * usableWidth));
-    }
-
-    private float convertToPixelYFromVirtualY(Canvas graphCanvas, Rect drawRange, float virtualY) {
-        float usableHeight = drawRange.bottom - drawRange.top;
-        float yPercent = (virtualY - getMinY()) / (getMaxY() - getMinY());
-        return (drawRange.top + (usableHeight * (1.0f - yPercent)));
     }
 
 }
